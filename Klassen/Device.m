@@ -26,6 +26,10 @@ classdef Device
 	%    Eigenschaften (Properties der Klasse):
 	%	     'Phase_Index'
 	%            Index der Phase, an der das Gerät angeschlossen ist
+	%		 'Phase_Power_Distribution_Factor'
+	%            gibt an, wie sich die Leistung auf die einzelnen Phasen
+	%            aufteilt. Bei einphasigen Geräten ist der Faktor gleich 1, bei
+	%            dreiphasigen 1/3.
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -43,13 +47,17 @@ classdef Device
 	%            darstellt.
 	
 	% Erstellt von:            Franz Zeilinger - 21.09.2011
-	% Letzte Änderung durch:   Franz Zeilinger - 11.03.2013
+	% Letzte Änderung durch:   Franz Zeilinger - 19.08.2016
 	
 	properties
 		Phase_Index
 		%            Index der Phase, an der das Gerät angeschlossen ist
 		Three_Phase_Device = false
-		%            handelt es sich um ein dreiphasiges Gerät? 
+		%            handelt es sich um ein dreiphasiges Gerät?
+		Phase_Power_Distribution_Factor = 1
+		%            gibt an, wie sich die Leistung auf die einzelnen Phasen
+		%            aufteilt. Bei einphasigen Geräten ist der Faktor gleich 1, bei
+		%            dreiphasigen 1/3.
 		Power_Nominal
 		%            Anschlussleistung des Geräts
 		Cos_Phi_Nominal = 1
@@ -73,10 +81,6 @@ classdef Device
 		%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 		%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
 		%            werden. Daher sollte immer ACTIVITY = 1 sein!)
-		Phase_Power_Distribution_Factor = 1
-		%            gibt an, wie sich die Leistung auf die einzelnen Phasen
-		%            aufteilt. Bei einphasigen Geräten ist der Faktor gleich 1, bei
-		%            dreiphasigen 1/3.
 		Operating
 		%            gibt an, ob das Gerät gerade aktiv ist (d.h. eingeschaltet).
 		DSM

@@ -82,8 +82,8 @@ for i = 1:numel(slow_computing_devs)
 			% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 			% berechnet wird!
 			dev = dev.next_step(time, 0);
-			btw_result(j,1:3,step) = dev.Power_Input;
-			btw_result(j,4:6,step) = dev.Power_Input_Reactive;
+			btw_result(j,1:3,step) = dev.Power_Input * dev.Phase_Power_Distribution_Factor;
+			btw_result(j,4:6,step) = dev.Power_Input_Reactive * dev.Phase_Power_Distribution_Factor;
 		end
 		Devices.(slow_computing_devs{i})(j) = dev;
 	end
@@ -123,9 +123,9 @@ parfor i = 1:numel(fast_computing_devs)
 		% punkte werden dann mit den jeweiligen Betriebswerten überschrieben
 		% (--> wenn Gerät nicht in Betrieb dann in Stand-by, im Fall, dass es
 		% keinen Stand-by-Verbrauch gibt, ist dieser Null und bleibt null...)
-		btw_result(dev.Phase_Index,j,:) = dev.Power_Stand_by;
+		btw_result(dev.Phase_Index,j,:) = dev.Power_Stand_by * dev.Phase_Power_Distribution_Factor;
 		btw_result(dev.Phase_Index + 3,j,:) = dev.Power_Stand_by * ...
-			tan(acos(dev.Cos_Phi_Stand_by));
+			tan(acos(dev.Cos_Phi_Stand_by)) * dev.Phase_Power_Distribution_Factor;
 		% Nun die einzelnen Eintragungen im Einsatzplan durchgehen und
 		% entsprechend die Leistungen eintragen:
 		for step = 1:size(dev.Time_Schedule,1)
@@ -134,11 +134,11 @@ parfor i = 1:numel(fast_computing_devs)
 				time_vec < dev.Time_Schedule(step,2);
 			% Zu diesen Zeitpunkten aktuelle Leistungsaufnahme entsprechend
 			% dem Einsatzplan sezten
-			btw_result(dev.Phase_Index,j,idx) = dev.Time_Schedule(step,3);
+			btw_result(dev.Phase_Index,j,idx) = dev.Time_Schedule(step,3) * dev.Phase_Power_Distribution_Factor;
 			% Mit Hilfe des aktuell gültigen cos(phi) die Blindleistungs-
 			% aufnahme ermitteln und entsprechend sezten:
 			btw_result(dev.Phase_Index + 3,j,idx) = ...
-				dev.Time_Schedule(step,3)*tan(acos(dev.Time_Schedule(step,4)));
+				dev.Time_Schedule(step,3)*tan(acos(dev.Time_Schedule(step,4))) * dev.Phase_Power_Distribution_Factor;
 		end
 	end
 	% Das Zwischenergebnis in das Ergebnis-Cell-Array speichern:
@@ -167,7 +167,7 @@ for i = 1:numel(slow_computing_devs)
 			% Nächsten Zeitschritt des Gerätes berechnen:
 			dev = dev.next_step(time, base);
 			% aktuelle Leistungsaufnahme in Zwischenergebnis-Array speichern:
-			btw_result(j,:,step) = [dev.Power_Input; dev.Power_Input_Reactive];
+			btw_result(j,:,step) = [dev.Power_Input; dev.Power_Input_Reactive] * dev.Phase_Power_Distribution_Factor;
 			% die Änderungen in der Geräteinstanz in das DEVICES-Array
 			% zurückschreiben:
 			device(j) = dev;

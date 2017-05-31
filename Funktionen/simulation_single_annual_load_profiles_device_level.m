@@ -1,9 +1,9 @@
-function simulation_single_annual_load_profiles (hObject, handles)
+function simulation_single_annual_load_profiles_device_level (hObject, handles)
 % SIMULATION_SINGLE_CYCLE_FOR_DEVICE_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
 % Erstellt von:            Franz Zeilinger - 16.01.2015
-% Letzte Änderung durch:   Franz Zeilinger - 05.02.2015
+% Letzte Änderung durch:   Franz Zeilinger - 19.08.2016
 
 % debug: Zufallszahlengenerator definiert setzen:
 % rng(27,'v5uniform');
@@ -28,18 +28,18 @@ Model.Households = {...
 	% 	'fami_2v', 3, 6, 'Familie, 2 Mitglieder Vollzeit', 2;...
 	% 	'fami_1v', 3, 6, 'Familie, 1 Mitglied Vollzeit'  , 2;...
 	%--- HAUSHALTE FÜR aDSM ---
-	'home_1',  1, 1, 'Haus - 1 Bewohner'             , 41;...
-	'home_2',  2, 2, 'Haus - 2 Bewohner'             , 53;...
-	'home_3',  3, 3, 'Haus - 3 Bewohner'             , 38;...
-	'hom_4p',  4, 6, 'Haus - 4 und mehr Bewohner'    , 59;...
-	'flat_1',  1, 1, 'Wohnung - 1 Bewohner'          , 92;...
-	'flat_2',  2, 2, 'Wohnung - 2 Bewohner'          , 59;...
-	'flat_3',  3, 3, 'Wohnung - 3 Bewohner'          , 26;...
-	'fla_4p',  4, 6, 'Wohnung - 4 und mehr Bewohner' , 27;...
+	'home_1',  1, 1, 'Haus - 1 Bewohner'             , 20;...%, 41;...%, 41;...
+	'home_2',  2, 2, 'Haus - 2 Bewohner'             , 27;...%, 53;...%, 53;...
+	'home_3',  3, 3, 'Haus - 3 Bewohner'             , 19;...%, 38;...%, 38;...
+	'hom_4p',  4, 6, 'Haus - 4 und mehr Bewohner'    , 29;...%, 59;...%, 59;...
+	'flat_1',  1, 1, 'Wohnung - 1 Bewohner'          , 46;...%, 92;...%, 92;...
+	'flat_2',  2, 2, 'Wohnung - 2 Bewohner'          , 29;...%, 59;...%, 59;...
+	'flat_3',  3, 3, 'Wohnung - 3 Bewohner'          , 13;...%, 26;...%, 26;...
+	'fla_4p',  4, 6, 'Wohnung - 4 und mehr Bewohner' , 14;...%, 27;...%, 27;...
 	};
 
 % Wieviele Durchläufe sollen gemacht werden?
-Model.Number_Runs = 20;
+Model.Number_Runs = 2;
 
 % Auflösung der Simulation: 'sec' = Sekundentakt
 %                           '5se' = 5-Sekunden-Takt
@@ -53,7 +53,7 @@ Model.Sim_Resolution = '10s';
 
 % Welches Jahr soll simuliert werden?
 Model.Series_Date_Start = '01.01.2017';
-Model.Series_Date_End =   '31.01.2017';
+Model.Series_Date_End =   '01.01.2018';
 
 % Über welchen Zeitraum (in Tagen) sollen die Jahreszeiten "verschliffen" werden?
 Model.Seasons_Overlap = 14;
@@ -98,8 +98,10 @@ button = ...
 	questdlg({['Soll ein bereits erstelltes Modell für die weiteren Simulationen ',...
 	'verwendet werden?'];'';...
 	['ACHTUNG! Es werden sämtliche Einstellungen aus den gespeicherten Modellen ',...
-	'übernommen, ausgenommen Start- und Enddatum und zeitliche Auflösung!']},...
-	'Model wiederverwernden?','Ja','Nein','Abbrechen','Nein');
+	'übernommen, ausgenommen Start- und Enddatum und zeitliche Auflösung!'];'';...
+	['HINWEIS: Es wird ein kompletter Ordner durchsucht! Bitte sicherstellen, dass nur ', ...
+	'das gewünschte Modell darin enthalten ist!']},...
+	'Model wiederverwenden?','Ja','Nein','Abbrechen','Nein');
 switch button
 	case 'Ja'
 		Model.Reuse = 1;
@@ -164,6 +166,9 @@ if Model.Reuse
 end
 
 % Mehrere Durchläufe hintereinander:
+
+% % Zusammenfassung erstellen:
+% Summary = [];
 for a = 1:Model.Number_Runs
 	if a > 1
 		str = '-=-=-=-=-=-=-=-=-=-=-=-';
@@ -379,7 +384,7 @@ for a = 1:Model.Number_Runs
 	refresh_status_text(hObject,str);
 	fprintf(['\n\n\t',str,]);
 	
-	% alle gefordeten Tabe abarbeiten:
+	% alle gefordeten Tage abarbeiten:
 	for c = 1:numel(Time.Days_Year)
 		
 		% Dateiinfos laden:
@@ -545,37 +550,68 @@ for a = 1:Model.Number_Runs
 			refresh_status_text(hObject,[sim_str,str]);
 			fprintf(['\n\t\t',str]);
 			
+			% Auslesen der Zuordnung der Geräte zu den Haushalten:
 			hh_devices = Households.Devices.(typ).Allocation;
+			dev_names = Devices.Elements_Varna;
 			% Array erstellen mit den Leistungsdaten der Haushalte:
-			% - 1. Dimension: Phasen 1 bis 3
-			% - 2. Dimension: einzelne Haushalte
-			% - 3. Dimension: Zeitpunkte
-			power_hh = zeros(6,size(hh_devices,2),Time.Number_Steps);
+			Households.Result.(typ) = cell(size(hh_devices,2),7);
 			% Für jeden Haushalt
-			for l=1:size(hh_devices,2)
-				% ermitteln der Indizes aller Geräte dieses Haushalts:
-				idx = squeeze(hh_devices(:,l,:));
+			for m=1:size(hh_devices,2)
+				% Indizes der einzelnen Geräte des aktuellen Haushalts:
+				idx = squeeze(hh_devices(:,m,:));
+				% wieviele einzelne Geräte hat dieser Haushalt?:
+				num_dev = sum(sum(idx>0));
+				% Ein Ergebnisarray erstellen:
+				dev_hh_power = zeros(num_dev,3,Time.Number_Steps);
+				dev_hh_names =cell(num_dev,1);
+				dev_hh_devices =cell(num_dev,1);
+				dev_counter = 1;
 				% Für jede Geräteart:
-				for m=1:size(idx,1)
-					% die Indizes der aktuellen Gerätegruppe auslesen, alle Indizes mit den
-					% Wert "0" entfernen:
-					dev_idx = idx(m,:);
-					dev_idx(dev_idx == 0) = [];
-					% überprüfen, ob überhaupt Geräte dieses Typs verwendet werden:
-					if ~isempty(dev_idx)
-						% Falls ja, die Leistungsdaten dieser Geräte auslesen und zur
-						% Gesamt-Haushaltsleistung addieren:
-						power_hh(:,l,:) = squeeze(power_hh(:,l,:)) + ...
-							squeeze(sum(Result(m,:,dev_idx,:),3));
+				for n=1:size(idx,1)
+					% die Indizes der aktuellen Gerätegruppe auslesen, alle
+					% Indizes mit den Wert "0" entfernen:
+					dev_idxs = idx(n,:);
+					dev_idxs(dev_idxs == 0) = [];
+					for o=1:numel(dev_idxs)
+						dev_idx = dev_idxs(o);
+						dev_hh_power(dev_counter,:,:) = ...
+							squeeze(Result(n,1:3,dev_idx,:));
+						dev = Devices.(dev_names{n})(dev_idx);
+						dev_hh_devices{dev_counter} = dev;
+						dev_hh_names{dev_counter} = dev_names{n};
+						dev_counter = dev_counter + 1;
 					end
 				end
+				Households.Result.(typ){m,1} = dev_hh_names;
+				Households.Result.(typ){m,2} = dev_hh_devices;
+				Households.Result.(typ){m,3} = dev_hh_power;
+				Households.Result.(typ){m,6} = squeeze(sum(dev_hh_power));
 			end
 			clear Result;
-			Households.Result.(typ) = power_hh;
+			
+			% Simulationszeit speichern:
+			Result.Sim_date = Sim_date;
+			
+			% Allgemeine Nachbehandlung:
+			Households = ...
+				postprocess_results_for_annual_profiles_device_level (Households,...
+			Devices, Model, Time);
 			
 			str = '--> abgeschlossen!';
 			refresh_status_text(hObject,str,'Add');
 			fprintf(['\n\t\t\t',str]);
+			
+% 			% Zusammenfassung erstellen bzw. aktualisieren:
+% 			str = 'Aktualisieren der Zusammenfassung...';
+% 			refresh_status_text(hObject,[sim_str,str]);
+% 			fprintf(['\n\n\t\t',str]);
+% 			
+% 			Summary = update_summary_for_device_profiles(Model, Devices, ...
+% 				Households, Summary, season, wkd);
+% 			
+% 			str = '--> erledigt!';
+% 			refresh_status_text(hObject,str,'Add');
+% 			fprintf(['\n\t\t\t',str]);
 			
 			% Daten zurück in handles-Struktur speichern:
 			handles.Model =         Model;
@@ -585,6 +621,16 @@ for a = 1:Model.Number_Runs
 			% Fehlern erhalten bleiben!)
 			guidata(hObject, handles);
 		end
+		
+% 		% Anzahl an Tagen in der Zusammenfassung aktualisieren:
+% 		if isfield(Summary, season) && ...
+% 				isfield(Summary.(season), wkd) && ...
+% 				isfield(Summary.(season).(wkd), 'Number_Days')
+% 			Summary.(season).(wkd).Number_Days = ...
+% 				Summary.(season).(wkd).Number_Days + 1;
+% 		else
+% 			Summary.(season).(wkd).Number_Days = 1;
+% 		end
 		
 		% Automatisches Speichern der relevanten Daten:
 		str = 'Speichern der Simulationsergebnisse...';
@@ -599,6 +645,19 @@ for a = 1:Model.Number_Runs
 		fprintf(str);
 	end
 end
+
+% % Speichern der Zusammenfassung:
+% str = 'Speichern der Zusammenfassung der Daten...';
+% refresh_status_text(hObject,[sim_str,str]);
+% fprintf(['\n\n\t',str]);
+% 
+% Configuration = save_summary_data_for_device_profiles(Configuration, Summary, ...
+% 	Households, Devices, Model, Time);
+% 
+% str = '--> erledigt!';
+% refresh_status_text(hObject,str,'Add');
+% fprintf(str);
+
 
 str = 'Simulation erfolgreich abgeschlossen!';
 refresh_status_text(hObject,str);

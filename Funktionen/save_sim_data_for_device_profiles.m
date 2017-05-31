@@ -24,6 +24,6 @@ Configuration.Save.Data = file;
 Result = Households.Result; %#ok<NASGU>
 
 % die ermittelten Daten speichern:
-save([file.Path,file.Data_Name,'.mat'],'Result');
+save([file.Path,file.Data_Name,'.mat'],'Result','-v7.3');
 end
 

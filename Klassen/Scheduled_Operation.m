@@ -223,11 +223,11 @@ classdef Scheduled_Operation < Device
 			
 			[obj.Power_Input(obj.Phase_Index), cosphi, obj.Operating] = ...
 				obj.get_power_from_schedule(time, obj.Time_Schedule);
-			obj.Power_Input = obj.Phase_Power_Distribution_Factor*obj.Power_Input;
+			obj.Power_Input = obj.Power_Input;
 			obj.Power_Input_Reactive = obj.Power_Input*tan(acos(cosphi));
 			if ~obj.Operating
 				obj.Power_Input(obj.Phase_Index) = ...
-					obj.Phase_Power_Distribution_Factor*obj.Power_Stand_by;
+					obj.Power_Stand_by;
 				obj.Power_Input_Reactive = obj.Power_Input*...
 					tan(acos(obj.Cos_Phi_Stand_by));
 			end

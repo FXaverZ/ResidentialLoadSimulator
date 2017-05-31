@@ -204,11 +204,11 @@ function check_compute_parallel_Callback(hObject, ~, handles)
 
 handles.Configuration.Options.compute_parallel = get(hObject,'Value');
 % Die Worker je nach Konfigruation starten oder stoppen:
-if handles.Configuration.Options.compute_parallel && matlabpool('size') == 0
-	matlabpool('open');
+if handles.Configuration.Options.compute_parallel && isempty(gcp('nocreate'))
+	parpool;
 end
-if ~handles.Configuration.Options.compute_parallel && matlabpool('size') > 0;
-	matlabpool('close');
+if ~handles.Configuration.Options.compute_parallel && ~isempty(gcp('nocreate'));
+	delete(gcp('nocreate'));
 end
 
 % handles-Structure aktualisieren
@@ -635,8 +635,29 @@ guidata(hObject, handles);
 % if handles.Configuration.Options.multiple_simulation && ~isempty(handles.Joblist)
 % 	simulation_multip_cycle (hObject, handles);
 % else
-	simulation_single_annual_load_profiles (hObject, handles)
-% end
+
+button = ...
+	questdlg({['Soll die Simulation auch die Daten auf Einzelgeräteebene ',...
+	'enthalten?'];'';...
+	'ACHTUNG! Es fallen deutlich höhere Datenmengen an!'},...
+	'Einzelgeräte-Output?','Ja','Nein','Abbrechen','Nein');
+switch button
+	case 'Ja'
+		simulation_single_annual_load_profiles_device_level (hObject, handles);
+	case 'Nein'
+		simulation_single_annual_load_profiles (hObject, handles);
+	otherwise
+		% Setzen verschiedener Einstellungen für GUI:
+		set(handles.cancel_simulation,'Enable','off');
+		set(handles.start_simulation,'Enable','on');
+		set(handles.push_generate_loadprofiles,'Enable','on');
+		set(handles.push_generate_deviceprofiles,'Enable','on');
+		set (handles.push_display_result,'Enable','on');
+		set (handles.push_set_device_parameter,'Enable','on');
+		set(handles.push_generate_annual_loadprofiles,'Enable','on');
+		handles.system.cancel_simulation = false;
+		return;
+end
 
 % aktuelle handles-Struktur auslesen (wurde in den Funktionen erweitert):
 handles = guidata(hObject);
