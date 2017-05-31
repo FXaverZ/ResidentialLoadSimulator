@@ -86,9 +86,10 @@ classdef Probable_Operation < Scheduled_Operation
 					(size(obj.Time_typ_Run,1) == size(obj.Time_Start_Day,1))
 				% Erzeugen des Einsatzplanes mit diesen Werten:
 				pow = repmat(obj.Power_Nominal,size(obj.Time_Start_Day,1),1);
+				cos = repmat(obj.Cos_Phi_Nominal,size(obj.Time_Start_Day,1),1);
 				t_start = obj.Time_Start_Day;
 				t_end = t_start + obj.Time_typ_Run;
-				sched = [t_start, t_end, pow];
+				sched = [t_start, t_end, pow, cos];
 				% Einsatz je nach Einsatzwahrscheinlichkeit bestimmen:
 				proba = obj.Start_Probability/100;
 				sched = sched(proba >= rand(size(obj.Time_Start_Day,1),1),:);

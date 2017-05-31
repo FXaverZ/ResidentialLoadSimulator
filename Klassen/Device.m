@@ -42,13 +42,15 @@ classdef Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 22.08.2011
+	%    Franz Zeilinger - 21.09.2011
 	
 	properties
 		Phase_Index
 	%            Index der Phase, an der das Gerät angeschlossen ist
 		Power_Nominal
 	%            Anschlussleistung des Geräts
+	    Cos_Phi_Nominal = 1
+	%            Leistungsfaktor bei Normalbetrieb
 		Start_Probability
 	%            Wahrscheinlichkeit, dass Gerät aktiv ist. Kann eine zu einer
 	%            Startzeitliste gehörende Liste sein (definert dann für jeden
@@ -59,7 +61,8 @@ classdef Device
 	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
-	    ID_Index
+	    Power_Input_Reactive = zeros(3,1)
+	%            Blindleistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
 	end
 	
 	properties (Hidden)
@@ -72,6 +75,12 @@ classdef Device
 		DSM
 	%            Instanz der Klasse 'DSM_Device', welche das DSM-Verhalten des
 	%            Verbrauchers beinhaltet und steuert.
+		Fast_computing_at_no_dsm = 0
+	%            diese Option zeigt an, ob im Fall, dass kein DSM simuliert werden
+	%            muss, eine schnellere Berechnung durchgeführt werden kann (d.h.
+	%            nicht jeder Zeitschritt extra). Diese Option ist generell
+	%            deaktiviert und muss in den entsprechnenden Geärteklassen auf Eins
+	%            gesetzt werden!
 	end
 	
 	methods
@@ -136,7 +145,7 @@ classdef Device
 					obj.(parameter) = vary_parameter(...
 						input_1,input_2);
 				case 'Time_run_Duty_Cycle'
-					% normale Parametervariation, solange der Wert zwischen 0 und
+					% normale Parametervariation, solange bis der Wert zwischen 0 und
 					% 100% liegt:
 					value = -1;
 					while (value < 0) || (value > 100)
@@ -144,6 +153,27 @@ classdef Device
 						input_1,input_2);
 					end
 					obj.(parameter) = value;
+				case 'Cos_Phi_Nominal'
+					value = vary_parameter(...
+						input_1,input_2);
+					% Keine Cos_Phi größer 1 zulassen:
+					value(value>1)=1;
+					obj.(parameter) = value;
+				case 'Cos_Phi_Stand_by'
+					value = vary_parameter(...
+						input_1,input_2);
+					% Keine Cos_Phi größer 1 zulassen:
+					value(value>1)=1;
+					obj.(parameter) = value;
+				case 'Power_Loadcurve'
+					% Noramle Parametervariation:
+					value = vary_parameter(...
+						input_1,input_2);
+					% Keine Cos_Phi größer 1 zulassen:
+					cos = value(:,3:3:end);
+					cos(cos>1)=1;
+					value(:,3:3:end) = cos;
+					obj.(parameter)=value;
 				otherwise
 					% Noramle Parametervariation:
 					obj.(parameter) = vary_parameter(...

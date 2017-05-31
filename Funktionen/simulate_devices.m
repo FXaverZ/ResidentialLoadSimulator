@@ -7,14 +7,14 @@ function Result = simulate_devices(hObject, Devices, Time)
 %    in der Konsole. HOBJECT liefert den Zugriff auf das aufrufende GUI-Fenster
 %    (für Statusanzeige).
 
-%    Franz Zeilinger - 15.06.2011
+%    Franz Zeilinger - 21.09.2011
 
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3
 % - 2. Dimension: Gerätearten
 % - 3. Dimension: Zeitpunkte
 Result.Raw_Data.Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
-
+Result.Raw_Data.Power_Reactive = Result.Raw_Data.Power;
 % Ersten Zeitpnkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
 % Matlabzeit umrechnen:
 step = 1;
@@ -29,7 +29,10 @@ for i = 1:size(Devices.Elements_Varna,2)
 		dev = dev.next_step(time, 0);
 		Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + ...
 			dev.Power_Input;
+		Result.Raw_Data.Power_Reactive(:,i,step) = ...
+			Result.Raw_Data.Power_Reactive(:,i,step) + dev.Power_Input_Reactive;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
+
 	end
 end
 
@@ -46,6 +49,8 @@ for step = 2:Time.Number_Steps
 			dev = dev.next_step(time, Time.Base);
 			Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + ...
 				dev.Power_Input;
+			Result.Raw_Data.Power_Reactive(:,i,step) = ...
+			Result.Raw_Data.Power_Reactive(:,i,step) + dev.Power_Input_Reactive;
 			Devices.(Devices.Elements_Varna{i})(j) = dev;
 		end
 	end

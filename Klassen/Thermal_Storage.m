@@ -56,7 +56,7 @@ classdef Thermal_Storage < Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 12.09.2011
+	%    Franz Zeilinger - 18.11.2011
 	
 	properties
 		Factor_Inrush
@@ -93,7 +93,7 @@ classdef Thermal_Storage < Device
 	properties (Hidden)
 		Temp                    
 	%            aktuelle Temperatur in °C
-	    Time_Start = 0
+	    Time_Start_Operation = 0
 	%            Zeitpunkt, an dem das Gerät die aktuelle Aktivitätszeit gestartet
 	%            hat (für Einschaltleistungspitze)
 	end
@@ -175,11 +175,13 @@ classdef Thermal_Storage < Device
 			
 			% Zeitraum zwischen Start der Aktivität und aktuellen Zeitpunkt
 			% ermitteln:
-			d_t = (time - obj.Time_Start)*86400;
+			d_t = (time - obj.Time_Start_Operation)*86400;
 			
 			% Ausgabe der Leistung für aktuellen Schritt:
 			obj.Power_Input(obj.Phase_Index) = obj.Operating * obj.Power_Nominal * ...
 				(1+(1+obj.Factor_Inrush/100)*exp(-d_t/obj.Time_Inrush_Decay));
+			obj.Power_Input_Reactive = obj.Power_Input*tan(acos(obj.Cos_Phi_Nominal));
+			
 		end
 		
 		function obj = update_temperature(obj, delta_t)
@@ -231,7 +233,7 @@ classdef Thermal_Storage < Device
 				% diesen Zeitpunkt noch innerhalb des Zeitraums, der durch delta_t
 				% definiert ist, streuen:
 				d_t = vary_parameter(delta_t, 'Uniform_Distr');
-				obj.Time_Start = time - d_t / 86400;
+				obj.Time_Start_Operation = time - d_t / 86400;
 			end
 		end
 	end

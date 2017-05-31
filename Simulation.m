@@ -70,6 +70,9 @@ try
 		% ev. neue Parameter nicht verloren gehen):
 		Model.Parameter_Pool = handles.Model.Parameter_Pool;
 		Model.DSM_Param_Pool = handles.Model.DSM_Param_Pool;
+		Model.Devices_Pool = handles.Model.Devices_Pool;
+		Model.Device_Assembly_Pool = handles.Model.Device_Assembly_Pool;
+		Model.Device_Groups_Pool = handles.Model.Device_Groups_Pool;
 		handles.Model = Model;
 		handles.Devices = Devices;
 		handles.Result = Result;

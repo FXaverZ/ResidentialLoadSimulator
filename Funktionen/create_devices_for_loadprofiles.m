@@ -98,7 +98,6 @@ for i=1:numel(Varna_known)
 		if dev.Activity
 			% aktuellen Geräteindex in Geräteinstanz und Geräteindexarray speichern 
 			% und Zähler erhöhen:
-			dev.ID_Index = run_idx;
 			dev_idx(i,j)= run_idx;
 			run_idx = run_idx + 1;
 			% Geräteinstanz in jeweiligen Array speichern:
@@ -138,7 +137,6 @@ for i=1:numel(Varna_unkno)
 		% Überprüfen, ob Gerät überhaupt im Einsatz, sonst verwerfen:
 		if dev.Activity
 			% aktuellen Geräteindex in Geräteinstanz speichern und Zähler erhöhen:
-			dev.ID_Index = run_idx;
 			run_idx = run_idx + 1;
 			% Geräteinstanz in jeweiligen Array speichern:
 			Devices.(name)(end+1) = dev;

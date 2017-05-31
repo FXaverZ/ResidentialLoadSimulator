@@ -2,7 +2,7 @@ function Households = pick_devices_households (Households, Devices)
 %PICK_DEVICES_HOUSEHOLDS   Kurzbeschreibung fehlt.
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 23.08.2011
+%    Franz Zeilinger - 05.12.2011
 
 % Auslesen der Haushaltskategorie, die berechnet wird:
 typ = Households.Act_Type;
@@ -36,7 +36,9 @@ for i = 1:numel(Devices.Elements_Varna_Unknown)
 	level_equ = num_dev_total/Households.Number_Per_Tot.(typ);
 	% Index des aktuellen Haushaltes:
 	hh_idx = 1;
+	while_counter = 0;
 	while num_dev_total > 0
+		while_counter = while_counter + 1;
 		% Anpassung an die Anzahl an Personen im Haushalt durchführen:
 		level_equ = level_equ * Households.Number_Persons.(typ)(hh_idx);
 		% Diesen Wert zufällig um den Mittelwert variieren:
@@ -47,9 +49,17 @@ for i = 1:numel(Devices.Elements_Varna_Unknown)
 		level_equ = level_equ - sure_num_dev;
 		% Anzahl der weiteren Geräte ermitteln:
 		num_dev = sure_num_dev + (rand() < level_equ);
+		% Überprüfen, ob die ermittelte Anzahl an Geräten nicht die noch vorhandene
+		% Anzahl an Geräten übersteigt:
+		if num_dev > num_dev_total
+			% Falls dies zutrifft, können nur mehr die verbleibenden Geräte dem
+			% Haushalt zugeteilt werden:
+			num_dev = num_dev_total;
+		end
 		if num_dev > 0
 			count_d = 1;
 			while num_dev > 0
+				while_counter = while_counter + 1;
 				hh_devices(idx,hh_idx,count_d) = run_idx; %#ok<AGROW>
 				count_d = count_d + 1;
 				num_dev = num_dev - 1;
@@ -61,6 +71,10 @@ for i = 1:numel(Devices.Elements_Varna_Unknown)
 		hh_idx = hh_idx + 1;
 		if hh_idx > Households.Number.(typ)
 			hh_idx = 1;
+		end
+		if while_counter > 1000000
+			error('pick_devices:endless_loop',...
+				'Kein Schleifenabbruch in pick_devices_households!');
 		end
 	end
 end

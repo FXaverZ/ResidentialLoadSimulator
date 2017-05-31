@@ -14,6 +14,7 @@ function Result = simulate_devices_parallel(hObject, Devices, Time)
 % - 2. Dimension: Gerätearten
 % - 3. Dimension: Zeitpunkte
 Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
+Power_Reactive = Power;
 
 % Ersten Zeitpnkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
 % Matlabzeit umrechnen:
@@ -30,6 +31,8 @@ for i = 1:size(Devices.Elements_Varna,2)
 		dev = dev.next_step(time, 0);
 		Power(:,i,step) = Power(:,i,step) + ...
 			dev.Power_Input;
+		Power_Reactive(:,i,step) = ...
+			Power_Reactive(:,i,step) + dev.Power_Input_Reactive;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 	device{i} = Devices.(Devices.Elements_Varna{i});
@@ -51,11 +54,14 @@ parfor i = 1:size(Devices.Elements_Varna,2)
 			dev = dev.next_step(time, base);
 			Power(:,i,step) = Power(:,i,step) + ...
 				dev.Power_Input;
+			Power_Reactive(:,i,step) = ...
+				Power_Reactive(:,i,step) + dev.Power_Input_Reactive;
 			device{i}(j) = dev;
 		end
 	end
 end
 
 Result.Raw_Data.Power = Power;
+Result.Raw_Data.Power_Reactive = Power_Reactive;
 
 end

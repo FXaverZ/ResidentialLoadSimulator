@@ -4,8 +4,9 @@ function str = sec2str(t)
 %    Form 'HHh MMmin SS.SSSsec' und gibt diesen zurück. Je nach Lände der
 %    Zeitspanne werden keine Angaben zu HH und MM gemacht bzw. die Genauigkeit
 %    der Zahlendarstellung angepasst.
-%
-%    Franz Zeilinger - 11.08.10
+
+% Erstellt von:            Franz Zeilinger - 11.08.2010
+% Letzte Änderung durch:   
 
 sec_lin = datenum('1900-01-01 00:00:01')-datenum('1900-01-01 00:00:00');
 date = datenum('1900-01-01 00:00:00')+t*sec_lin;

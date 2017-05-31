@@ -52,7 +52,7 @@ classdef Interrupted_Operation < Probable_Operation
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%   Franz Zeilinger - 19.08.2011
+	%   Franz Zeilinger - 21.09.2011
     
     properties
 		Time_run_Duty_Cycle
@@ -138,7 +138,8 @@ classdef Interrupted_Operation < Probable_Operation
 				end
 				% Neue Einträge für Einsatzplan erstellen:
 				pow = repmat(obj.Power_Nominal, size(t_starts),1);
-				new_sched_part = [t_starts, t_ends, pow];
+				cos = repmat(obj.Cos_Phi_Nominal, size(t_starts),1);
+				new_sched_part = [t_starts, t_ends, pow, cos];
 				% diese neuen Einträge ersetzen den aktuellen (der sich immer in der
 				% ersten Zeile befindet):
 				sched = [sched(2:end,:);new_sched_part];

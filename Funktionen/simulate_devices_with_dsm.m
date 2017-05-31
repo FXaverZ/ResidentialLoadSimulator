@@ -15,7 +15,7 @@ function Result = simulate_devices_with_dsm(hObject, Devices, Frequency, Time)
 % - 3. Dimension: Zeitpunkte
 Result.Raw_Data.Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
 Result.Raw_Data.DSM_Power = Result.Raw_Data.Power;
-
+Result.Raw_Data.Power_Reactive = Result.Raw_Data.Power;
 % Ersten Zeitpnkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
 % Matlabzeit umrechnen:
 step = 1;
@@ -31,10 +31,13 @@ for i = 1:size(Devices.Elements_Varna,2)
 		% berechnet wird!
 		dev = dev.next_step(time, 0);
 		Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + dev.Power_Input;
+		Result.Raw_Data.Power_Reactive(:,i,step) = ...
+			Result.Raw_Data.Power_Reactive(:,i,step) + dev.Power_Input_Reactive;
 		dev.DSM = dev.DSM.algorithm(freq, time, 0);
 		dev.DSM = dev.DSM.next_step(dev, time, 0);
 		Result.Raw_Data.DSM_Power(:,i,step) = Result.Raw_Data.DSM_Power(:,i,step) + ...
 			dev.DSM.Power_Input;
+		
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 end
@@ -56,6 +59,7 @@ for step = 2:Time.Number_Steps
 			dev = dev.next_step(time, Time.Base);
 			Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + ...
 				dev.Power_Input;
+			Result.Raw_Data.Power_Reactive(:,i,step) + dev.Power_Input_Reactive;
 			dev.DSM = dev.DSM.algorithm(freq, time, Time.Base);
 			dev.DSM = dev.DSM.next_step(dev, time, Time.Base);
 			Result.Raw_Data.DSM_Power(:,i,step) = Result.Raw_Data.DSM_Power(:,i,step) + ...

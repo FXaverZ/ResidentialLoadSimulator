@@ -12,7 +12,8 @@ file = Configuration.Save.Data;
 file.Data_Name = [datestr(Result.Sim_date,'HHhMM.SS'),...
 	' - Rohdaten - ',Model.Sim_Resolution,' - ',num2str(Model.Number_User)];
 try
-	save([file.Path,file.Data_Name,'.mat'],'Model','Result','Devices','Frequency');
+% 	save([file.Path,file.Data_Name,'.mat'],'Model','Result','Devices','Frequency');
+	save([file.Path,file.Data_Name,'.mat'],'Model','Result');
 catch ME
 	% Falls Fehler aufgetreten ist, Meldung in Konsole:
 	errorstr = strrep(ME.message,'\','\\');

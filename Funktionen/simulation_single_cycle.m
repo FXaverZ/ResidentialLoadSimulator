@@ -84,8 +84,8 @@ for i=1:size(Model.Device_Groups_Pool,1)
 end
 
 % Überprüfen, ob eventuell vorhandene Geräteinstanzen verwendet werden:
-reply = check_existing_devices (Model, Devices);
-
+% reply = check_existing_devices (Model, Devices);
+reply = 'n';
 % Erzeugen der Geräteinstanzen:
 switch lower(reply)
 	case 'j'

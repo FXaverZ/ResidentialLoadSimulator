@@ -28,17 +28,17 @@ if strcmpi(mode,'write')
 elseif strcmpi(mode,'read')
 	data = obj;
 	arg = {data{1,1},[],[]};
-	% Suchen nach dem letzen Eintrag der Geräteliste:
-	for i = numel(data(2,:)):-1:1
-		if ~isnan(data{2,i})
-			end_col_idx = i;
+	% Suchen nach dem letzen Eintrag der Geräteliste (Zeile in 2.Spalte mit NaN):
+	for i = numel(data(:,2)):-1:1
+		if ~isnan(data{i,2})
+			end_row_idx = i;
 			break;
 		end
 	end
 	% Den Bereich mit den weiteren interessanten Daten als Cell-Array der 
 	% Argumentenliste zuführen (ist die Gerätezuordnung zur Gerätegruppe + deren
 	% Parameter):
-	arg{2} = data(2:end,2:end_col_idx);
+	arg{2} = data(2:end_row_idx,2:5);
 end
 
 end

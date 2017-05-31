@@ -1,6 +1,6 @@
 % M-File für GUI nach Auswahl 'Simulationsreihe-->Einstellungen'
 % Franz Zeilinger - 19.08.2010 - R2008b lauffähig
-% Last Modified by GUIDE v2.5 29-Oct-2010 15:56:29
+% Last Modified by GUIDE v2.5 21-Sep-2011 15:04:26
 
 function varargout = Settings_Multiple_Simulation(varargin)
 

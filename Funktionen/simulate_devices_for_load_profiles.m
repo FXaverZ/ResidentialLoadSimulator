@@ -3,7 +3,7 @@ function Result = simulate_devices_for_load_profiles(hObject, Devices, Household
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 22.08.2011
+%    Franz Zeilinger - 21.09.2011
 
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3
@@ -12,7 +12,7 @@ function Result = simulate_devices_for_load_profiles(hObject, Devices, Household
 % - 4. Dimension: Zeitpunkte
 Power = zeros([3 size(Devices.Elements_Varna,2) max(Devices.Number_Dev)...
 	(Time.Number_Steps)]);
-
+Power_Reactive = Power;
 % Ersten Zeitpunkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
 % Matlabzeit umrechnen:
 step = 1;
@@ -25,7 +25,8 @@ for i = 1:size(Devices.Elements_Varna,2)
 		% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 		% berechnet wird!
 		dev = dev.next_step(time, 0);
-		Power(:,i,dev.ID_Index,step) = dev.Power_Input;
+		Power(:,i,j,step) = dev.Power_Input;
+		Power_Reactive(:,i,j,step) = dev.Power_Input_Reactive;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 end
@@ -42,6 +43,7 @@ for step = 2:Time.Number_Steps
 			dev = Devices.(Devices.Elements_Varna{i})(j);
 			dev = dev.next_step(time, Time.Base);
 			Power(:,i,j,step) = dev.Power_Input;
+			Power_Reactive(:,i,j,step) = dev.Power_Input_Reactive;
 			Devices.(Devices.Elements_Varna{i})(j) = dev;
 		end
 	end
@@ -55,4 +57,5 @@ for step = 2:Time.Number_Steps
 end
 
 Result.Raw_Data.Households_Power = Power;
+Result.Raw_Data.Households_Power_Reactive = Power_Reactive;
 end

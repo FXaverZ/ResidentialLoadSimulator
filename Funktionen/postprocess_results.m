@@ -6,16 +6,21 @@ function Result = postprocess_results (Model, Time, Devices, Result)
 %    (MODEL, TIME, DEVICES und RESULT) und das Ergebnis der RESULT-Struktur
 %    hinzugefügt.
 
-%    Franz Zeilinger - 23.08.2011
+%    Franz Zeilinger - 21.09.2011
 
 % aus den einzelnen Phasenleistungen die Gesamtleistung für jede Gerätekategorie
 % ermitteln sowie die Gesamtleistung ermitteln:
 pwr_dev = reshape(squeeze(sum(Result.Raw_Data.Power,1)),...
 	numel(Devices.Elements_Varna),[]); % reshape notwendig, falls nur ein Gerät 
                                        % simuliert wurde!
+pwr_dev_rea = reshape(squeeze(sum(Result.Raw_Data.Power_Reactive,1)),...
+	numel(Devices.Elements_Varna),[]);
 Result.Raw_Data.Power_Devices = pwr_dev;
 Result.Raw_Data.Power_Phase = squeeze(sum(Result.Raw_Data.Power,2));
 Result.Raw_Data.Power_Total = sum(Result.Raw_Data.Power_Phase,1);
+Result.Raw_Data.Power_Devices_Reactive = pwr_dev_rea;
+Result.Raw_Data.Power_Phase_Reactive = squeeze(sum(Result.Raw_Data.Power_Reactive,2));
+Result.Raw_Data.Power_Total_Reactive = sum(Result.Raw_Data.Power_Phase_Reactive,1);
 % Bei Simulation von DSM, auch diese Daten verarbeiten:
 if Model.Use_DSM
 	Result.Raw_Data.DSM_Power_Devices = squeeze(sum(Result.Raw_Data.DSM_Power,1));
@@ -51,6 +56,7 @@ assembly = ...
 % das Ergebnisarray: Zeilenanzahl = Anzahl der ausgewählten Geräte(gruppen) im GUI,
 % Spaltenanzahl = Anzahl der Zeitschritte der Simulation:;
 result = zeros([size(assembly,1), Time.Number_Steps]);
+result_rea = result;
 if Model.Use_DSM
 	dsm_result = zeros([size(assembly,1), Time.Number_Steps]);
 end
@@ -59,7 +65,10 @@ for i = 1:size(assembly,1)
 	% überprüfen, ob der aktuelle Eintrag eine Gerätegruppe ist:
 	if isempty(find(strcmp(assembly(i,1), Model.Device_Groups_Pool(:,1)), 1))
 		% es liegt keine Gerätegruppe vor, die Daten für das aktuelle Gerät kopieren:
-		result(i,:) = Result.Raw_Data.Power_Devices(strcmp(assembly{i,1}, devices),:);
+		result(i,:) = ...
+			Result.Raw_Data.Power_Devices(strcmp(assembly{i,1}, devices),:);
+		result_rea(i,:) = ...
+			Result.Raw_Data.Power_Devices_Reactive(strcmp(assembly{i,1}, devices),:);
 		Result.Running_Devices_in_Class(i) = ...
 			Result.Running_Devices(strcmp(assembly{i,1}, devices));
 		if Model.Use_DSM
@@ -72,6 +81,8 @@ for i = 1:size(assembly,1)
 		for j = 1:numel(members)
 			idx = strcmp(members(j),devices);
 			result(i,:) = result(i,:) + Result.Raw_Data.Power_Devices(idx,:);
+			result_rea(i,:) = result_rea(i,:) + ...
+				Result.Raw_Data.Power_Devices_Reactive(idx,:);
 			Result.Running_Devices_in_Class(i) = ...
 				Result.Running_Devices_in_Class(i) + Result.Running_Devices(idx);
 			if Model.Use_DSM
@@ -82,6 +93,7 @@ for i = 1:size(assembly,1)
 	end
 end
 Result.Raw_Data.Power_Class = result;
+Result.Raw_Data.Power_Class_Reactive = result_rea;
 if Model.Use_DSM
 	Result.Raw_Data.DSM_Power_Class = dsm_result;
 end
@@ -104,29 +116,59 @@ dspl.Power_Total_kW.Title = 'Gesamtleistungsaufnahme';
 dspl.Power_Total_kW.Data = Result.Raw_Data.Power_Total/1000;
 dspl.Power_Total_kW.Unit = 'kW';
 dspl.Power_Total_kW.Legend = 'Gesamtleistung';
+% --- Gesamtblindeistungsaufnahme:
+dspl.Power_Reactive_Total_kVA.Title = 'Gesamtleistungsaufnahme';
+dspl.Power_Reactive_Total_kVA.Data = Result.Raw_Data.Power_Total_Reactive/1000;
+dspl.Power_Reactive_Total_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Total_kVA.Legend = 'Gesamtleistung';
 % --- Leistungsaufnahme der einzelnen Gerätearten:
 dspl.Power_Devices_kW.Title = ['Leistungsaufnahme der einzelnen',...
 	' Gerätearten'];
 dspl.Power_Devices_kW.Data = Result.Raw_Data.Power_Devices/1000;
 dspl.Power_Devices_kW.Unit = 'kW';
 dspl.Power_Devices_kW.Legend = Devices.Elements_Names;
+% --- Blindleistungsaufnahme der einzelnen Gerätearten:
+dspl.Power_Reactive_Devices_kVA.Title = ['Blindleistungsaufnahme der einzelnen',...
+	' Gerätearten'];
+dspl.Power_Reactive_Devices_kVA.Data = Result.Raw_Data.Power_Devices_Reactive/1000;
+dspl.Power_Reactive_Devices_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Devices_kVA.Legend = Devices.Elements_Names;
 % --- Leistungsaufnahme der einzelnen Phasen:
 dspl.Power_Phase_kW.Title = 'Leistungsaufnahme der einzelnen Phasen';
 dspl.Power_Phase_kW.Data = Result.Raw_Data.Power_Phase/1000;
 dspl.Power_Phase_kW.Unit = 'kW';
 dspl.Power_Phase_kW.Legend = [{'L1'},{'L2'},{'L3'}];
+% --- Blindleistungsaufnahme der einzelnen Phasen:
+dspl.Power_Reactive_Phase_kVA.Title = 'Blindleistungsaufnahme der einzelnen Phasen';
+dspl.Power_Reactive_Phase_kVA.Data = Result.Raw_Data.Power_Phase_Reactive/1000;
+dspl.Power_Reactive_Phase_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Phase_kVA.Legend = [{'L1'},{'L2'},{'L3'}];
 % --- Leistungsaufnahme der einzelnen Geräteklassen:
 dspl.Power_Class_kW.Title = 'Leistungsaufnahme der einzelnen Geräteklassen';
 dspl.Power_Class_kW.Data = Result.Raw_Data.Power_Class/1000;
 dspl.Power_Class_kW.Unit = 'kW';
 dspl.Power_Class_kW.Legend = assembly(:,2)';
+% --- Blindleistungsaufnahme der einzelnen Geräteklassen:
+dspl.Power_Reactive_Class_kVA.Title = 'Blindleistungsaufnahme der einzelnen Geräteklassen';
+dspl.Power_Reactive_Class_kVA.Data = Result.Raw_Data.Power_Class_Reactive/1000;
+dspl.Power_Reactive_Class_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Class_kVA.Legend = assembly(:,2)';
 % --- Gesamtleistung und Leistungsaufnahme der einzelnen Gerätearten:
 dspl.Power_Devices_and_Total_kW.Title = ['Leistungsaufnahme Gesamt und aufgeteilt',...
 	' auf die Gerätearten'];
 dspl.Power_Devices_and_Total_kW.Data = [dspl.Power_Total_kW.Data; ...
 	dspl.Power_Devices_kW.Data];
 dspl.Power_Devices_and_Total_kW.Unit = 'kW';
-dspl.Power_Devices_and_Total_kW.Legend = [{'Gesamtleistung'}, Devices.Elements_Names];
+dspl.Power_Devices_and_Total_kW.Legend = [{'Gesamtleistung'}, ...
+	Devices.Elements_Names];
+% --- Gesamtblindleistung und Blindleistungsaufnahme der einzelnen Gerätearten:
+dspl.Power_Reactive_Devices_and_Total_kVA.Title = ['Blindleistungsaufnahme ',...
+	'Gesamt und aufgeteilt auf die Gerätearten'];
+dspl.Power_Reactive_Devices_and_Total_kVA.Data = [dspl.Power_Reactive_Total_kVA.Data;...
+	dspl.Power_Reactive_Devices_kVA.Data];
+dspl.Power_Reactive_Devices_and_Total_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Devices_and_Total_kVA.Legend = [{'Gesamtblindleistung'}, ...
+	Devices.Elements_Names];
 % --- Gesamtleistung und Leistungsaufnahme der einzelnen Phasen:
 dspl.Power_Phase_and_Total_kW.Title = ['Leistungsaufnahme Gesamt und aufgeteilt ',...
 	'auf die Phasen'];
@@ -134,6 +176,13 @@ dspl.Power_Phase_and_Total_kW.Data = [dspl.Power_Total_kW.Data;...
 	dspl.Power_Phase_kW.Data];
 dspl.Power_Phase_and_Total_kW.Unit = 'kW';
 dspl.Power_Phase_and_Total_kW.Legend = [{'Gesamtleistung'},{'L1'},{'L2'},{'L3'}];
+% --- Gesamtblindleistung und Blindleistungsaufnahme der einzelnen Phasen:
+dspl.Power_Reactive_Phase_and_Total_kVA.Title = ['Blindleistungsaufnahme ',...
+	'Gesamt und aufgeteilt auf die Phasen'];
+dspl.Power_Reactive_Phase_and_Total_kVA.Data = [dspl.Power_Reactive_Total_kVA.Data;...
+	dspl.Power_Reactive_Phase_kVA.Data];
+dspl.Power_Reactive_Phase_and_Total_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Phase_and_Total_kVA.Legend = [{'Gesamtleistung'},{'L1'},{'L2'},{'L3'}];
 % --- Gesamtleistung und Leistungsaufnahme der Geräteklassen:
 dspl.Power_Class_and_Total_kW.Title = ['Leistungsaufnahme Gesamt und aufgeteilt ',...
 	'auf die Geräteklassen'];
@@ -141,6 +190,13 @@ dspl.Power_Class_and_Total_kW.Data = [dspl.Power_Total_kW.Data;...
 	dspl.Power_Class_kW.Data];
 dspl.Power_Class_and_Total_kW.Unit = 'kW';
 dspl.Power_Class_and_Total_kW.Legend = [{'Gesamtleistung'}, assembly(:,2)'];
+% --- Gesamtblindleistung und Blindleistungsaufnahme der Geräteklassen:
+dspl.Power_Reactive_Class_and_Total_kVA.Title = ['Blindleistungsaufnahme Gesamt ',...
+	'und aufgeteilt auf die Geräteklassen'];
+dspl.Power_Reactive_Class_and_Total_kVA.Data = [dspl.Power_Reactive_Total_kVA.Data;...
+	dspl.Power_Reactive_Class_kVA.Data];
+dspl.Power_Reactive_Class_and_Total_kVA.Unit = 'kVA';
+dspl.Power_Reactive_Class_and_Total_kVA.Legend = [{'Gesamtleistung'}, assembly(:,2)'];
 
 if Model.Use_DSM
 	% --- Gesamtleistungsaufnahme mit Einsatz von DSM:
