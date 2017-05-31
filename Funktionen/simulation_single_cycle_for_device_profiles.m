@@ -1,9 +1,9 @@
-function simulation_single_cycle_for_load_profiles (hObject, handles)
-% SIMULATION_SINGLE_CYCLE_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
+function simulation_single_cycle_for_device_profiles (hObject, handles)
+% SIMULATION_SINGLE_CYCLE_FOR_DEVICE_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
 % Erstellt von:            Franz Zeilinger - 05.12.2011
-% Letzte Änderung durch:   Franz Zeilinger - 06.11.2012
+% Letzte Änderung durch:   Franz Zeilinger - 28.11.2012
 
 % debug: Zufallszahlengenerator definiert setzen:
 rng(27,'v5uniform');
@@ -28,14 +28,14 @@ Model.Households = {...
 % 	'fami_2v', 3, 6, 'Familie, 2 Mitglieder Vollzeit', 2;... % 40 - 20    
 % 	'fami_1v', 3, 6, 'Familie, 1 Mitglied Vollzeit'  , 2;... % 70 - 50
 %--- HAUSHALTE FÜR aDSM ---
-%   'home_1',  1, 1, 'Haus - 1 Bewohner'             , 13;...
+% 	'home_1',  1, 1, 'Haus - 1 Bewohner'             , 13;...
 % 	'home_2',  2, 2, 'Haus - 2 Bewohner'             , 17;...
 % 	'home_3',  3, 2, 'Haus - 3 Bewohner'             , 12;...
-	'hom_4p',  4, 7, 'Haus - 4 und mehr Bewohner'    , 19;...
+% 	'hom_4p',  4, 7, 'Haus - 4 und mehr Bewohner'    , 19;...
 % 	'flat_1',  1, 1, 'Wohnung - 1 Bewohner'          , 29;...
 % 	'flat_2',  2, 2, 'Wohnung - 2 Bewohner'          , 19;...
 % 	'flat_3',  3, 3, 'Wohnung - 3 Bewohner'          ,  9;...
-% 	'fla_4p',  4, 7, 'Wohnung - 4 und mehr Bewohner' ,  8;...
+	'fla_4p',  4, 7, 'Wohnung - 4 und mehr Bewohner' ,  8;...
 	};
 
 % Wieviele Durchläufe sollen gemacht werden?
@@ -78,7 +78,7 @@ refresh_display (handles)
 Sim_date = now;
 % Erzeugen eines Unterordners mit Simulationsdatum:
 file = Configuration.Save.Data;
-file.Path = [file.Main_Path, datestr(Sim_date,'yy.mm.dd'),' - Lastprofile','\'];
+file.Path = [file.Main_Path, datestr(Sim_date,'yy.mm.dd'),' - Geräteprofile','\'];
 if ~isdir(file.Path)
 	mkdir(file.Path);
 end
@@ -86,7 +86,7 @@ end
 file.Diary_Name = [datestr(Sim_date,'HH_MM.SS'),...
 	' - Simulations-Log - ',Model.Sim_Resolution,'.txt'];
 diary([file.Path,file.Diary_Name]);
-fprintf('\n\tStart der Generierung von Lastprofilen:');
+fprintf('\n\tStart der Generierung von Geräteprofilen:');
 Configuration.Save.Data = file;
 
 file = Configuration.Save.Source;
@@ -170,13 +170,13 @@ for j = 1:Model.Number_Runs
 			str1 = ['Durchlauf ', num2str(j),', ',season,', ',wkd,':']; 
 			str2 = ['Bearbeite Kategorie ',num2str(i),...
 				' von ', num2str(size(Households.Types,1)),' (',typ,', ',...
-				num2str(Households.Number.(typ)),' Haushalte):'];
+				num2str(Households.Statistics.(typ).Number),' Haushalte):'];
 			refresh_status_text(hObject,sim_str);
 			fprintf(['\n\t',str1]);
 			fprintf(['\n\t',str2]);
 			
 			% Modellparameter gem. den Haushaltsdaten anpassen:
-			Model.Number_User = Households.Number_Per_Tot.(typ);
+			Model.Number_User = Households.Statistics.(typ).Number_Per_Tot;
 			Model.Use_DSM = 0;
 			
 			% Geräteinstanzen erzeugen:
@@ -217,8 +217,6 @@ for j = 1:Model.Number_Runs
 				t_total = waitbar_reset(hObject);
 				fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
 			end
-			% 		% handles-Struktur aktualisieren
-			% 		guidata(hObject, handles);
 			
 			% den einzelnen Haushalten die Geräte zuweisen:
 			str = 'Zuordnen der Geräteinstanzen zu den Haushalten: ';
@@ -240,7 +238,7 @@ for j = 1:Model.Number_Runs
 			if Configuration.Options.compute_parallel
 				Result = simulate_devices_for_load_profiles_parallel(Devices, Time);
 			else
-				Result = simulate_devices_for_load_profiles(hObject, Devices, Households, Time);
+				Result = simulate_devices_for_load_profiles(hObject, Devices, Time);
 			end
 			
 			% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
@@ -265,39 +263,56 @@ for j = 1:Model.Number_Runs
 			refresh_status_text(hObject,[sim_str,str]);
 			fprintf(['\n\t\t',str]);
 			
+			% Bei paralleler Simulation direkte Bearbeitung der Ergebnisse (bessere
+			% Speichernutzung und schneller...)
 			if Configuration.Options.compute_parallel
+				% Auslesen der Zuordnung der Geräte zu den Haushalten:
 				hh_devices = Households.Devices.(typ);
+				dev_names = Devices.Elements_Varna;
 				% Array erstellen mit den Leistungsdaten der Haushalte:
-				% - 1. Dimension: Phasen 1 bis 3
-				% - 2. Dimension: einzelne Haushalte
-				% - 3. Dimension: Zeitpunkte
-				power_hh = zeros(6,size(hh_devices,2),Time.Number_Steps);
+				Households.Devices_Power.(typ) = cell(size(hh_devices,2),3);
 				% Für jeden Haushalt
 				for m=1:size(hh_devices,2)
-					% ermitteln der Indizes aller Geräte dieses Haushalts:
+					% Indizes der einzelnen Geräte des aktuellen Haushalts:
 					idx = squeeze(hh_devices(:,m,:));
+					% wieviele einzelne Geräte hat dieser Haushalt?:
+					num_dev = sum(sum(idx>0));
+					% Ein Ergebnisarray erstellen:
+					dev_hh_power = zeros(num_dev,Time.Number_Steps);
+					dev_hh_names =cell(num_dev,1);
+					dev_hh_devices =cell(num_dev,1);
+					dev_counter = 1;
 					% Für jede Geräteart:
 					for n=1:size(idx,1)
-						% die Indizes der aktuellen Gerätegruppe auslesen, alle Indizes mit den
-						% Wert "0" entfernen:
-						dev_idx = idx(n,:);
-						dev_idx(dev_idx == 0) = [];
-						% überprüfen, ob überhaupt Geräte dieses Typs verwendet werden:
-						if ~isempty(dev_idx)
-							% Falls ja, die Leistungsdaten dieser Geräte auslesen und zur
-							% Gesamt-Haushaltsleistung addieren:
-							power_hh(:,m,:) = squeeze(power_hh(:,m,:)) + ...
-								squeeze(sum(Result(n,:,dev_idx,:),3));
+						% die Indizes der aktuellen Gerätegruppe auslesen, alle
+						% Indizes mit den Wert "0" entfernen:
+						dev_idxs = idx(n,:);
+						dev_idxs(dev_idxs == 0) = [];
+						for o=1:numel(dev_idxs)
+							dev_idx = dev_idxs(o);
+							dev_hh_power(dev_counter,:) = sum(squeeze(Result(n,1:3,dev_idx,:)));
+							dev = Devices.(dev_names{n})(dev_idx);
+							dev_hh_devices{dev_counter} = dev;
+							dev_hh_names{dev_counter} = dev_names{n};
+							dev_counter = dev_counter + 1;
 						end
 					end
+					Households.Devices_Power.(typ){m,1} = dev_hh_names;
+					Households.Devices_Power.(typ){m,2} = dev_hh_devices;
+					Households.Devices_Power.(typ){m,3} = dev_hh_power;
+					Households.Devices_Power.(typ){m,6} = sum(dev_hh_power);
+					Households.Devices_Power.(typ){m,7} = sum(sum(dev_hh_power))/60000;
 				end
 				clear Result;
-			else
-				Result = postprocess_results_for_load_profiles (Households, Model, Time, ...
-					Devices, Result);
 			end
 			
+			% Simulationszeit speichern:
 			Result.Sim_date = Sim_date;
+			Households.Devices_Power.Sim_date = Sim_date;
+			
+			% Allgemeine Nachbehandlung:
+			Households = postprocess_results_for_device_profiles (Households,...
+					Time, Devices, Result);
 			
 			str = '--> abgeschlossen!';
 			refresh_status_text(hObject,str,'Add');
@@ -311,45 +326,6 @@ for j = 1:Model.Number_Runs
 			% handles-Struktur aktualisieren (damit Daten bei ev. nachfolgenden Fehlern
 			% erhalten bleiben!)
 			guidata(hObject, handles);
-			
-			% Automatisches Speichern der relevanten Daten:
-			str = 'Speichern der Daten: ';
-			refresh_status_text(hObject,[sim_str,str]);
-			fprintf(['\n\t\t',str]);
-			
-			% Dateinamen festlegen:
-			file = Configuration.Save.Data;
-			sep = Model.Seperator;
-			reso = Model.Sim_Resolution;
-			date = datestr(Sim_date,'HH_MM.SS');
-			idx = [num2str(j),sep,num2str(k)];
-			file.Data_Name = [date,sep,season,sep,wkd,sep,typ,sep,reso,sep,idx];
-			Configuration.Save.Data = file;
-			
-			if Configuration.Options.compute_parallel
-				% Speichern der wichtigen Workspacevariablen:
-				data_phase = zeros(size(power_hh,3),6*size(power_hh,2));
-				data_phase(:,1:6:end) = squeeze(power_hh(1,:,:))';
-				data_phase(:,3:6:end) = squeeze(power_hh(2,:,:))';
-				data_phase(:,5:6:end) = squeeze(power_hh(3,:,:))';
-				data_phase(:,2:6:end) = squeeze(power_hh(4,:,:))';
-				data_phase(:,4:6:end) = squeeze(power_hh(5,:,:))';
-				data_phase(:,6:6:end) = squeeze(power_hh(6,:,:))'; %#ok<NASGU>
-				clear power_hh;
-				
-				save([file.Path,file.Data_Name,'.mat'], 'data_phase');
-				clear data_phase;
-			else
-				Configuration = save_sim_data_for_load_profiles (Configuration, Model,...
-					Households, Devices, Result, j);
-			end
-			
-			% Für bessere Speichernutzung, diese Daten löschen...
-			clear Result
-			
-			str = '--> erledigt!';
-			refresh_status_text(hObject,str,'Add');
-			fprintf(str);
 % 		catch ME
 % 			% Falls Fehler aufgetreten ist:
 % 			str = 'Ein Fehler ist aufgetreten:';
@@ -372,7 +348,40 @@ for j = 1:Model.Number_Runs
 % 		end
 		end
 	end
+	
+	% Automatisches Speichern der relevanten Daten:
+	str = 'Speichern der Daten: ';
+	refresh_status_text(hObject,[sim_str,str]);
+	fprintf(['\n\n\t',str]);
+	
+	% Dateinamen festlegen:
+	file = Configuration.Save.Data;
+	sep = Model.Seperator;
+	reso = Model.Sim_Resolution;
+	date = datestr(Sim_date,'HH_MM.SS');
+	idx = num2str(j);
+	file.Data_Name = [date,sep,season,sep,wkd,sep,reso,sep,idx];
+	Configuration.Save.Data = file;
+	
+	Configuration = save_sim_data_for_device_profiles (Configuration, Model,...
+		Time, Households, Devices);
+	
+	str = '--> erledigt!';
+	refresh_status_text(hObject,str,'Add');
+	fprintf(str);
+	
+	% Zusammenfassung erstellen bzw. aktualisieren:
+	str = 'Aktualisieren der Zusammenfassung: ';
+	refresh_status_text(hObject,[sim_str,str]);
+	fprintf(['\n\n\t',str]);
+	
+	% Insert Code here...
+	
+	str = '--> erledigt!';
+	refresh_status_text(hObject,str,'Add');
+	fprintf(str);
 end
+
 fprintf('\n\t=================================\n');
 
 % Gong ertönen lassen

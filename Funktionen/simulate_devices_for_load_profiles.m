@@ -1,9 +1,9 @@
-function Result = simulate_devices_for_load_profiles(hObject, Devices, Households,...
-	Time)
+function Result = simulate_devices_for_load_profiles(hObject, Devices, Time)
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 21.09.2011
+% Erstellt von:            Franz Zeilinger - 19.11.2012
+% Letzte Änderung durch:   Franz Zeilinger - 28.11.2012 
 
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3

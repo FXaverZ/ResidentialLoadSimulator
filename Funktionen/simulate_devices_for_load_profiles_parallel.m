@@ -140,13 +140,10 @@ end
 %     dass dann in weiterer folge gesondert behandelt werden muss!
 %     (siehe POSTPROCESS_RESULTS_FOR_LOADPROFILES)
 
-% Nun die einzelnen Zwischenergenisse abarbeiten:
-% Power_parallel = zeros([size(Devices.Elements_Varna,2), 6, max(Devices.Number_Dev),...
-% 	(Time.Number_Steps)]);
+% Nun die einzelnen Zwischenergenisse abarbeiten und zu einem Gesamtarray
+% zusammenfassen: 
 for i = 1:size(Devices.Elements_Varna,2)
 	% Zwischenergenis korrekt eintragen:
-	Power_parallel(i,:,:,:) = pow{1}; %#ok<AGROW>
-	% Zwischengergebnis löschen, damit Speicher wieder freigegeben wird!
-	pow(1) = [];
+	Power_parallel(i,:,:,:) = pow{i}; %#ok<AGROW>
 end
 end

@@ -19,7 +19,8 @@ function abort = waitbar_update (hObject, time_update, act_pos, end_pos)
 %        any_statements;
 %    WAITBAR_RESET(hObject);  %Beenden der Zeitmessung und Rücksetzen der Anzeige
 
-%    Franz Zeilinger - 11.08.2009
+% Erstellt von:            Franz Zeilinger - 11.08.2009
+% Letzte Änderung durch:   Franz Zeilinger - 06.11.2012
 
 % Definieren der globalen Variablen für Kommunikation der waitbar_-Funktionen:
 global WAITBAR_COUNTER;
@@ -43,7 +44,11 @@ if time > time_update*WAITBAR_COUNTER
 	sec_remain = time/progress - time;
 	if WAITBAR_COUNTER <= 1
 		% Anzeigen der vorraussichtlichen Dauer:
-		str = [' (Dauer ca. ',sec2str(sec_remain + time),') '];
+		if progress <= 0 || sec_remain == Inf
+			str = ' (Dauer ca. ---';
+		else
+			str = [' (Dauer ca. ',sec2str(sec_remain + time),') '];
+		end
 		refresh_status_text(hObject,str,'Add');
 		fprintf(str);
 	end

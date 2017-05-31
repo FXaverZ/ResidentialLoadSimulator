@@ -2,15 +2,16 @@ function Devices = create_devices_for_loadprofiles(hObject, Model, Households)
 %CREATE_DEVICES_FOR_LOADPROFILES   Kurzbeschreibung fehlt.
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 14.09.2011
+% Erstellt von:            Franz Zeilinger - 14.09.2011
+% Letzte Änderung durch:   Franz Zeilinger - 16.11.2012
 
 % Auslesen der Haushaltskategorie, die berechnet wird:
 typ = Households.Act_Type;
 
 known_devices = Households.Known_Devices_Pool;
-number_user = Households.Number_Per_Tot.(typ);
+number_user = Households.Statistics.(typ).Number_Per_Tot;
 
-%Auflistung der verwendeten Geräte im Modell:
+%Vorbereiten von Auflistungen der verwendeten Geräte im Modell:
 Devices.Elements_Varna = {};  % Variablennamen für automatisches Abarbeiten
 Devices.Elements_Names = {};  % Vollständige Namen der jeweiligen Geräte 
                               %     z.B. für Legendenbeschriftung)
@@ -41,8 +42,8 @@ Devices.Number_Dev = zeros(1,numel(Varna_unkno)); % Anzahl in den einzelnen Gerä
 Varna_known = {};
 number_devices = [];
 number_devices_hh = [];
-% Erzeugen der Geräteinstanzen. Zuerst die an Anzahl bekannten Geräte (welche über
-% die Haushaltsausstattung definiert worden sind):
+% Erzeugen der Geräteinstanzen. Zuerst die an Anzahl bekannten Geräte (welche
+% über die Haushaltsausstattung definiert worden sind):
 % Feststellen, welche bekannten Geräte simuliert werden:
 for i=1:numel(Varna_unkno)
 	% ist das aktuelle Gerät ein bekanntes Gerät?
@@ -51,8 +52,8 @@ for i=1:numel(Varna_unkno)
 		% bekanntes Gerät gefunden, in Liste speichern:
 		Varna_known(end+1) = known_devices(idx,1); %#ok<AGROW>
 		% die zugehörige Anzahl an Geräten ebenfalls speichern:
-		number_devices(end+1) = Households.Number_Dev_Tot.(typ)(idx); %#ok<AGROW>
-		number_devices_hh(end+1,:) = Households.Number_Devices.(typ)(idx,:); %#ok<AGROW>
+		number_devices(end+1) = Households.Number_Known_Dev_Tot.(typ)(idx); %#ok<AGROW>
+		number_devices_hh(end+1,:) = Households.Number_Known_Devices.(typ)(idx,:); %#ok<AGROW>
 	end
 end
 % Die bekannten Geräte aus der Liste der unbekannten Geräte streichen:
@@ -63,6 +64,7 @@ end
 Devices.Elements_Varna_Known = Varna_known;
 Devices.Number_created_Known = number_devices_hh;
 Devices.Elements_Varna_Unknown = Varna_unkno;
+% Abschätzen der Gesamt-Gerätezahlen
 num_known = sum(number_devices);
 num_total = num_known + numel(Varna_unkno)*number_user;
 
