@@ -4,8 +4,8 @@ function Households = pick_devices_households (Households, Devices)
 
 %    Franz Zeilinger - 23.08.2011
 
-% ACHTUNG! Debug-Einstellung bzw. für Testzwecke:
-typ = Households.Types{1};
+% Auslesen der Haushaltskategorie, die berechnet wird:
+typ = Households.Act_Type;
 Number_Devices = Devices.Number_created_Known;
 
 hh_devices = [];
@@ -33,7 +33,7 @@ for i = 1:numel(Devices.Elements_Varna_Unknown)
 	run_idx = 1;
 	num_dev_total = Devices.Number_Dev(idx);
 	% Geräteausstattung pro Person ermitteln:
-	level_equ = num_dev_total/Households.Number_Persons.Total;
+	level_equ = num_dev_total/Households.Number_Per_Tot.(typ);
 	% Index des aktuellen Haushaltes:
 	hh_idx = 1;
 	while num_dev_total > 0

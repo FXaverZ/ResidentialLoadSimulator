@@ -56,9 +56,11 @@ classdef Thermal_Storage < Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 14.06.2011
+	%    Franz Zeilinger - 12.09.2011
 	
 	properties
+		Factor_Inrush
+		Time_Inrush_Decay
 		Dir_therm_Flow
 	%            Richtung des Flusses der thermischen Energie in den Speicher
 	%            bei normaler "Aufladefunktion" des Speichers:
@@ -91,6 +93,9 @@ classdef Thermal_Storage < Device
 	properties (Hidden)
 		Temp                    
 	%            aktuelle Temperatur in °C
+	    Time_Start = 0
+	%            Zeitpunkt, an dem das Gerät die aktuelle Aktivitätszeit gestartet
+	%            hat (für Einschaltleistungspitze)
 	end
 	
 	methods
@@ -143,7 +148,7 @@ classdef Thermal_Storage < Device
 			end
 		end
 		
-		function obj = next_step (obj, ~, delta_t, varargin)
+		function obj = next_step (obj, time, delta_t, varargin)
 			% NEXT_STEP    ermittelt die Reaktion des Gerätes
 			%    OBJ = NEXT_STEP(OBJ, ~, DELTA_T, VARARGIN) ermittelt die
 			%    Reaktion des Geräts auf die aktuelle Situation. Es liegt
@@ -155,21 +160,26 @@ classdef Thermal_Storage < Device
 			% thermisches Modell ablaufen lassen:
 			d_t = 60;
 			if delta_t>d_t
-				for i=1:(delta_t/d_t)
+				for i=(delta_t/d_t):-1:1
 					% Ermitteln der aktuellen Temperatur:
 					obj = update_temperature(obj, d_t);
 					% Ermitteln, ob Gerät läuft (Thermostat):
-					obj = upate_operation(obj);
+					obj = upate_operation(obj, time - i*d_t/86400, d_t);
 				end
 			else
 				% Ermitteln der aktuellen Temperatur:
 				obj = update_temperature(obj, delta_t);
 				% Ermitteln, ob Gerät läuft (Thermostat):
-				obj = upate_operation(obj);
+				obj = upate_operation(obj, time, delta_t);
 			end
 			
+			% Zeitraum zwischen Start der Aktivität und aktuellen Zeitpunkt
+			% ermitteln:
+			d_t = (time - obj.Time_Start)*86400;
+			
 			% Ausgabe der Leistung für aktuellen Schritt:
-			obj.Power_Input(obj.Phase_Index) = obj.Operating * obj.Power_Nominal;
+			obj.Power_Input(obj.Phase_Index) = obj.Operating * obj.Power_Nominal * ...
+				(1+(1+obj.Factor_Inrush/100)*exp(-d_t/obj.Time_Inrush_Decay));
 		end
 		
 		function obj = update_temperature(obj, delta_t)
@@ -194,7 +204,7 @@ classdef Thermal_Storage < Device
 			obj.Temp = obj.Temp + d_temp * delta_t;
 		end
 		
-		function obj = upate_operation(obj)
+		function obj = upate_operation(obj, time, delta_t)
 			%UPATE_OPERATION    aktualisiert den Betriebzustand des Gerätes
 			%    OBJ = UPATE_OPERATION(OBJ) ermittelt aus den aktuell
 			%    vorliegenden Zuständen, ob das Gerät seinen Betriebszustand
@@ -202,12 +212,26 @@ classdef Thermal_Storage < Device
 			%    In der vorliegenden Funktion ist dies im Sinne einer
 			%    Zwei-Punkt-Regelung (Thermostat) realisert.
 			
+			% speichern des vorhergehenden Zustandes:
+			operating = obj.Operating;
+			
+			% Thermostatabfrage:
 			if (obj.Temp_Set + (obj.Switch_Point/2) - obj.Temp) < 0
 				obj.Operating = 1 - obj.Dir_therm_Flow;
 				obj.Operating = logical(obj.Operating);
 			elseif (obj.Temp_Set - (obj.Switch_Point/2) - obj.Temp) > 0
 				obj.Operating = 1 + obj.Dir_therm_Flow;
 				obj.Operating = logical(obj.Operating);
+			end
+			
+			% Zeitpunkt ermitteln, zu dem ein Einschalten erfolgt ist (wenn vorher
+			% Gerät nicht aktiv war und nach der vorherigen Berechnung aktiv ist,
+			% liegt der Einschaltzeitpunkt vor!)
+			if ~operating && obj.Operating
+				% diesen Zeitpunkt noch innerhalb des Zeitraums, der durch delta_t
+				% definiert ist, streuen:
+				d_t = vary_parameter(delta_t, 'Uniform_Distr');
+				obj.Time_Start = time - d_t / 86400;
 			end
 		end
 	end

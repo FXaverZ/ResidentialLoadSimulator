@@ -5,9 +5,6 @@ function Result = simulate_devices_for_load_profiles(hObject, Devices, Household
 
 %    Franz Zeilinger - 22.08.2011
 
-% ACHTUNG! Debug-Einstellung bzw. für Testzwecke:
-typ = Households.Types{1};
-
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3
 % - 2. Dimension: Gerätearten

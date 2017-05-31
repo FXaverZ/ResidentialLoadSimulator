@@ -1,28 +1,33 @@
 function Configuration = save_sim_data_for_loadprofiles (Configuration, Model,...
-	Households, Devices, Result) %#ok<INUSL>
+	Households, Devices, Result, counter) %#ok<INUSL>
 %SAV_SIM_DATA_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausf¸hrliche Beschreibung fehlt!
 
 %    Franz Zeilinger - 25.08.2011
 
+% Auslesen der Haushaltskategorie, die berechnet wurde:
+typ = Households.Act_Type;
+
 file = Configuration.Save.Data;
 % Speichern der wichtigen Workspacevariablen:
 file.Data_Name = [datestr(Result.Sim_date,'HHhMM.SS'),...
-	' - Lastprofile - ',Model.Sim_Resolution,' - ',num2str(Model.Number_User)];
-try
-	save([file.Path,file.Data_Name,'.mat'],'Model','Result','Devices',...
-		'Households', '-v7.3');
-catch ME
-	% Falls Fehler aufgetreten ist, Meldung in Konsole:
-	errorstr = strrep(ME.message,'\','\\');
-	str = ['--> Ein Fehler ist aufgetreten: ',errorstr];
-	fprintf(['\n\t\t\t',str,'\n']);
-	% Versuch, einen h‰ufigen Fehler auszuschlieﬂen:
-	str = 'Speichern der Daten ohne DEVICES-Struktur: ';
-	fprintf(['\n\t\t',str]);
-	save([file.Path,file.Data_Name,' (ohne DEVICES).mat'],'Model','Result',...
-		'Households');
-end
+	' - Lastprofile - ',Model.Sim_Resolution];
+
+%Rohdaten speichern:
+% try
+% 	save([file.Path,file.Data_Name,'.mat'],'Model','Result','Devices',...
+% 		'Households', '-v7.3');
+% catch ME
+% 	% Falls Fehler aufgetreten ist, Meldung in Konsole:
+% 	errorstr = strrep(ME.message,'\','\\');
+% 	str = ['--> Ein Fehler ist aufgetreten: ',errorstr];
+% 	fprintf(['\n\t\t\t',str,'\n']);
+% 	% Versuch, einen h‰ufigen Fehler auszuschlieﬂen:
+% 	str = 'Speichern der Daten ohne DEVICES-Struktur: ';
+% 	fprintf(['\n\t\t',str]);
+% 	save([file.Path,file.Data_Name,' (ohne DEVICES).mat'],'Model','Result',...
+% 		'Households');
+% end
 
 % Erzeugen einer .csv und .xls-Datei mit den Lastprofilen inkl. Zeitstempel:
 time = Result.Time;
@@ -65,12 +70,13 @@ simdate_str_csv = {'Simulationsdaten vom Durchlauf am;',';',';',...
 	datestr(Result.Sim_date),';'};
 
 % Ergebnismatritzen in .mat-File speichern:
-save([file.Path,file.Data_Name,' - Daten','.mat'], 'data_phase', 'data_total');
+save([file.Path,file.Data_Name,' - Daten - ', typ,' - ',num2str(counter),...
+	'.mat'], 'data_phase', 'data_total');
 
 % .csv-Files schreiben:
 if Configuration.Options.savas_csv
-csvn_total = [file.Path,file.Data_Name,' - Gesamtleistung','.csv'];
-csvn_phase = [file.Path,file.Data_Name,' - Phasenleistung','.csv'];
+csvn_total = [file.Path,file.Data_Name,' - Gesamtleistung - ', typ,'.csv'];
+csvn_phase = [file.Path,file.Data_Name,' - Phasenleistung - ', typ,'.csv'];
 % ‹berschriften schreiben:
 file_total = fopen(csvn_total,'w');
 fprintf(file_total,[simdate_str_csv{:},'\n']);
@@ -101,7 +107,7 @@ if (numel(time) < 1048576-3) && Configuration.Options.savas_xls
 		datestr(Result.Sim_date)});
 	xls.write_lines(titl_total); % Spalten¸berschriften
 	xls.write_lines(data_total); % Daten
-	xlsn = [file.Path,file.Data_Name,'.xlsx']; % Dateiname .xls-File
+	xlsn = [file.Path,file.Data_Name,' - ', typ,'.xlsx']; % Dateiname .xls-File
 	xls.write_output(xlsn);
 else
 	fprintf('(ohne .xls-Daten) ');

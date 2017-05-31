@@ -2,13 +2,13 @@ function Devices = create_devices_for_loadprofiles(hObject, Model, Households)
 %CREATE_DEVICES_FOR_LOADPROFILES   Kurzbeschreibung fehlt.
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 22.08.2011
+%    Franz Zeilinger - 14.09.2011
 
-% ACHTUNG! Debug-Einstellung bzw. für Testzwecke:
-typ = Households.Types{1};
+% Auslesen der Haushaltskategorie, die berechnet wird:
+typ = Households.Act_Type;
 
 known_devices = Households.Known_Devices_Pool;
-number_user = Households.Number_Persons.Total;
+number_user = Households.Number_Per_Tot.(typ);
 
 %Auflistung der verwendeten Geräte im Modell:
 Devices.Elements_Varna = {};  % Variablennamen für automatisches Abarbeiten
@@ -51,7 +51,7 @@ for i=1:numel(Varna_unkno)
 		% bekanntes Gerät gefunden, in Liste speichern:
 		Varna_known(end+1) = known_devices(idx,1); %#ok<AGROW>
 		% die zugehörige Anzahl an Geräten ebenfalls speichern:
-		number_devices(end+1) = Households.Number_Devices.Total(idx); %#ok<AGROW>
+		number_devices(end+1) = Households.Number_Dev_Tot.(typ)(idx); %#ok<AGROW>
 		number_devices_hh(end+1,:) = Households.Number_Devices.(typ)(idx,:); %#ok<AGROW>
 	end
 end

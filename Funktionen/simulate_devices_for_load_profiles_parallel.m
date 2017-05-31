@@ -3,17 +3,14 @@ function Result = simulate_devices_for_load_profiles_parallel(hObject, Devices, 
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES_PARALLEL   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 22.08.2011
-
-% ACHTUNG! Debug-Einstellung bzw. für Testzwecke:
-typ = Households.Types{1};
+%    Franz Zeilinger - 16.09.2011
 
 % Erstellen eines Arrays mit den Leistungsdaten:
-% - 1. Dimension: Phasen 1 bis 3
-% - 2. Dimension: Gerätearten
+% - 1. Dimension: Gerätearten
+% - 2. Dimension: Phasen 1 bis 3
 % - 3. Dimension: Geräteinstanz
 % - 4. Dimension: Zeitpunkte
-Power = zeros([3 size(Devices.Elements_Varna,2) max(Devices.Number_Dev)...
+Power_parallel = zeros([size(Devices.Elements_Varna,2), 3, max(Devices.Number_Dev),...
 	(Time.Number_Steps)]);
 
 % Ersten Zeitpunkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
@@ -29,7 +26,7 @@ for i = 1:size(Devices.Elements_Varna,2)
 		% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 		% berechnet wird!
 		dev = dev.next_step(time, 0);
-		Power(:,i,dev.ID_Index,step) = dev.Power_Input;
+		Power_parallel(i,:,dev.ID_Index,step) = dev.Power_Input;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 	% Für parallele Bearbeitung die DEVICES-Struktur in ein Cell-Array umwandeln,
@@ -48,7 +45,7 @@ num_devices = max(Devices.Number_Dev);
 % Ein Ergebnis Cell-Array erstellen, dass in der parfor-Schleife bearbeitet werden
 % kann (anscheinend kann ein 4D-Array nicht verabeitet werden, ein 3D-Array schon!
 % Siehe z.B. SIMULATE_DEVICES_PARALLEL):
-pow = cell(size(Devices.Elements_Varna,2),2);
+pow = cell(size(Devices.Elements_Varna,2),1);
 % Berechnen der Reaktionen der Verbraucher für die restlichen Zeitpunkte:
 parfor i = 1:size(Devices.Elements_Varna,2)
 	% Zwischenergebnis Array; enthält die Leistugsdaten aufgteilt auf die Phasen, die
@@ -74,22 +71,20 @@ parfor i = 1:size(Devices.Elements_Varna,2)
 	pow{i} = btw_result;
 end
 
-% Nach der Berechnung aus dem Ergebnis-Cell-Array das gewünschte 4D-Ergebnis-Array
-% erstellen. Zuerst die bisherige Ergebnismatrixdimensionen permutieren, damit diese
-% eine für die nächsten Schritte korrekt zu verarbeitende Form bekommt:
-Power = permute(Power, [2 1 3 4]);
+% ACHTUNG! Nachfolgend wurde der ursprüngliche Code verändert, weil eine Permutation
+%     einen gewaltigen Speicherbedarf hat, und so immer zum OUT_OF_MEMORY-Fehler
+%     führt. Daher verzicht auf Permutation und bilden eines neuen Ergebnis-Arrays,
+%     dass dann in weiterer folge gesondert behandelt werden muss!
+%     (siehe POSTPROCESS_RESULTS_FOR_LOADPROFILES)
+
 % Nun die einzelnen Zwischenergenisse abarbeiten:
 for i = 1:size(Devices.Elements_Varna,2)
-	btw_result = pow{i};
 	% ersten Zeitpunkt aus erster Schleife übernehmen:
-	btw_result(:,:,1) = squeeze(Power(i,:,:,1));
+	pow{i}(:,:,1) = squeeze(Power_parallel(i,:,:,1));
 	% Zwischenergenis korrekt eintragen:
-	Power(i,:,:,:) = btw_result;
+	Power_parallel(i,:,:,:) = pow{i};
 end
-% Nun die vorherige Permutation rückgängig machen, damit wieder das ursprüngliche
-% Ergebnis-Array für die nachflogenden Funktionen zur Verfügung steht:
-Power = permute(Power, [2 1 3 4]);
 
 % Das Endergebnis in der Result-Struktur speichern:
-Result.Raw_Data.Households_Power = Power;
+Result.Raw_Data.Households_Power_parallel = Power_parallel;
 end

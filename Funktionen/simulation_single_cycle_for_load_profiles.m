@@ -2,26 +2,25 @@ function simulation_single_cycle_for_load_profiles (hObject, handles)
 % SIMULATION_SINGLE_CYCLE_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 23.08.2011
+%    Franz Zeilinger - 16.09.2011
 
 % Einlesen vorhandener Daten aus handles-Struktur:
 Configuration = handles.Configuration;
 Model =         handles.Model;
-% Devices =       handles.Devices;
+% Devices =       handles.Devices; %--> TODO: Wiederverwendbarkeit der Haushalte
 % Households =    handles.Households;
 
-%Simulationszeitpunkt festhalten.
-Sim_date = now; 
+% Simulationszeitpunkt festhalten.
+Sim_date = now;
 % Erzeugen eines Unterordners mit Simulationsdatum:
 file = Configuration.Save.Data;
-file.Path = [file.Main_Path, datestr(Sim_date,'yy.mm.dd'),'\'];
+file.Path = [file.Main_Path, datestr(Sim_date,'yy.mm.dd'),' - Lastprofile','\'];
 if ~isdir(file.Path)
 	mkdir(file.Path);
 end
 % Simulationslog mitschreiben:
 file.Diary_Name = [datestr(Sim_date,'HHhMM.SS'),...
-	' - Simulations-Log - ',Model.Sim_Resolution,' - ',...
-	num2str(Model.Number_User),'.txt'];
+	' - Simulations-Log - ',Model.Sim_Resolution,'.txt'];
 diary([file.Path,file.Diary_Name]);
 fprintf('\n\tStart der Generierung von Lastprofilen:');
 Configuration.Save.Data = file;
@@ -53,13 +52,6 @@ if isempty(Households)
 	fprintf(['\n\t\t\t',str,'\n']);
 	return;
 end
-% Modellparameter gem. den Haushaltsdaten anpassen:
-Model.Number_User = Households.Number_Persons.Total;
-Model.Use_DSM = 0;
-
-str = '--> erledigt!';
-refresh_status_text(hObject,str,'Add');
-fprintf(['\n\t\t\t ',str,'\n ']);
 
 % Simulationszeiteinstellungen ermitteln:
 Time = get_time_settings(Model);
@@ -84,111 +76,165 @@ for i=1:size(Model.Device_Groups_Pool,1)
 	end
 end
 
-% Geräteinstanzen erzeugen:
-str = 'Erzeuge Geräte-Instanzen: ';
-refresh_status_text(hObject,str);
-fprintf(['\n\t\t',str]);
-
-clear Devices
-% if Configuration.Options.compute_parallel
-% 	Devices = create_devices_parallel(hObject, Model);
-% else
-	Devices = create_devices_for_loadprofiles(hObject, Model, Households);
-% end
-% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
-handles = guidata(hObject);
-% Überprüfen, ob bei Geräteerzeugung von User abgebrochen wurde:
-if handles.System.cancel_simulation
-	str = '--> Geräteerzeugung abgebrochen';
-	refresh_status_text(hObject,str,'Add');
-	fprintf(['\n\t\t\t',str,'\n']);
-	return;
-end
-% Überprüfen, ob Fehler bei Geräteerzeugung aufgetreten ist:
-if isempty(Devices)
-	str = '--> Ein Fehler ist aufgetreten: Abbruch!';
-	refresh_status_text(hObject,str,'Add');
-	fprintf(['\n\t\t\t',str,'\n']);
-	return;
-else
-	% Erfolgsmeldung (in Konsole + GUI):
-	str = '--> abgeschlossen!';
-	refresh_status_text(hObject,str,'Add');
-	fprintf(['\n\t\t\t',str]);
-	% Zurücksetzten Fortschrittsanzeige & Bekanngabe der benötigten
-	% Gesamtzeit:
-	t_total = waitbar_reset(hObject);
-	fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
-end
-% handles-Struktur aktualisieren
-guidata(hObject, handles);
-
-% den einzelnen Haushalten die Geräte zuweisen:
-str = 'Zuordnen der Geräteinstanzen zu den Haushalten: ';
-refresh_status_text(hObject,str);
-fprintf(['\n\t\t',str]);
-
-Households = pick_devices_households (Households, Devices);
-
 str = '--> erledigt!';
 refresh_status_text(hObject,str,'Add');
 fprintf(['\n\t\t\t ',str,'\n ']);
 
-% Simulieren der Geräte:
-str = 'Simuliere die Geräte: ';
-refresh_status_text(hObject,str);
-fprintf(['\n\t\t',str]);
-
-% Simulation durchführen:
-if Configuration.Options.compute_parallel
-	Result = simulate_devices_for_load_profiles_parallel(hObject, Devices, ...
-		Households,	Time);
-else
-	Result = simulate_devices_for_load_profiles(hObject, Devices, Households, Time);
+% Einzelsimulationen wiederholen:
+for j = 1:30
+	% die einzelnen Haushaltskategorien simulieren:
+	for i = 1:size(Households.Types,1)
+		try
+		% aktuelle Haushaltskategorie auswählen:
+		typ = Households.Types{i,1};
+		Households.Act_Type = typ;
+		
+		% User Informieren:
+		if i > 1
+			fprintf('\n');
+		end
+		sim_str = ['Durchl. ',num2str(j),': Bearb. Kat. ',num2str(i),...
+			' von ',num2str(size(Households.Types,1)),' (',typ,'): '];
+		str = ['Durchlauf ', num2str(j),': Bearbeite Kategorie ',num2str(i),...
+			' von ', num2str(size(Households.Types,1)),' (',typ,'):'];
+		refresh_status_text(hObject,sim_str);
+		fprintf(['\n\t',str]);
+		
+		% Modellparameter gem. den Haushaltsdaten anpassen:
+		Model.Number_User = Households.Number_Per_Tot.(typ);
+		Model.Use_DSM = 0;
+		
+		% Geräteinstanzen erzeugen:
+		str = 'Erzeuge Geräte-Instanzen: ';
+		refresh_status_text(hObject,[sim_str,str]);
+		fprintf(['\n\t\t',str]);
+		
+		clear Devices
+		clear Result
+		% if Configuration.Options.compute_parallel
+		% 	Devices = create_devices_parallel(hObject, Model);
+		% else
+		Devices = create_devices_for_loadprofiles(hObject, Model, Households);
+		% end
+% 		% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
+% 		handles = guidata(hObject);
+		% Überprüfen, ob bei Geräteerzeugung von User abgebrochen wurde:
+		if handles.System.cancel_simulation
+			str = '--> Geräteerzeugung abgebrochen';
+			refresh_status_text(hObject,str,'Add');
+			fprintf(['\n\t\t\t',str,'\n']);
+			return;
+		end
+		% Überprüfen, ob Fehler bei Geräteerzeugung aufgetreten ist:
+		if isempty(Devices)
+			str = '--> Ein Fehler ist aufgetreten: Abbruch!';
+			refresh_status_text(hObject,str,'Add');
+			fprintf(['\n\t\t\t',str,'\n']);
+			return;
+		else
+			% Erfolgsmeldung (in Konsole + GUI):
+			str = '--> abgeschlossen!';
+			refresh_status_text(hObject,str,'Add');
+			fprintf(['\n\t\t\t',str]);
+			% Zurücksetzten Fortschrittsanzeige & Bekanngabe der benötigten
+			% Gesamtzeit:
+			t_total = waitbar_reset(hObject);
+			fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
+		end
+% 		% handles-Struktur aktualisieren
+% 		guidata(hObject, handles);
+		
+		% den einzelnen Haushalten die Geräte zuweisen:
+		str = 'Zuordnen der Geräteinstanzen zu den Haushalten: ';
+		refresh_status_text(hObject,[sim_str,str]);
+		fprintf(['\n\t\t',str]);
+		
+		Households = pick_devices_households (Households, Devices);
+		
+		str = '--> erledigt!';
+		refresh_status_text(hObject,str,'Add');
+		fprintf(['\n\t\t\t ',str,'\n ']);
+		
+		% Simulieren der Geräte:
+		str = 'Simuliere die Geräte: ';
+		refresh_status_text(hObject,[sim_str,str]);
+		fprintf(['\n\t\t',str]);
+		
+		% Simulation durchführen:
+		if Configuration.Options.compute_parallel
+			Result = simulate_devices_for_load_profiles_parallel(hObject, Devices, ...
+				Households,	Time);
+		else
+			Result = simulate_devices_for_load_profiles(hObject, Devices, Households, Time);
+		end
+		
+		% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
+		handles = guidata(hObject);
+		% Überprüfen, ob während der Geräteerzeugung abgebrochen wurde:
+		if handles.System.cancel_simulation || isempty(Result)
+			str = '--> Simulation abgebrochen';
+			refresh_status_text(hObject,str,'Add');
+			fprintf(['\n\t\t\t',str,'\n']);
+			return;
+		end
+		% Statustextausgabe (in Konsole):
+		str = '--> abgeschlossen!';
+		refresh_status_text(hObject,str,'Add');
+		fprintf(['\n\t\t\t',str]);
+		% Zurücksetzten Fortschrittsanzeige & Bekanngabe der benötigten Gesamtzeit:
+		t_total = waitbar_reset(hObject);
+		fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
+		Result.Sim_date = Sim_date;
+		
+		% Nachbehandlung der Ergebnisse:
+		str = 'Nachbehandlung der Ergebnisse: ';
+		refresh_status_text(hObject,[sim_str,str]);
+		fprintf(['\n\t\t',str]);
+		
+		Result = postprocess_results_for_loadprofiles (Households, Model, Time, Devices, ...
+			Result);
+		
+		str = '--> abgeschlossen!';
+		refresh_status_text(hObject,str,'Add');
+		fprintf(['\n\t\t\t',str]);
+		
+		% Daten zurück in handles-Struktur speichern:
+% 		handles.Model =         Model;
+% 		handles.Result =        Result;
+% 		handles.Households =    Households;
+		
+% 		% handles-Struktur aktualisieren (damit Daten bei ev. nachfolgenden Fehlern
+% 		% erhalten bleiben!)
+% 		guidata(hObject, handles);
+		
+		% Automatisches Speichern der relevanten Daten:
+		str = 'Speichern der Daten: ';
+		refresh_status_text(hObject,[sim_str,str]);
+		fprintf(['\n\t\t',str]);
+		
+		Configuration = save_sim_data_for_loadprofiles (Configuration, Model,...
+			Households, Devices, Result, j);
+		
+		% Für bessere Speichernutzung, diese Daten löschen...
+		clear Devices
+		clear Result
+		
+		str = '--> erledigt!';
+		refresh_status_text(hObject,str,'Add');
+		fprintf(str);
+		catch ME
+			% Falls Fehler aufgetreten ist:
+			str = 'Ein Fehler ist aufgetreten:';
+			refresh_status_text(hObject,[sim_str,str]);
+			fprintf(['\n\t\t',str]);
+			str = ME.message;
+			fprintf(['\n\t\t',str]);
+			str = ['Simulation wird fortgesetzt, ',...
+				'Daten des aktuellen Durchlaufs gehen verloren!'];
+			fprintf(['\n\t\t',str]);
+		end
+	end
 end
-
-% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
-handles = guidata(hObject);
-% Überprüfen, ob während der Geräteerzeugung abgebrochen wurde:
-if handles.System.cancel_simulation || isempty(Result)
-	str = '--> Simulation abgebrochen';
-	refresh_status_text(hObject,str,'Add');
-	fprintf(['\n\t\t\t',str,'\n']);
-	return;
-end
-% Statustextausgabe (in Konsole):
-str = '--> abgeschlossen!';
-refresh_status_text(hObject,str,'Add');
-fprintf(['\n\t\t\t',str]);
-% Zurücksetzten Fortschrittsanzeige & Bekanngabe der benötigten Gesamtzeit:
-t_total = waitbar_reset(hObject);
-fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
-Result.Sim_date = Sim_date;
-
-% Nachbehandlung der Ergebnisse:
-Result = postprocess_results_for_loadprofiles (Households, Model, Time, Devices, ...
-	Result);
-
-% Daten zurück in handles-Struktur speichern:
-handles.Model =         Model;
-handles.Result =        Result;
-handles.Households =    Households;
-
-% handles-Struktur aktualisieren (damit Daten bei ev. nachfolgenden Fehlern
-% erhalten bleiben!)
-guidata(hObject, handles);
-
-% Automatisches Speichern der relevanten Daten:
-str = 'Speichern der Daten: ';
-refresh_status_text(hObject,str);
-fprintf(['\n\t\t',str]);
-
-Configuration = save_sim_data_for_loadprofiles (Configuration, Model,...
-	Households, Devices, Result);
-
-str = '--> erledigt!';
-refresh_status_text(hObject,str,'Add');
-fprintf(str);
 fprintf('\n\t=================================\n');
 
 % Gong ertönen lassen

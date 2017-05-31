@@ -1,5 +1,5 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
-% Franz Zeilinger - 29.07.2011
+% Franz Zeilinger - 14.09.2011
 % Last Modified by GUIDE v2.5 25-Aug-2011 11:20:48
 
 function varargout = Simulation(varargin)
@@ -239,7 +239,7 @@ end
 % Create figure
 figure1 = figure;
 % Create axes
-axes1 = axes('Parent',figure1);
+axes1 = axes('Parent',figure1); %#ok<NASGU>
 box('on');
 hold('all');
 
@@ -571,7 +571,7 @@ str = 'Speichern der Frequenzdaten: ';
 refresh_status_text(hObject,str);
 fprintf(['\n\t\t',str]);
 
-Frequency = handles.Frequency;
+Frequency = handles.Frequency; %#ok<NASGU>
 file = handles.Configuration.Save.Frequency;
 
 [file.Name,file.Path] = uiputfile({...
@@ -607,9 +607,9 @@ function push_display_result_Callback(~, ~, handles)
 
 disp_result(handles.Model, handles.Frequency, handles.Result);
 
-function push_generate_loadprofiles_Callback(hObject, eventdata, handles)
+function push_generate_loadprofiles_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_generate_loadprofiles (siehe GCBO)
-% eventdata	 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
+% ~      	 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 % Setzen verschiedener Einstellungen für GUI:
 handles.system.cancel_simulation = false;
@@ -645,8 +645,7 @@ refresh_display (handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-
-function push_open_data_explorer_Callback(hObject, eventdata, handles)
+function push_open_data_explorer_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_open_data_explorer (siehe GCBO)
 % ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -659,7 +658,6 @@ refresh_display(handles);
 
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
-
 
 function push_set_device_parameter_Callback(~, ~, handles)
 % hObject    Link zu Grafikobjekt push_set_device_parameter (siehe GCBO)
@@ -898,9 +896,9 @@ handles.Model.Use_DSM = logical(get(hObject,'Value'));
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function varargout = Simulation_OutputFcn(hObject, ~, handles)
-function main_window_CreateFcn(hObject, ~, handles)
-function pop_sim_res_CreateFcn(hObject, ~, handles)
+function varargout = Simulation_OutputFcn(hObject, ~, handles) %#ok<STOUT,INUSD>
+function main_window_CreateFcn(hObject, ~, handles) %#ok<INUSD>
+function pop_sim_res_CreateFcn(hObject, ~, handles) %#ok<INUSD>
 % hObject    handle to pop_sim_res (see GCBO)
 % ~  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -910,8 +908,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 	
 	
-end
-function edit_number_user_CreateFcn(hObject, ~, handles)
+end 
+function edit_number_user_CreateFcn(hObject, ~, handles) %#ok<INUSD>
 % hObject    handle to edit_number_user (see GCBO)
 % ~  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -921,9 +919,9 @@ function edit_number_user_CreateFcn(hObject, ~, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-function main_window_WindowKeyPressFcn(hObject, ~, handles)
-function menu_file_Callback(hObject, ~, handles)
-function edit_date_start_CreateFcn(hObject, ~, handles)
+function main_window_WindowKeyPressFcn(hObject, ~, handles) %#ok<INUSD>
+function menu_file_Callback(hObject, ~, handles) %#ok<INUSD>
+function edit_date_start_CreateFcn(hObject, ~, handles) %#ok<INUSD>
 % hObject    handle to edit_date_start (see GCBO)
 % ~  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -933,7 +931,7 @@ function edit_date_start_CreateFcn(hObject, ~, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-function edit_date_end_CreateFcn(hObject, ~, handles)
+function edit_date_end_CreateFcn(hObject, ~, handles) %#ok<INUSD>
 % hObject    handle to edit_date_end (see GCBO)
 % ~  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -943,12 +941,6 @@ function edit_date_end_CreateFcn(hObject, ~, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-function menu_Callback(hObject, ~, handles)
-function menu_multiple_sim_Callback(hObject, ~, handles)
-function menu_frequency_Callback(hObject, ~, handles) %#ok<*DEFNU>
-
-
-% --- Executes on button press in check_saveas_csv.
-
-
-% Hint: get(hObject,'Value') returns toggle state of check_saveas_csv
+function menu_Callback(hObject, ~, handles) %#ok<INUSD>
+function menu_multiple_sim_Callback(hObject, ~, handles) %#ok<INUSD>
+function menu_frequency_Callback(hObject, ~, handles) %#ok<INUSD,*DEFNU>
