@@ -280,7 +280,7 @@ for i=1:size(Joblist,1)
 	
 	% Nachbehandlung der Ergebnisse:
 	Result.Sim_date = Sim_date;
-	Result = calculate_infos (Model, Time, Devices, Result);
+	Result = postprocess_results(Model, Time, Devices, Result);
 	
 	% Anzeigen der Ergebnisse:
 	if Configuration.Options.show_data

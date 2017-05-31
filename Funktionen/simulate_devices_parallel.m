@@ -41,7 +41,6 @@ date_start = Time.Date_Start;
 base = Time.Base;
 % Berechnen der Reaktionen der Verbraucher für die restlichen Zeitpunkte:
 parfor i = 1:size(Devices.Elements_Varna,2)
-% for i = 1:size(Devices.Elements_Varna,2)
 	for step = 2:number_steps
 		% Aktuellen Zeitpunkt ermitteln:
 		time = date_start + (step-1)*base/86400;

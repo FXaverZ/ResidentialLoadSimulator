@@ -67,6 +67,7 @@ for step = 2:Time.Number_Steps
 	% erfolgt ist:
 	if waitbar_update (hObject, 5, step-1, Time.Number_Steps-1)
 		% Simulation abbrechen:
+		Result = [];
 		return;
 	end
 end

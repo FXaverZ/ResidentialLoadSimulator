@@ -1,6 +1,6 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
 % Franz Zeilinger - 29.07.2011
-% Last Modified by GUIDE v2.5 05-Aug-2011 10:50:09
+% Last Modified by GUIDE v2.5 25-Aug-2011 11:20:48
 
 function varargout = Simulation(varargin)
 
@@ -51,6 +51,7 @@ handles = get_default_values(handles);
 %    handles.Configuration     und 
 %    handles.Model             (ohne Geräteparameter) 
 handles.Devices = [];
+handles.Households = [];
 handles.Joblist = {};
 
 % Systemvariablen:
@@ -144,7 +145,7 @@ function start_simulation_Callback(hObject, ~, handles)
 handles.system.cancel_simulation = false;
 set(handles.cancel_simulation,'Enable','on');
 set(handles.start_simulation,'Enable','off');
-set (handles.push_display_result,'Enable','off');
+set(handles.push_generate_loadprofiles,'Enable','off');
 set (handles.push_display_result,'Enable','off');
 set (handles.push_set_device_parameter,'Enable','off');
 
@@ -164,8 +165,9 @@ handles = guidata(hObject);
 % Setzen verschiedener Einstellungen für GUI:
 set(handles.cancel_simulation,'Enable','off');
 set(handles.start_simulation,'Enable','on');
-set (handles.push_display_result,'Enable','on');
-set (handles.push_set_device_parameter,'Enable','on');
+set(handles.push_generate_loadprofiles,'Enable','on');
+set(handles.push_display_result,'Enable','on');
+set(handles.push_set_device_parameter,'Enable','on');
 
 handles.system.cancel_simulation = false;
 
@@ -180,6 +182,7 @@ function cancel_simulation_Callback(hObject, ~, handles)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 handles.system.cancel_simulation = true;
 set(handles.cancel_simulation,'Enable','off');
+set(handles.push_generate_loadprofiles,'Enable','on');
 set(handles.start_simulation,'Enable','on');
 set(handles.Waitbar_white,'String',' ');
 % Anzeigen aktualisieren:
@@ -604,6 +607,45 @@ function push_display_result_Callback(~, ~, handles)
 
 disp_result(handles.Model, handles.Frequency, handles.Result);
 
+function push_generate_loadprofiles_Callback(hObject, eventdata, handles)
+% hObject    Link zu Grafikobjekt push_generate_loadprofiles (siehe GCBO)
+% eventdata	 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+% Setzen verschiedener Einstellungen für GUI:
+handles.system.cancel_simulation = false;
+set(handles.cancel_simulation,'Enable','on');
+set(handles.start_simulation,'Enable','off');
+set(handles.push_generate_loadprofiles,'Enable','off');
+set(handles.push_display_result,'Enable','off');
+set(handles.push_set_device_parameter,'Enable','off');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+% % Je nach Simulationsmodus die Simulationen durchführen:
+% if handles.Configuration.Options.multiple_simulation && ~isempty(handles.Joblist)
+% 	simulation_multip_cycle (hObject, handles);
+% else
+	simulation_single_cycle_for_load_profiles (hObject, handles);
+% end
+
+% aktuelle handles-Struktur auslesen (wurde in den Funktionen erweitert):
+handles = guidata(hObject);
+
+% Setzen verschiedener Einstellungen für GUI:
+set(handles.cancel_simulation,'Enable','off');
+set(handles.start_simulation,'Enable','on');
+set(handles.push_generate_loadprofiles,'Enable','on');
+set (handles.push_display_result,'Enable','on');
+set (handles.push_set_device_parameter,'Enable','on');
+handles.system.cancel_simulation = false;
+
+% Anzeigen aktualisieren:
+refresh_display (handles);
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+
 function push_open_data_explorer_Callback(hObject, eventdata, handles)
 % hObject    Link zu Grafikobjekt push_open_data_explorer (siehe GCBO)
 % ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
@@ -815,8 +857,18 @@ handles.Configuration.Options.show_data = get(hObject,'Value');
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function check_savas_xls_Callback(hObject, ~, handles)
-% hObject    Link zu Grafik des Hauptfensters
+function check_saveas_csv_Callback(hObject, ~, handles)
+% hObject    Link zu Grafik check_saveas_csv (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Configuration.Options.savas_csv = get(hObject,'Value');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function check_saveas_xls_Callback(hObject, ~, handles)
+% hObject    Link zu Grafik check_saveas_xls (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
@@ -895,3 +947,8 @@ function menu_Callback(hObject, ~, handles)
 function menu_multiple_sim_Callback(hObject, ~, handles)
 function menu_frequency_Callback(hObject, ~, handles) %#ok<*DEFNU>
 
+
+% --- Executes on button press in check_saveas_csv.
+
+
+% Hint: get(hObject,'Value') returns toggle state of check_saveas_csv

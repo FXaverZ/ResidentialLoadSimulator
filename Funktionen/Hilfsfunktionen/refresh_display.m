@@ -96,7 +96,8 @@ end
 
 % Optionencheckboxen setzen:
 set(handles.check_show_data,'Value',handles.Configuration.Options.show_data);
-set(handles.check_savas_xls,'Value',handles.Configuration.Options.savas_xls);
+set(handles.check_saveas_xls,'Value',handles.Configuration.Options.savas_xls);
+set(handles.check_saveas_csv,'Value',handles.Configuration.Options.savas_csv);
 set(handles.check_use_dsm,'Value',handles.Model.Use_DSM);
 set(handles.check_compute_parallel,'Value',...
 	handles.Configuration.Options.compute_parallel);

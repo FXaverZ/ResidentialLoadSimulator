@@ -1,12 +1,12 @@
-function Result = calculate_infos (Model, Time, Devices, Result)
-%CALCULATE_INFOS    ermitteln interessanter Werte aus Simulationsergnis
-%    RESULT = CALCULATE_INFOS(MODEL, TIME, DEVICES, RESULT) berechnet nach der
+function Result = postprocess_results (Model, Time, Devices, Result)
+%POSTPROCESS_RESULTS    ermitteln interessanter Werte aus Simulationsergnis
+%    RESULT = POSTPROCESS_RESULTS(MODEL, TIME, DEVICES, RESULT) berechnet nach der
 %    Simulation interessante Daten, die für eine weiterführende Auswertung
 %    notwendig sind. Dazu wird auf alle relevanten Strukturen zurückgegriffen
 %    (MODEL, TIME, DEVICES und RESULT) und das Ergebnis der RESULT-Struktur
 %    hinzugefügt.
 
-%    Franz Zeilinger - 04.08.2011
+%    Franz Zeilinger - 23.08.2011
 
 % aus den einzelnen Phasenleistungen die Gesamtleistung für jede Gerätekategorie
 % ermitteln sowie die Gesamtleistung ermitteln:

@@ -1,21 +1,22 @@
-function Result = simulate_devices(hObject, Devices, Time)
-%SIMULATE_DEVICES    führt die eigentliche Simulation durch
-%    RESULT = SIMULATE_DEVICES(HOBJECT, DEVICES, TIME) führt die eigentliche
-%    Simulation aus. Dazu wird über jeden Zeitschritt (gemäß TIME) und jedes
-%    Gerät (DEVICES) itteriert und deren aktuelle Leistung ermittelt und in die
-%    RESULT-Struktur gespeichert. Weiters erfolgt eine Ausgabe des Fortschritts
-%    in der Konsole. HOBJECT liefert den Zugriff auf das aufrufende GUI-Fenster
-%    (für Statusanzeige).
+function Result = simulate_devices_for_load_profiles(hObject, Devices, Households,...
+	Time)
+%SIMULATE_DEVICES_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
+%    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 15.06.2011
+%    Franz Zeilinger - 22.08.2011
+
+% ACHTUNG! Debug-Einstellung bzw. für Testzwecke:
+typ = Households.Types{1};
 
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3
 % - 2. Dimension: Gerätearten
-% - 3. Dimension: Zeitpunkte
-Result.Raw_Data.Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
+% - 3. Dimension: Geräteinstanz
+% - 4. Dimension: Zeitpunkte
+Power = zeros([3 size(Devices.Elements_Varna,2) max(Devices.Number_Dev)...
+	(Time.Number_Steps)]);
 
-% Ersten Zeitpnkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
+% Ersten Zeitpunkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
 % Matlabzeit umrechnen:
 step = 1;
 time = Time.Date_Start;
@@ -27,8 +28,7 @@ for i = 1:size(Devices.Elements_Varna,2)
 		% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 		% berechnet wird!
 		dev = dev.next_step(time, 0);
-		Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + ...
-			dev.Power_Input;
+		Power(:,i,dev.ID_Index,step) = dev.Power_Input;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 end
@@ -44,8 +44,7 @@ for step = 2:Time.Number_Steps
 		for j = 1:size(Devices.(Devices.Elements_Varna{i}),2)
 			dev = Devices.(Devices.Elements_Varna{i})(j);
 			dev = dev.next_step(time, Time.Base);
-			Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + ...
-				dev.Power_Input;
+			Power(:,i,j,step) = dev.Power_Input;
 			Devices.(Devices.Elements_Varna{i})(j) = dev;
 		end
 	end
@@ -57,4 +56,6 @@ for step = 2:Time.Number_Steps
 		return;
 	end
 end
+
+Result.Raw_Data.Households_Power = Power;
 end

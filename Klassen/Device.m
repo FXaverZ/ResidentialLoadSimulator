@@ -42,7 +42,7 @@ classdef Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 19.08.2011
+	%    Franz Zeilinger - 22.08.2011
 	
 	properties
 		Phase_Index
@@ -59,6 +59,7 @@ classdef Device
 	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
+	    ID_Index
 	end
 	
 	properties (Hidden)

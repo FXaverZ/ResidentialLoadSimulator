@@ -214,7 +214,7 @@ end
 % handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 handles = guidata(hObject);
 % Überprüfen, ob während der Geräteerzeugung abgebrochen wurde:
-if handles.System.cancel_simulation
+if handles.System.cancel_simulation || isempty(Result)
 	str = '--> Simulation abgebrochen';
 	refresh_status_text(hObject,str,'Add');
 	fprintf(['\n\t\t\t',str,'\n']);
@@ -230,7 +230,7 @@ fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
 Result.Sim_date = Sim_date;
 
 % Nachbehandlung der Ergebnisse:
-Result = calculate_infos (Model, Time, Devices, Result);
+Result = postprocess_results(Model, Time, Devices, Result);
 
 % Daten zurück in handles-Struktur speichern:
 handles.Model =         Model;
