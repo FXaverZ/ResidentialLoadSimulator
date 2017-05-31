@@ -12,7 +12,11 @@ switch Model.Sim_Resolution
 	case 'min'
 		Time.Base = 60;	
 	case '2.5m'
-		Time.Base = 150;	
+		Time.Base = 150;
+	case '10s'
+		Time.Base = 10;
+	case '5se'
+		Time.Base = 5;
 	case 'sec'
 		Time.Base = 1;
 	case 'hou'

@@ -1,4 +1,4 @@
-function Power_parallel = simulate_devices_for_load_profiles_parallel(Devices, Time)
+function Power_parallel = simulate_devices_for_load_profiles_new(Devices, Time)
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES_PARALLEL   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
@@ -101,7 +101,7 @@ time_vec = Time.Date_Start:Time.Base/Time.day_to_sec:Time.Date_End;
 
 % Berechnen der Reaktionen der Verbraucher für die restlichen Zeitpunkte, zunächst
 % die schnell rechenbaren Geräte (aufgeteilt auf die aktiven Worker):
-parfor i = 1:numel(fast_computing_devs)
+for i = 1:numel(fast_computing_devs)
 	btw_result = fast_pow{i};
 	dev = fast_device{i};
 	if isempty(dev)
@@ -157,7 +157,7 @@ for i = 1:numel(slow_computing_devs)
 	% Geräteklasse:
 	% Für jeden Zeitpunkt
 	device = slow_device{i};
-	parfor j = 1:size(device,2)
+	for j = 1:size(device,2)
 		% Reaktion der Verbraucher ermitteln
 		for step = 2:number_steps
 			% Aktuellen Zeitpunkt ermitteln:
