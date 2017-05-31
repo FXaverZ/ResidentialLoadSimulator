@@ -5,15 +5,16 @@ function Configuration = save_sim_data (Configuration, Model, Devices, Frequency
 %    Funktion erzeugt werden ist von der Form: 
 %        Simulationszeit - Dateiinhalt - zeitliche Auflösung - Anzahl Personen
 
-%    Franz Zeilinger - 04.08.2011
+% Erstellt von:            Franz Zeilinger - 04.08.2011
+% Letzte Änderung durch:   Franz Zeilinger - 04.12.2012
 
 file = Configuration.Save.Data;
 % Speichern der wichtigen Workspacevariablen:
-file.Data_Name = [datestr(Result.Sim_date,'HHhMM.SS'),...
+file.Data_Name = [datestr(Result.Sim_date,'HH_MM.SS'),...
 	' - Rohdaten - ',Model.Sim_Resolution,' - ',num2str(Model.Number_User)];
 try
 % 	save([file.Path,file.Data_Name,'.mat'],'Model','Result','Devices','Frequency');
-	save([file.Path,file.Data_Name,'.mat'],'Model','Result');
+	save([file.Path,file.Data_Name,'.mat'],'Model','Result','Devices');
 catch ME
 	% Falls Fehler aufgetreten ist, Meldung in Konsole:
 	errorstr = strrep(ME.message,'\','\\');
@@ -26,7 +27,7 @@ catch ME
 end
 
 % Festlegen des Pfades für die Parameterdateien:
-file.Parameter_Name = [ datestr(Result.Sim_date,'HHhMM.SS'),...
+file.Parameter_Name = [ datestr(Result.Sim_date,'HH_MM.SS'),...
 	' - Parameterwerte - ',Model.Sim_Resolution,' - ',num2str(Model.Number_User)];
 
 Configuration.Save.Data = file;
@@ -46,7 +47,7 @@ if (size(data,1) >= 1048665) || ~Configuration.Options.savas_xls
 else
 	xls = XLS_Writer();
 	xls.write_lines({'Simulationsdaten vom Durchlauf am','','',...
-		datestr(Result.Sim_date)});
+		datestr(Result.Sim_date,'dd.mm.yyyy HH:MM:SS')});
 	xls.write_lines(titl); % Spaltenüberschriften
 	xls.write_values('aktive Geräte:');
 	xls.next_col;
@@ -55,10 +56,10 @@ else
 	xls.next_col;
 	xls.write_lines(Result.Mean_Power_pP_Class); %durchschn. Leistung je Klasse
 	xls.write_lines(data); % Daten
-	wshn = datestr(Result.Sim_date,'HHhMM.SS'); % Tabellenblattname
+	wshn = datestr(Result.Sim_date,'HH_MM.SS'); % Tabellenblattname
 	xls.set_worksheet(wshn);
 	if Model.Use_DSM
-		wshn = [datestr(Result.Sim_date,'HHhMM.SS'),'+DSM']; % Tabellenblattname
+		wshn = [datestr(Result.Sim_date,'HH_MM.SS'),'+DSM']; % Tabellenblattname
 		xls.set_worksheet(wshn);
 		titl = [{'Zeit'},{'Netzfrequenz'},...
 			Result.Displayable.DSM_Power_Class_and_Total_kW.Legend];

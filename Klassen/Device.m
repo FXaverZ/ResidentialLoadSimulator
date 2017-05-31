@@ -13,10 +13,10 @@ classdef Device
 	%    gewünscht ist, den Wert '0' als drittes Argument einfügen (z.B. bei
 	%    Verteilungsfunktionen)
 	%
-	%    Parameter (werden in Parameterliste übergeben): 
-	%        'Power_Nominal' 
-	%            Anschlussleistung des Geräts. 
-	%        'Start_Probability'       
+	%    Parameter (werden in Parameterliste übergeben):
+	%        'Power_Nominal'
+	%            Anschlussleistung des Geräts.
+	%        'Start_Probability'
 	%            Wahrscheinlichkeit, dass Gerät aktiv ist. Kann eine zu einer
 	%            Startzeitliste gehörende Liste sein (definert dann für jeden
 	%            Startzeitpunkt die Wahrscheinlichkeit, ob Gerät aktiv wird)
@@ -30,57 +30,58 @@ classdef Device
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
 	%            werden. Daher sollte immer ACTIVITY = 1 sein!)
-	%	     'Operating'               
+	%	     'Operating'
 	%            gibt an, ob das Gerät gerade aktiv ist (d.h. eingeschaltet).
 	%        'DSM'
 	%            Instanz der Klasse 'DSM_Device', welche das DSM-Verhalten des
 	%            Verbrauchers beinhaltet und steuert.
 	%
 	%    Ausgabe:
-	%        'Power_Input'     
+	%        'Power_Input'
 	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 21.09.2011
+	% Erstellt von:            Franz Zeilinger - 21.09.2011
+	% Letzte Änderung durch:   Franz Zeilinger - 29.11.2012
 	
 	properties
 		Phase_Index
-	%            Index der Phase, an der das Gerät angeschlossen ist
+		%            Index der Phase, an der das Gerät angeschlossen ist
 		Power_Nominal
-	%            Anschlussleistung des Geräts
-	    Cos_Phi_Nominal = 1
-	%            Leistungsfaktor bei Normalbetrieb
+		%            Anschlussleistung des Geräts
+		Cos_Phi_Nominal = 1
+		%            Leistungsfaktor bei Normalbetrieb
 		Start_Probability
-	%            Wahrscheinlichkeit, dass Gerät aktiv ist. Kann eine zu einer
-	%            Startzeitliste gehörende Liste sein (definert dann für jeden
-	%            Startzeitpunkt die Wahrscheinlichkeit, ob Gerät aktiv wird)
-	%            oder auch ein Wert, der die Wahrscheinlichkeit für die
-	%            generelle Aktivität angibt (für die gesamte Simulationsdauer).
+		%            Wahrscheinlichkeit, dass Gerät aktiv ist. Kann eine zu einer
+		%            Startzeitliste gehörende Liste sein (definert dann für jeden
+		%            Startzeitpunkt die Wahrscheinlichkeit, ob Gerät aktiv wird)
+		%            oder auch ein Wert, der die Wahrscheinlichkeit für die
+		%            generelle Aktivität angibt (für die gesamte Simulationsdauer).
 		Power_Input = zeros(3,1)
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
-	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
-	%            darstellt.
-	    Power_Input_Reactive = zeros(3,1)
-	%            Blindleistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+		%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+		%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+		%            darstellt.
+		Power_Input_Reactive = zeros(3,1)
+		%            Blindleistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
 	end
 	
 	properties (Hidden)
 		Activity
-	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
-	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
-	%            werden. Daher sollte immer ACTIVITY = 1 sein!)
-	    Operating               
-	%            gibt an, ob das Gerät gerade aktiv ist (d.h. eingeschaltet).
+		%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
+		%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
+		%            werden. Daher sollte immer ACTIVITY = 1 sein!)
+		Operating
+		%            gibt an, ob das Gerät gerade aktiv ist (d.h. eingeschaltet).
 		DSM
-	%            Instanz der Klasse 'DSM_Device', welche das DSM-Verhalten des
-	%            Verbrauchers beinhaltet und steuert.
+		%            Instanz der Klasse 'DSM_Device', welche das DSM-Verhalten des
+		%            Verbrauchers beinhaltet und steuert.
 		Fast_computing_at_no_dsm = 0
-	%            diese Option zeigt an, ob im Fall, dass kein DSM simuliert werden
-	%            muss, eine schnellere Berechnung durchgeführt werden kann (d.h.
-	%            nicht jeder Zeitschritt extra). Diese Option ist generell
-	%            deaktiviert und muss in den entsprechnenden Geärteklassen auf Eins
-	%            gesetzt werden!
+		%            diese Option zeigt an, ob im Fall, dass kein DSM simuliert werden
+		%            muss, eine schnellere Berechnung durchgeführt werden kann (d.h.
+		%            nicht jeder Zeitschritt extra). Diese Option ist generell
+		%            deaktiviert und muss in den entsprechnenden Geärteklassen auf Eins
+		%            gesetzt werden!
 	end
 	
 	methods
@@ -91,22 +92,20 @@ classdef Device
 			%    und führt diese einer Variation der gegebenen Parameterwerte
 			%    gemäß einer Normalverteilung zu.
 			
-			input = varargin; % Übernehemen der Eingangsvariablen
 			% Sind die Argumente Dreiergruppen --> wenn nicht --> Fehler:
 			if (mod(nargin,3) == 0)
 				% Durchlaufen aller Eingangsparameter (in 3er Schritten):
 				for i = 1:3:nargin
-					parameter = varargin{i};
 					% Erster Teil: Parametername, ist dieser ein String -->
 					% wenn nicht --> Fehler:
-					if ischar(parameter)
+					if ischar(varargin{i})
 						try
-							obj = add_parameter(obj, parameter, input{i+1}, ...
-								input{i+2});
+							obj = add_parameter(obj, varargin{i}, varargin{i+1}, ...
+								varargin{i+2});
 						catch ME
 							error('device:paramlist',...
 								['Fehler beim Bearbeiten des Parameters ''',...
-								parameter,''' ist folgender Fehler aufgetreten: ',...
+								varargin{i},''' ist folgender Fehler aufgetreten: ',...
 								ME.message]);
 						end
 					else
@@ -117,7 +116,6 @@ classdef Device
 							' Mean_Value, Standard_Deviation)']);
 					end
 				end
-				obj = check_activity(obj);
 			else
 				% Fehler, weil Parameter nicht in Dreiergruppe übergeben wurde:
 				error('device:paramlist', ['Wrong number of inputarguments',...
@@ -127,6 +125,12 @@ classdef Device
 			
 			% Phasenzuordnung ermitteln (gleich verteilt über alle drei Phasen):
 			obj.Phase_Index = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
+			
+			% Anhand der nun vorhandenen Parameter, Aktivitätscheck durchführen (wird
+			% ev. in den Subklassen nochmal durchgeführt, nachdem die
+			% Klassenspezifischen Vorbereitungen durchgeführt wurden):
+			obj = check_activity(obj);
+			
 		end
 		
 		function obj = add_parameter(obj, parameter, input_1, input_2)
@@ -149,8 +153,8 @@ classdef Device
 					% 100% liegt:
 					value = -1;
 					while (value < 0) || (value > 100)
-					 value = vary_parameter(...
-						input_1,input_2);
+						value = vary_parameter(...
+							input_1,input_2);
 					end
 					obj.(parameter) = value;
 				case 'Cos_Phi_Nominal'
@@ -186,13 +190,13 @@ classdef Device
 		function obj = check_activity(obj)
 			%CHECK_ACTIVITY    überprüfen ob Gerät zum Einsatz kommt.
 			%    OBJ = CHECK_ACTIVITY(OBJ) überprüft, ob Gerät überhaupt für
-			%    Simulation als aktiv gilt und setzt dementsprechend 
+			%    Simulation als aktiv gilt und setzt dementsprechend
 			%    OBJ.ACTIVITY. Dieser Wert hilft der das Gerät verwendenden
 			%    Funktion zu entscheiden, ob dieses Gerät überhaupt für den
 			%    Simulationsdurchlauf gespeichert werden soll oder einfach
 			%    ignoriert wird (da es keinen Beitrag zum Gesamtergebnis
 			%    liefert).
-
+			
 			if (numel(obj.Start_Probability) == 1)
 				% Wenn EIN Wert für die Startwahrscheinlichkeit angegeben wurde,
 				% zufällig ermitteln, ob Gerät überhaupt in Einsatz genommen wird:
@@ -208,15 +212,79 @@ classdef Device
 			end
 		end
 		
+		function obj = update_device_activity(obj, varargin)
+			%UPDATE_DEVICE_ACTIVITY führt Neuberechnung des Geräteeinsatzes durch
+			%    OBJ = UPDATE_DEVICE_ACTIVITY(OBJ, ARGS) geht die Argumenteliste ARGS
+			%    durch und aktualisiert alle Parameter, die den Geräteeinsatz, jedoch
+			%    NICHT die Geräteeigenschaften betreffen.
+			%    Dazu wird eine gleiche Argumenteliste übergeben, wie bei der
+			%    Instanzenerzeugung, diese Funktion sucht sich die relevanten
+			%    Parameter heraus und ändert diese.
+			%    Z.B. werden die Einsatzzeiten über Startwahrscheinlichkeit &
+			%    Startzeiten & typische Laufzeiten definiert, daher werden auch nur
+			%    diese Parameter von dieser Funktion geändert. z.B. die Nennleistung
+			%    wird nicht geändert.
+			
+			% Liste mit Parameterwerten, die geändert werden können, alle anderen
+			% werden einfach ignoriert:
+			args_list = {...
+				'Temp_Ambiance';...
+				'Time_Period';...
+				'Time_typ_Run';...
+				'Time_Start';...
+				'Start_Probability';...
+				'Time_Starts_per_Hour';...
+				'Time_run_Duty_Cycle';...
+				'Time_min_Run';...
+				};
+			
+			% Sind die Argumente Dreiergruppen --> wenn nicht --> Fehler:
+			if (mod(numel(varargin),3) == 0)
+				% Durchlaufen aller Eingangsparameter (in 3er Schritten):
+				for i = 1:3:numel(varargin)
+					% Erster Teil: Parametername, ist dieser ein String -->
+					% wenn nicht --> Fehler:
+					if ischar(varargin{i})
+						try
+							% nun überprüfen, ob dieser Parameter überhaupt geändert
+							% werden muss:
+							if ~isempty(find(strcmp(varargin{i},args_list), 1))
+								% Falls Parameter in dieser Liste steht, Parameter
+								% anpassen:
+								obj = add_parameter(obj, varargin{i}, varargin{i+1},...
+									varargin{i+2});
+							end		
+						catch ME
+							error('device:paramlist',...
+								['Fehler beim Bearbeiten des Parameters ''',...
+								varargin{i},''' ist folgender Fehler aufgetreten: ',...
+								ME.message]);
+						end
+					else
+						% Fehler, weil erster Eintrag in Parameterliste kein
+						% Text war:
+						error('device:paramlist', ['Wrong inputarguments.',...
+							' Input looks like (''Parameter_Name'',',...
+							' Mean_Value, Standard_Deviation)']);
+					end
+				end
+				obj = check_activity(obj);
+			else
+				% Fehler, weil Parameter nicht in Dreiergruppe übergeben wurde:
+				error('device:paramlist', ['Wrong number of inputarguments',...
+					'. Input looks like (''Parameter_Name'', Mean_Value,',...
+					' Standard_Deviation)']);
+			end
+			
+		end
+		
 		function obj = adapt_for_simulation(obj, varargin)
 			%ADAPT_FOR_SIMULATION    bereitet Klasse für Simulation vor
-			%    OBJ = ADAPT_SCHEDULE(OBJ, VARARGIN) sorgt dafür,
-			%    dass die aktuelle Geräteklasse für einen Simulationsdurchlauf
-			%    vorbereitet wird.
+			%    OBJ = ADAPT_SCHEDULE(OBJ, VARARGIN) sorgt dafür, dass die aktuelle
+			%    Geräteklasse für einen Simulationsdurchlauf vorbereitet wird.
 			%    Diese Funktion muss einmal zu Beginn der Simulation für jede
-			%    Geräteinstanz aufgerufen werden.
-			%    Diese Funktion wird in den jeweiligen Subklassen genauer
-			%    definiert!
+			%    Geräteinstanz aufgerufen werden. Diese Funktion wird in den
+			%    jeweiligen Subklassen genauer definiert!
 		end
 		
 		function obj = next_step(obj, varargin)
@@ -226,7 +294,7 @@ classdef Device
 			%    in der aufgenommen Leistung zu diesem Zeitpunkt.
 			%    Diese Funktion wird in den jeweiligen Subklassen genauer
 			%    definiert!
-		end		
+		end
 	end
 	
 	methods (Static)

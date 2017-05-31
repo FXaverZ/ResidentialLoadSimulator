@@ -158,6 +158,8 @@ classdef Loadcurve_Operation < Probable_Operation
 				% setzen und Funktion beenden:
 				sched = [];
 				obj = obj.adapt_schedule_day(sched);
+				obj.Time_Start_Day = [];
+				obj.Time_Stop_Day = [];
 				return;
 			end
 			

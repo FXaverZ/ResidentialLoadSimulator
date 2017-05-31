@@ -33,7 +33,7 @@ function Households = pick_devices_households (Households, Devices)
 %    Haushaltsprofil hinzugefügt.
 
 % Erstellt von:            Franz Zeilinger - 05.12.2011
-% Letzte Änderung durch:   Franz Zeilinger - 16.11.2012
+% Letzte Änderung durch:   Franz Zeilinger - 29.11.2012
 
 % Auslesen der Haushaltskategorie, die berechnet wird:
 typ = Households.Act_Type;
@@ -52,6 +52,9 @@ for i = 1:numel(Devices.Elements_Varna_Known)
 	for j = 1:Households.Statistics.(typ).Number
 		num_dev = Number_Devices(i,j);
 		count_d = 1;
+		% Nullwert einfügen, damit dieses Array auch wirklich Einträge für jeden
+		% Haushalt enthält:
+		hh_devices(idx,j,count_d) = 0; %#ok<AGROW>
 		while num_dev > 0
 			hh_devices(idx,j,count_d) = dev_idx(i,run_idx); %#ok<AGROW>
 			run_idx = run_idx + 1;
@@ -111,13 +114,9 @@ for i = 1:numel(Devices.Elements_Varna_Unknown)
 						num_dev_total = num_dev_total - 1;
 						run_idx = run_idx + 1;
 					else
-						% Wenn nein, 
+						% Wenn nein, springen zur nächsten "Ebene" (in die 3.
+						% Dimension der Zurodnungsmatrix:
 						count_d = count_d + 1;
-						% Index des aktuellen Haushalts anpassen:
-% 						hh_idx = hh_idx + 1;
-% 						if hh_idx > Households.Number.(typ)
-% 							hh_idx = 1;
-% 						end
 					end
 				else
 					% Falls Array an dieser Stelle noch nicht existent, kann Gerät
@@ -141,5 +140,8 @@ for i = 1:numel(Devices.Elements_Varna_Unknown)
 		end
 	end
 end
+
 % Speichern der Gerätezurodnung:
-Households.Devices.(typ) = hh_devices;
+Households.Devices.(typ).Allocation = hh_devices;
+% Speichern der akutellen Geräteinstanzen zur Haushaltskategorie:
+Households.Devices.(typ).Devices = Devices;

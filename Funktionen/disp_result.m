@@ -7,7 +7,8 @@ function disp_result(Model, Frequency, Result)
 %    VERSIONEN DER SIMULATIONSSOFTWARE!!
 %    Stattdessen sollte der Daten-Exporer verwendet werden!
 
-% Franz Zeilinger - 04.08.2011
+% Erstellt von:            Franz Zeilinger - 04.08.2011
+% Letzte Änderung durch:   Franz Zeilinger - 29.11.2012
 
 time = Result.Time;
 % Create figure
@@ -108,10 +109,10 @@ set(AX(2),'XTick',[]);
 if Model.Number_User > 1
 	titlestr = ['Simulationsergebnis: durchschnittlicher Verbrauch von ',...
 		num2str(Model.Number_User),' Personen (',datestr(Result.Sim_date,...
-		'yy.mm.dd - HHhMM.SS'),')'];
+		'yy.mm.dd - HH_MM.SS'),')'];
 else
 	titlestr = ['Simulationsergebnis: durchschnittlicher Verbrauch',...
-		' einer Person (',datestr(Result.Sim_date,'yy.mm.dd - HHhMM.SS'),')'];
+		' einer Person (',datestr(Result.Sim_date,'yy.mm.dd - HH_MM.SS'),')'];
 end
 
 title(titlestr,'FontWeight','bold')

@@ -8,6 +8,12 @@ classdef Thermal_Storage < Device
 	%    Infos dort):
 	%
 	%    Parameter (werden in Parameterliste übergeben):
+	%		 'Factor_Inrush'
+	%            Verhältnis Einschaltstrom zu Betriebstrom. Definiert die
+	%            Spitzenleistungsaufnahme beim Einschalten des Geräts (z.B. bei
+	%            Kompressormotoren)
+	%	     'Time_Inrush_Decay'
+	%            Abklingzeitkonstante des Einschaltstromes in Sekunden.
 	%        'Power_Nominal'
 	%            Anschlussleistung des Geräts
 	%        'Start_Probability'
@@ -56,11 +62,16 @@ classdef Thermal_Storage < Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 18.11.2011
+	% Erstellt von:            Franz Zeilinger - 18.11.2011
+	% Letzte Änderung durch:   Franz Zeilinger - 29.11.2012
 	
 	properties
 		Factor_Inrush
+	%            Verhältnis Einschaltstrom zu Betriebstrom. Definiert die
+	%            Spitzenleistungsaufnahme beim Einschalten des Geräts (z.B. bei
+	%            Kompressormotoren)
 		Time_Inrush_Decay
+	%            Abklingzeitkonstante des Einschaltstromes in Sekunden.
 		Dir_therm_Flow
 	%            Richtung des Flusses der thermischen Energie in den Speicher
 	%            bei normaler "Aufladefunktion" des Speichers:
@@ -145,6 +156,30 @@ classdef Thermal_Storage < Device
 				% Falls keine Solltemperatur angegeben wurde, kann Gerät nicht
 				% aktiv werden:
 				obj.Activity = 0;
+			end
+		end
+		
+		function obj = update_device_activity(obj, varargin)
+			%UPDATE_DEVICE_ACTIVITY führt Neuberechnung des Geräteeinsatzes durch
+			%    OBJ = UPDATE_DEVICE_ACTIVITY(OBJ, ARGS) geht die Argumenteliste ARGS
+			%    durch und aktualisiert alle Parameter, die den Geräteeinsatz, jedoch
+			%    NICHT die Geräteeigenschaften betreffen.
+			%    Dazu wird eine gleiche Argumenteliste übergeben, wie bei der
+			%    Instanzenerzeugung, diese Funktion sucht sich die relevanten
+			%    Parameter heraus und ändert diese.
+			%    Danach erfolgt eine Ermittlung, ob der thermische Speicher wieder in
+			%    Betrieb ist:
+			
+			obj = update_device_activity@Device(obj, varargin{:});
+			
+			% Temperatur im Gerät zu Beginn der Simulation zufällig
+			% ermitteln (in der Nähe der Soll-Temperatur):
+			obj.Temp = obj.Temp_Set + (obj.Switch_Point*(rand-0.5));
+			% zufällig ermitteln, ob Gerät zu Beginn aktiv ist:
+			if rand <= (obj.Operat_Sim_Start/100)
+				obj.Operating = 1;
+			else
+				obj.Operating = 0;
 			end
 		end
 		

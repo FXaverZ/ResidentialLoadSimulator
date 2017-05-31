@@ -1,6 +1,6 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
 % Franz Zeilinger - 14.09.2011
-% Last Modified by GUIDE v2.5 19-Nov-2012 14:54:10
+% Last Modified by GUIDE v2.5 13-Dec-2012 17:36:55
 
 function varargout = Simulation(varargin)
 
@@ -660,6 +660,7 @@ handles.system.cancel_simulation = false;
 set(handles.cancel_simulation,'Enable','on');
 set(handles.start_simulation,'Enable','off');
 set(handles.push_generate_loadprofiles,'Enable','off');
+set(handles.push_generate_deviceprofiles,'Enable','off');
 set(handles.push_display_result,'Enable','off');
 set(handles.push_set_device_parameter,'Enable','off');
 
@@ -680,6 +681,7 @@ handles = guidata(hObject);
 set(handles.cancel_simulation,'Enable','off');
 set(handles.start_simulation,'Enable','on');
 set(handles.push_generate_loadprofiles,'Enable','on');
+set(handles.push_generate_deviceprofiles,'Enable','on');
 set (handles.push_display_result,'Enable','on');
 set (handles.push_set_device_parameter,'Enable','on');
 handles.system.cancel_simulation = false;
@@ -988,7 +990,3 @@ end
 function menu_Callback(hObject, ~, handles) %#ok<INUSD>
 function menu_multiple_sim_Callback(hObject, ~, handles) %#ok<INUSD>
 function menu_frequency_Callback(hObject, ~, handles) %#ok<INUSD,*DEFNU>
-
-
-% --- Executes on button press in push_generate_deviceprofiles.
-
