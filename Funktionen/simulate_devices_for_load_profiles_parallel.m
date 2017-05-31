@@ -4,14 +4,6 @@ function Power_parallel = simulate_devices_for_load_profiles_parallel(Devices, T
 
 %    Franz Zeilinger - 18.11.2011
 
-% Erstellen eines Arrays mit den Leistungsdaten:
-% - 1. Dimension: Gerätearten
-% - 2. Dimension: Phasen 1 bis 3 jeweils P & Q (insges. 6)
-% - 3. Dimension: Geräteinstanz
-% - 4. Dimension: Zeitpunkte
-% Power_parallel = zeros([size(Devices.Elements_Varna,2), 6, max(Devices.Number_Dev),...
-% 	(Time.Number_Steps)]);
-
 % Für paralle Bearbeitung verschieden Daten in eigenen Variblen speichern, um
 % Kommunikationsaufwand zu reduzieren:
 number_steps = Time.Number_Steps;
@@ -51,27 +43,26 @@ for i = 1:size(Devices.Elements_Varna,2)
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 	% Für parallele Bearbeitung die DEVICES-Struktur in ein Cell-Array umwandeln,
-	% damit diese in der parfor-Schleife verarbeitet werden kann: 
+	% damit diese in der parfor-Schleife verarbeitet werden kann:
 	device{i} = Devices.(Devices.Elements_Varna{i});
 	% Das Zwischenergebnis in das Ergebnis-Cell-Array speichern:
-	pow{i} = btw_result; 
+	pow{i} = btw_result;
 end
 
 % Messen der Zeit, die benötigt wird - Start:
 waitbar_start;
 % Zeitvektor erstellen:
 time_vec = Time.Date_Start:Time.Base/Time.day_to_sec:Time.Date_End;
-
 % Berechnen der Reaktionen der Verbraucher für die restlichen Zeitpunkte:
-parfor i = 1:size(Devices.Elements_Varna,2)
-	% Zwischenergebnis Array; enthält die Leistungsdaten aufgteilt auf die Phasen, 
+for i = 1:size(Devices.Elements_Varna,2)
+	% Zwischenergebnis Array; enthält die Leistungsdaten aufgteilt auf die Phasen,
 	% die Einzelgeräte und die Zeitschritte für eine Gerätegruppe:
 	btw_result = pow{i};
 	dev = device{i};
 	if ~isempty(dev)
-		dev = device{i}(1); % Ein Gerät der aktuellen Geräteklasse auslesen, um 
-		                    %     die Eignung der Geräteklasse für eine schnelle 
-		                    %     Berechnung zu ermitteln
+		dev = device{i}(1); % Ein Gerät der aktuellen Geräteklasse auslesen, um
+		%     die Eignung der Geräteklasse für eine schnelle
+		%     Berechnung zu ermitteln
 	else
 		continue;           % keine Geräte vorhanden --> zur nächsten Geräteart gehen
 	end
@@ -86,10 +77,10 @@ parfor i = 1:size(Devices.Elements_Varna,2)
 		for j = 1:size(device{i},2)
 			% Geräteinstanz auslesen
 			dev = device{i}(j);
-			% Stand-by-Leistung auf alle Zeitpunkte setzen, die Betriebszeitpunkte
-			% werden dann mit den jeweiligen Betriebswerten überschrieben (--> wenn
-			% Gerät nicht in Betrieb dann in Stand-by, im Fall, dass es keinen
-			% Stand-by-Verbrauch gibt, ist dieser Null und bleibt null...)
+			% Stand-by-Leistung auf alle Zeitpunkte setzen, die Betriebszeit-
+			% punkte werden dann mit den jeweiligen Betriebswerten überschrieben
+			% (--> wenn Gerät nicht in Betrieb dann in Stand-by, im Fall, dass es
+			% keinen Stand-by-Verbrauch gibt, ist dieser Null und bleibt null...)
 			btw_result(dev.Phase_Index,j,:) = dev.Power_Stand_by;
 			btw_result(dev.Phase_Index + 3,j,:) = dev.Power_Stand_by * ...
 				tan(acos(dev.Cos_Phi_Stand_by));
@@ -99,14 +90,14 @@ parfor i = 1:size(Devices.Elements_Varna,2)
 				% Zeitpunkte finden, in denen das Gerät aktiv ist:
 				idx = time_vec >= dev.Time_Schedule(step,1) & ...
 					time_vec < dev.Time_Schedule(step,2);
-				% Zu diesen Zeitpunkten aktuelle Leistungsaufnahme entsprechend dem
-				% Einsatzplan sezten
+				% Zu diesen Zeitpunkten aktuelle Leistungsaufnahme entsprechend
+				% dem Einsatzplan sezten
 				btw_result(dev.Phase_Index,j,idx) = dev.Time_Schedule(step,3);
-				% Mit Hilfe des aktuell gültigen cos(phi) die Blindleistungsaufnahme
-				% ermitteln und entsprechend sezten:
-				btw_result(dev.Phase_Index + 3,j,idx) = dev.Time_Schedule(step,3)*...
-					tan(acos(dev.Time_Schedule(step,4)));
-			end	
+				% Mit Hilfe des aktuell gültigen cos(phi) die Blindleistungs-
+				% aufnahme ermitteln und entsprechend sezten:
+				btw_result(dev.Phase_Index + 3,j,idx) = ...
+					dev.Time_Schedule(step,3)*tan(acos(dev.Time_Schedule(step,4)));
+			end
 		end
 	else
 		% Herkömmliche Berechnung mit Hilfe der NEXT_STEP-Methode der jeweiligen
@@ -131,7 +122,7 @@ parfor i = 1:size(Devices.Elements_Varna,2)
 		end
 	end
 	% Das Zwischenergebnis in das Ergebnis-Cell-Array speichern:
-	pow{i} = btw_result; 
+	pow{i} = btw_result;
 end
 
 % ACHTUNG! Nachfolgend wurde der ursprüngliche Code verändert, weil eine Permutation
@@ -140,13 +131,14 @@ end
 %     dass dann in weiterer folge gesondert behandelt werden muss!
 %     (siehe POSTPROCESS_RESULTS_FOR_LOADPROFILES)
 
-% Nun die einzelnen Zwischenergenisse abarbeiten:
-% Power_parallel = zeros([size(Devices.Elements_Varna,2), 6, max(Devices.Number_Dev),...
-% 	(Time.Number_Steps)]);
+% Nun die einzelnen Zwischenergenisse abarbeiten und zu einem Gesamtarray
+% zusammenfassen: Erstellen eines Arrays mit den Leistungsdaten:
+% - 1. Dimension: Gerätearten
+% - 2. Dimension: Phasen 1 bis 3 jeweils P & Q (insges. 6)
+% - 3. Dimension: Geräteinstanz
+% - 4. Dimension: Zeitpunkte
 for i = 1:size(Devices.Elements_Varna,2)
 	% Zwischenergenis korrekt eintragen:
-	Power_parallel(i,:,:,:) = pow{1}; %#ok<AGROW>
-	% Zwischengergebnis löschen, damit Speicher wieder freigegeben wird!
-	pow(1) = [];
+	Power_parallel(i,:,:,:) = pow{i}; %#ok<AGROW>
 end
 end

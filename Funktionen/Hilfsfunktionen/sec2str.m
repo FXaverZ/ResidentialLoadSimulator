@@ -6,8 +6,9 @@ function str = sec2str(t)
 %    der Zahlendarstellung angepasst.
 
 % Erstellt von:            Franz Zeilinger - 11.08.2010
-% Letzte Änderung durch:   
+% Letzte Änderung durch:   Franz Zeilinger - 16.11.2012
 
+try
 sec_lin = datenum('1900-01-01 00:00:01')-datenum('1900-01-01 00:00:00');
 date = datenum('1900-01-01 00:00:00')+t*sec_lin;
 h = hour(date);
@@ -20,5 +21,8 @@ elseif (h <= 0) && (min > 0)
 	str = [num2str(min),'min ',num2str(floor(sec)),' sec'];
 else
 	str = [num2str(sec,'%3.1f'),' sec'];
+end
+catch ME %#ok<NASGU>
+	str = '---';
 end
 		

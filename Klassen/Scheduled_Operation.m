@@ -68,7 +68,8 @@ classdef Scheduled_Operation < Device
 	%            'HH:MM' übergebbar (z.B. '12:31')
 		Time_typ_Run
 	%            übliche Laufzeit des Geräts zum angegebenen Startzeitpunkt.
-	    Time_min_Run = 0	    
+	    Time_min_Run = 0
+	%            minimale Laufzeit des Gerätes
 	end
 	
 	properties (Hidden)
@@ -126,6 +127,25 @@ classdef Scheduled_Operation < Device
 				% Falls nichts zutrifft: keine Aktivität:
 				obj.Activity = 0;
 			end
+		end
+		
+		function obj = update_device_activity(obj, varargin)
+			%UPDATE_DEVICE_ACTIVITY führt Neuberechnung des Geräteeinsatzes durch
+			%    OBJ = UPDATE_DEVICE_ACTIVITY(OBJ, ARGS) geht die Argumenteliste ARGS
+			%    durch und aktualisiert alle Parameter, die den Geräteeinsatz, jedoch
+			%    NICHT die Geräteeigenschaften betreffen.
+			%    Dazu wird eine gleiche Argumenteliste übergeben, wie bei der
+			%    Instanzenerzeugung, diese Funktion sucht sich die relevanten
+			%    Parameter heraus und ändert diese.
+			%    Danach erfolgt eine Neuberechnung der Einsatzpläne des Geräts mit
+			%    den neuen Parameterwerten:
+			
+			obj = update_device_activity@Device(obj, varargin{:});
+			
+			% Erstellen des Einsatzplanes für jedes Gerät:
+			obj = calculate_schedule(obj);
+			obj = check_activity(obj);
+
 		end
 		
 		function obj = adapt_schedule_day(obj, sched)

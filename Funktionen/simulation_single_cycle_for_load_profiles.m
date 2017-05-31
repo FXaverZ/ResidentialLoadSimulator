@@ -2,7 +2,11 @@ function simulation_single_cycle_for_load_profiles (hObject, handles)
 % SIMULATION_SINGLE_CYCLE_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 05.12.2011
+% Erstellt von:            Franz Zeilinger - 05.12.2011
+% Letzte Änderung durch:   Franz Zeilinger - 06.11.2012
+
+% debug: Zufallszahlengenerator definiert setzen:
+% rng(27,'v5uniform');
 
 % Einlesen vorhandener Daten aus handles-Struktur:
 Configuration = handles.Configuration;
@@ -12,27 +16,37 @@ Model =         handles.Model;
 %             E I N S T E L L U N G E N  -  S I M U L A T I O N
 %-------------------------------------------------------------------------------
 % Definition der Haushalte, die Simuliert werden sollen:
-Model.Households = {...
-% 	'fami_2v', 3, 6, 'Familie, 2 Mitglieder Vollzeit', 40;...
-% 	'fami_1v', 3, 6, 'Familie, 1 Mitglied Vollzeit'  , 70;...
-% 	'fami_rt', 3, 6, 'Familie mit Pensionist(en)'    , 30;...
-% 	'sing_vt', 1, 1, 'Single Vollzeit'               , 20;...
-% 	'coup_vt', 2, 2, 'Paar Vollzeit'                 , 20;...
-	'sing_pt', 1, 1, 'Single Teilzeit'               , 10;...
-%  	'coup_pt', 2, 2, 'Paar Teilzeit'                 , 20;...
-% 	'sing_rt', 1, 1, 'Single Pension'                , 30;...
-% 	'coup_rt', 2, 2, 'Paar Pension'                  , 90;...
+Model.Households = {... 
+%--- HAUSHALTE FÜR EDLEM --- 
+% 	'fami_rt', 3, 6, 'Familie mit Pensionist(en)'    , 2;...
+% 	'sing_vt', 1, 1, 'Single Vollzeit'               , 6;... 
+% 	'coup_vt', 2, 2, 'Paar Vollzeit'                 , 4;... 
+% 	'sing_pt', 1, 1, 'Single Teilzeit'               , 6;... 
+%  	'coup_pt', 2, 2, 'Paar Teilzeit'                 , 4;... 
+% 	'sing_rt', 1, 1, 'Single Pension'                , 6;... 
+% 	'coup_rt', 2, 2, 'Paar Pension'                  , 5;... 
+% 	'fami_2v', 3, 6, 'Familie, 2 Mitglieder Vollzeit', 2;...    
+% 	'fami_1v', 3, 6, 'Familie, 1 Mitglied Vollzeit'  , 2;... 
+%--- HAUSHALTE FÜR aDSM ---
+    'home_1',  1, 1, 'Haus - 1 Bewohner'             , 10;...
+	'home_2',  2, 2, 'Haus - 2 Bewohner'             ,  8;...
+	'home_3',  3, 2, 'Haus - 3 Bewohner'             ,  5;...
+	'hom_4p',  4, 7, 'Haus - 4 und mehr Bewohner'    ,  4;...
+	'flat_1',  1, 1, 'Wohnung - 1 Bewohner'          , 10;...
+	'flat_2',  2, 2, 'Wohnung - 2 Bewohner'          ,  8;...
+	'flat_3',  3, 3, 'Wohnung - 3 Bewohner'          ,  5;...
+	'fla_4p',  4, 7, 'Wohnung - 4 und mehr Bewohner' ,  4;...
 	};
 
 % Wieviele Durchläufe sollen gemacht werden?
-Model.Number_Runs = 1;
+Model.Number_Runs = 100;
 
 % Auflösung der Simulation: 'sec' = Sekundentakt
 %                           'min' = Minutentakt
 %                           '5mi' = 5-Minutentakt
 %                           'quh' = Viertelstundendtakt
 %                           'hou' = Stundentakt
-Model.Sim_Resolution = 'min';
+Model.Sim_Resolution = 'sec';
 %===============================================================================
 
 Model.Weekdays =  ['Workda'; 'Saturd'; 'Sunday'];  % Typen der Wochentage
@@ -40,20 +54,15 @@ Model.Seasons =   {'Summer'; 'Winter'; 'Transi'};  % Typen der Jahreszeiten
 Model.Seperator = ' - ';                           % Trenner im Dateinamen
 
 Programm = {...
+	'Param - Winter - Sunday', 'Winter', 'Sunday';...
+	'Param - Winter - Workda', 'Winter', 'Workda';...
+	'Param - Winter - Saturd', 'Winter', 'Saturd';...
 	'Param - Summer - Sunday', 'Summer', 'Sunday';...
-% 	'Param - Summer - Workda', 'Summer', 'Workda';...
-% 	'Param - Summer - Workda', 'Summer', 'Workda';...
-% 	'Param - Summer - Workda', 'Summer', 'Workda';...
-% 	'Param - Summer - Workda', 'Summer', 'Workda';...
-% 	'Param - Summer - Workda', 'Summer', 'Workda';...
-% 	'Param - Summer - Saturd', 'Summer', 'Saturd';...
-% 	'Param - Winter - Sunday', 'Winter', 'Sunday';...
-% 	'Param - Winter - Workda', 'Winter', 'Workda';...
-% 	'Param - Winter - Workda', 'Winter', 'Workda';...
-% 	'Param - Winter - Workda', 'Winter', 'Workda';...
-% 	'Param - Winter - Workda', 'Winter', 'Workda';...
-% 	'Param - Winter - Workda', 'Winter', 'Workda';...
-% 	'Param - Winter - Saturd', 'Winter', 'Saturd';...
+	'Param - Summer - Workda', 'Summer', 'Workda';...
+	'Param - Summer - Saturd', 'Summer', 'Saturd';...
+	'Param - Transi - Sunday', 'Transi', 'Sunday';...
+	'Param - Transi - Workda', 'Transi', 'Workda';...
+	'Param - Transi - Saturd', 'Transi', 'Saturd';...
 	};
 
 % handles Struktur aktualisieren
@@ -116,8 +125,8 @@ for j = 1:Model.Number_Runs
 		% Simulationszeiteinstellungen ermitteln:
 		Time = get_time_settings(Model);
 		
-		% Gerätezusammenstellung gemäß den Einstellungen auf den neuesten Stand bringen
-		% (notwendig für Gerätegruppen):
+		% Gerätezusammenstellung gemäß den Einstellungen auf den neuesten Stand
+		% bringen (notwendig für Gerätegruppen):
 		for i=1:size(Model.Devices_Pool,1)
 			% alle Geräte, die direkt ausgewählt wurden, übernehmen:
 			name = Model.Devices_Pool{i,1};
@@ -142,7 +151,7 @@ for j = 1:Model.Number_Runs
 		
 		% die einzelnen Haushaltskategorien simulieren:
 		for i = 1:size(Households.Types,1)
-		try
+% 		try
 			% aktuelle Haushaltskategorie auswählen:
 			typ = Households.Types{i,1};
 			Households.Act_Type = typ;
@@ -156,13 +165,13 @@ for j = 1:Model.Number_Runs
 			str1 = ['Durchlauf ', num2str(j),', ',season,', ',wkd,':']; 
 			str2 = ['Bearbeite Kategorie ',num2str(i),...
 				' von ', num2str(size(Households.Types,1)),' (',typ,', ',...
-				num2str(Households.Number.(typ)),' Haushalte):'];
+				num2str(Households.Statistics.(typ).Number),' Haushalte):'];
 			refresh_status_text(hObject,sim_str);
 			fprintf(['\n\t',str1]);
 			fprintf(['\n\t',str2]);
 			
 			% Modellparameter gem. den Haushaltsdaten anpassen:
-			Model.Number_User = Households.Number_Per_Tot.(typ);
+			Model.Number_User = Households.Statistics.(typ).Number_Per_Tot;
 			Model.Use_DSM = 0;
 			
 			% Geräteinstanzen erzeugen:
@@ -177,8 +186,9 @@ for j = 1:Model.Number_Runs
 			% else
 			Devices = create_devices_for_loadprofiles(hObject, Model, Households);
 			% end
-			% 		% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
-			% 		handles = guidata(hObject);
+			
+			% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
+			handles = guidata(hObject);
 			% Überprüfen, ob bei Geräteerzeugung von User abgebrochen wurde:
 			if handles.System.cancel_simulation
 				str = '--> Geräteerzeugung abgebrochen';
@@ -224,12 +234,9 @@ for j = 1:Model.Number_Runs
 			% Simulation durchführen:
 			if Configuration.Options.compute_parallel
 				Result = simulate_devices_for_load_profiles_parallel(Devices, Time);
-				% Für bessere Speichernutzung, diese Daten löschen...
-% 				clear Devices;
 			else
-				Result = simulate_devices_for_load_profiles(hObject, Devices, Households, Time);
+				Result = simulate_devices_for_load_profiles(hObject, Devices, Time);
 			end
-			
 			
 			% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 			handles = guidata(hObject);
@@ -254,7 +261,7 @@ for j = 1:Model.Number_Runs
 			fprintf(['\n\t\t',str]);
 			
 			if Configuration.Options.compute_parallel
-				hh_devices = Households.Devices.(typ);
+				hh_devices = Households.Devices.(typ).Allocation;
 				% Array erstellen mit den Leistungsdaten der Haushalte:
 				% - 1. Dimension: Phasen 1 bis 3
 				% - 2. Dimension: einzelne Haushalte
@@ -281,7 +288,7 @@ for j = 1:Model.Number_Runs
 				end
 				clear Result;
 			else
-				Result = postprocess_results_for_loadprofiles (Households, Model, Time, ...
+				Result = postprocess_results_for_load_profiles (Households, Model, Time, ...
 					Devices, Result);
 			end
 			
@@ -310,7 +317,7 @@ for j = 1:Model.Number_Runs
 			sep = Model.Seperator;
 			reso = Model.Sim_Resolution;
 			date = datestr(Sim_date,'HH_MM.SS');
-			idx = num2str(j);
+			idx = [num2str(j),sep,num2str(k)];
 			file.Data_Name = [date,sep,season,sep,wkd,sep,typ,sep,reso,sep,idx];
 			Configuration.Save.Data = file;
 			
@@ -328,7 +335,7 @@ for j = 1:Model.Number_Runs
 				save([file.Path,file.Data_Name,'.mat'], 'data_phase');
 				clear data_phase;
 			else
-				Configuration = save_sim_data_for_loadprofiles (Configuration, Model,...
+				Configuration = save_sim_data_for_load_profiles (Configuration, Model,...
 					Households, Devices, Result, j);
 			end
 			
@@ -338,26 +345,26 @@ for j = 1:Model.Number_Runs
 			str = '--> erledigt!';
 			refresh_status_text(hObject,str,'Add');
 			fprintf(str);
-		catch ME
-			% Falls Fehler aufgetreten ist:
-			str = 'Ein Fehler ist aufgetreten:';
-			refresh_status_text(hObject,[sim_str,str]);
-			fprintf(['\n\t\t',str]);
-			str = ME.message;
-			fprintf(['\n\t\t',str]);
-			str = 'Worker werden neu gestartet:';
-			fprintf(['\n\t\t',str]);
-			if Configuration.Options.compute_parallel && matlabpool('size') == 0
-				matlabpool('open');
-			end
-			if Configuration.Options.compute_parallel && matlabpool('size') > 0;
-				matlabpool('close');
-				matlabpool('open');
-			end
-			str = ['Simulation wird fortgesetzt, ',...
-				'Daten des aktuellen Durchlaufs gehen verloren!'];
-			fprintf(['\n\t\t',str]);
-		end
+% 		catch ME
+% 			% Falls Fehler aufgetreten ist:
+% 			str = 'Ein Fehler ist aufgetreten:';
+% 			refresh_status_text(hObject,[sim_str,str]);
+% 			fprintf(['\n\t\t',str]);
+% 			str = ME.message;
+% 			fprintf(['\n\t\t',str]);
+% 			str = 'Worker werden neu gestartet:';
+% 			fprintf(['\n\t\t',str]);
+% 			if Configuration.Options.compute_parallel && matlabpool('size') == 0
+% 				matlabpool('open');
+% 			end
+% 			if Configuration.Options.compute_parallel && matlabpool('size') > 0;
+% 				matlabpool('close');
+% 				matlabpool('open');
+% 			end
+% 			str = ['Simulation wird fortgesetzt, ',...
+% 				'Daten des aktuellen Durchlaufs gehen verloren!'];
+% 			fprintf(['\n\t\t',str]);
+% 		end
 		end
 	end
 end

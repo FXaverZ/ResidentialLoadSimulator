@@ -1,9 +1,9 @@
-function Devices = create_devices_for_loadprofiles(hObject, Model, Households)
+function Devices = create_devices_for_loadprofiles_parallel(hObject, Model, Households)
 %CREATE_DEVICES_FOR_LOADPROFILES   Kurzbeschreibung fehlt.
 %    Ausführliche Beschreibung fehlt!
 
-% Erstellt von:            Franz Zeilinger - 14.09.2011
-% Letzte Änderung durch:   Franz Zeilinger - 12.12.2012
+% Erstellt von:            Franz Zeilinger - 10.12.2012
+% Letzte Änderung durch:   Franz Zeilinger - 
 
 % Auslesen der Haushaltskategorie, die berechnet wird:
 typ = Households.Act_Type;
@@ -21,24 +21,38 @@ Devices.Total_Number_Dev = 0; % Gesamtanzahl aller beteiligten Geräte
 Devices.DSM_included = 0;     % Sind DSM-Instanzen vorhanden?
 
 % Vorbereiten der Arrays für die Geräte-Instanzen der Gerätestruktur:
+% Wieviele Geräteklassen werden simuliert? Antwort gibt Device_Assembly_Simulation,
+% hier ist eine eins für jede aktive Geräteklasse eingetragen, daher diese Struktur
+% in ein Array umwandeln (zuerst Struktur in Zellenarray, dann Zellenarray in Matrix)
+% und dann alles aufaddieren:
+dev_num = sum(cell2mat(struct2cell(Model.Device_Assembly_Simulation)));
+device = cell(dev_num,1);
+args = cell(dev_num,1);
+% Einen Zähler initialisieren, der den laufenden Geräteklassenindex entspricht (wenn
+% nicht alle Geräte ausgewählt, entspricht dieser NICHT dem Schleifenindex!)
+dev_num = 0;
+% Vorbereiten der Arrays für die Geräte-Instanzen der Gerätestruktur:
 for i=1:size(Model.Devices_Pool,1)
 	% Variablenname der aktuellen Geräteklasse:
 	name = Model.Devices_Pool{i,1};
 	if Model.Device_Assembly_Simulation.(name)
+		% Geräteklassenindex erhöhen:
+		dev_num = dev_num + 1;
 		% Funktionen-Handle auf zuständige Klasse auslesen
 		dev_handle = Model.Devices_Pool{i,3};
 		% eine Instanz der Klasse erzeugen
 		dev = dev_handle();
 		% leeres Array mit Klasseninstanzen erzeugen:
-		Devices.(name) = dev.empty(0,0);
+		device{dev_num} = dev.empty(0,0);
 		% die jeweilingen Namen anspeichern:
-		Devices.Elements_Varna{end+1} = name;
-		Devices.Elements_Names{end+1} = Model.Devices_Pool{i,2};
-		Devices.Elements_Funha{end+1} = Model.Devices_Pool{i,3};
-		Devices.Elements_Eq_Le{end+1} = 100;
+		Devices.Elements_Varna{dev_num} = name;
+		Devices.Elements_Names{dev_num} = Model.Devices_Pool{i,2};
+		Devices.Elements_Funha{dev_num} = Model.Devices_Pool{i,3};
+		Devices.Elements_Eq_Le{dev_num} = 100;
+		% Ein eigenes Argumenten-Array aufbauen für parfor-Schleife:
+		args{dev_num} = Model.Args.(name);
 	end
 end
-
 
 Varna_unkno = Devices.Elements_Varna;
 Devices.Number_Dev = zeros(1,numel(Varna_unkno)); % Anzahl in den einzelnen Gerätegruppen
@@ -68,9 +82,6 @@ end
 Devices.Elements_Varna_Known = Varna_known;
 Devices.Number_created_Known = number_devices_hh;
 Devices.Elements_Varna_Unknown = Varna_unkno;
-% Abschätzen der Gesamt-Gerätezahlen
-num_known = sum(number_devices);
-num_total = num_known + numel(Varna_unkno)*number_user;
 
 % Falls Gerätegruppen vorhanden sind, den Austattungsgrad der einzelnen Elemente
 % übernehmen:
@@ -102,83 +113,74 @@ if Model.Device_Groups.Present
 	end
 end
 
-% Array mit den Indizes der bekannten aktiven Geräte erstellen:
-dev_idx = zeros(numel(Varna_known), max(number_devices));
-
-waitbar_start; % Messen der Zeit, die benötigt wird - Start
-% Die bekannten Geräte erzeugen:
-for i=1:numel(Varna_known)
-	% aktuellen Index in der Devices-Struktur ermitteln:
-	idx = strcmpi(Devices.Elements_Varna, Varna_known(i));
-	% wieviele Geräte müssen in dieser Geräteklasse erzeugt werden?
-	num_dev = number_devices(i);
-	% Variablenname der aktuellen Geräteklasse:
-	name = Devices.Elements_Varna{idx};
-	% Funktionen-Handle auf zuständige Klasse auslesen
-	dev_handle = Devices.Elements_Funha{idx};
-	for j = 1:num_dev
-		% Fortschrittsbalken updaten & überprüfen ob ein Abbruch durch User
-		% erfolgt ist:
-		if waitbar_update (hObject, 5, Devices.Total_Number_Dev, num_total)
-			% Leere Matrix zurückgeben, damit nachfolgende Programmteile den
-			% aufgetretenen Fehler erkennen können:
-			Devices = [];
-			% Geräteerzeugung abbrechen:
-			return;
-		end
-		% Geräteinstanz erzeugen:
-		dev = dev_handle(Model.Args.(name){:});
-		% aktuellen Geräteindex in Geräteinstanz und Geräteindexarray speichern
-		% und Zähler erhöhen:
-		dev_idx(i,j)= j;
-		% Geräteinstanz in jeweiligen Array speichern:
-		Devices.(name)(end+1) = dev;
-		% Anzahl der erzeugten Geräte aktualisieren:
-		Devices.Number_Dev(idx) = Devices.Number_Dev(idx) + 1;
-		Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
+% Hilfsarray erstellen, das anzeigt, ob das aktuelle Gerät eines mit bekannter oder
+% unbekannter Geräteausstattung ist...
+switch_var_known = cell(numel(Devices.Elements_Varna),2);
+for i=1:numel(Devices.Elements_Varna)
+	name = Devices.Elements_Varna{i};
+	% ist es ein bekanntes Gerät?
+	idx = find(strcmpi(Varna_known, name),1);
+	if ~isempty(idx)
+		switch_var_known{i,1} = 1;
+		switch_var_known{i,2} = number_devices(strcmp(Varna_known, name));
+	else
+		switch_var_known{i,1} = 0;
 	end
 end
 
-% Das Platzierungsarray der bekannten Geräte speichern:
-Devices.Index_created_Known = dev_idx;
-
-% die unbekannten Geräte erzeugen (mit der Anzahl der Personen in den Haushalten):
-for i=1:numel(Varna_unkno)
-	% aktuellen Index in der Devices-Struktur ermitteln:
-	idx = strcmpi(Devices.Elements_Varna, Varna_unkno(i));
-	% Variablenname der aktuellen Geräteklasse:
-	name = Devices.Elements_Varna{idx};
+waitbar_start; % Messen der Zeit, die benötigt wird - Start
+dev_handles = Devices.Elements_Funha;
+equ_levels = Devices.Elements_Eq_Le;
+parfor i=1:size(switch_var_known,1)
+	% Die bekannten Geräte erzeugen:
 	% Funktionen-Handle auf zuständige Klasse auslesen
-	dev_handle = Devices.Elements_Funha{idx};
-	for j = 1:number_user
-		% Fortschrittsbalken updaten & überprüfen ob ein Abbruch durch User
-		% erfolgt ist:
-		if waitbar_update (hObject, 5, num_known+(i-1)*number_user+j, num_total)
-			% Leere Matrix zurückgeben, damit nachfolgende Programmteile den
-			% aufgetretenen Fehler erkennen können:
-			Devices = [];
-			% Geräteerzeugung abbrechen:
-			return;
-		end
-		% Austattungsgrad:
-		equ_level = Devices.Elements_Eq_Le{idx};
-		% solange der Austattungsgrad positiv, Geräte generieren:
-		while equ_level > 0
+	dev_h = dev_handles{i};
+	% wieviele Geräte müssen in dieser Geräteklasse erzeugt werden?
+	switch_var = switch_var_known(i,:);
+	if switch_var{1} % überhaupt bekanntes Gerät?	
+		for j = 1:switch_var{2}
 			% Geräteinstanz erzeugen:
-			dev = dev_handle(Model.Args.(name){:});
+			dev = dev_h(args{i}{:});
+			% Geräteinstanz in jeweiligen Array speichern:
+			device{i}(end+1) = dev;
+		end
+	else
+		% die unbekannten Geräte erzeugen (mit der Anzahl der Personen in den
+		% Haushalten): 
+		equ_level = equ_levels{i};
+		for j = 1:number_user
+			% Geräteinstanz erzeugen:
+			dev = dev_h(args{i}{:});
 			% Überprüfen, ob Gerät überhaupt im Einsatz, sonst verwerfen, dazu
 			% eine Zufallszahl zwischen 0 und 100 erzeugen:
 			fort = rand()*100;
 			if fort <= equ_level
 				% Geräteinstanz in jeweiligen Array speichern:
-				Devices.(name)(end+1) = dev;
-				% Anzahl der erzeugten Geräte aktualisieren:
-				Devices.Number_Dev(idx) = Devices.Number_Dev(idx) + 1;
-				Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
+				device{i}(end+1) = dev;
 			end
-			% Reduzieren des Ausstattungsgrades:
-			equ_level = equ_level - 100;
 		end
 	end
 end
+
+% Die erzeugten Geräteinstanzen im ursprünglichen Format in die Devices-Strukutr
+% übernehmen:
+% Array mit den Indizes der bekannten aktiven Geräte erstellen:
+dev_idx = zeros(numel(Varna_known), max(number_devices));
+dev_cou = 1;
+for i = 1:size(Devices.Elements_Varna,2)
+	name = Devices.Elements_Varna{i};
+	Devices.(name) = device{i};
+	Devices.Number_Dev(i) = numel(device{i});
+	% ist es ein bekanntes Gerät?
+	idx = find(strcmpi(Varna_known, name),1);
+	if ~isempty(idx)
+		for j = 1:numel(device{i})
+			dev_idx(dev_cou,j) = j;
+			dev_cou = dev_cou + 1;
+		end
+	end
+end
+Devices.Total_Number_Dev = sum(Devices.Number_Dev);
+% Das Platzierungsarray der bekannten Geräte Speichern:
+Devices.Index_created_Known = dev_idx;
 end

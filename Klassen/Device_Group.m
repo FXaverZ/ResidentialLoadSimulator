@@ -45,7 +45,8 @@ classdef Device_Group
 			args = obj.Args.dev;
 			idx = find(strcmp('Device_Group_Members', args));
 			memb = args{idx+1}(:,1);
-			obj.Args.add = args{idx+1}(:,2:end);
+			% Speichern der zusätzlichen Parameterwerte:
+			obj.Args.add = args{idx+1}(:,3:end);
 			% Nachdem die die Daten für die Geräte in der Gruppe aus der
 			% Parameterliste entnommen wurden, diesen Eintrag löschen, da er nicht
 			% mehr benötigt wird:
@@ -57,7 +58,11 @@ classdef Device_Group
 			for i=1:numel(memb)
 				devi = memb{i};
 				idx = strcmp(devi, Model.Devices_Pool(:,2));
-				obj.Members(end+1,:) = Model.Devices_Pool(idx,:);
+				obj.Members(end+1,1:size(Model.Devices_Pool,2)) = ...
+					Model.Devices_Pool(idx,:);
+				% Austattungsgrade eintragen:
+				obj.Members{end,size(Model.Devices_Pool,2)+1} = ...
+					obj.Args.add{i,1};
 			end
 		end
 		
@@ -115,12 +120,12 @@ classdef Device_Group
 			if ~isempty(add_group_args)
 				% ACHTUNG - Funktion noch nicht vollständig fertig implementiert,
 				% befindet sich noch in der Testphase - Es wird angenommen, dass in
-				% der zweiten Spalte von ADD_GROUP_ARGS eine Verteilung der einzelnen
+				% der ersten Spalte von ADD_GROUP_ARGS eine Verteilung der einzelnen
 				% Geräte innerhalb der Gerätegruppe angegebene wurde. Diese
 				% Verteilung wird nun auf die Startwahrscheinlichkeiten
 				% aufgeschlagen:
 				idx = find(strcmpi('Start_Probability', dev_args));
-				dev_args{idx+1} = dev_args{idx+1} * add_group_args{2}/100;
+% 				dev_args{idx+1} = dev_args{idx+1} * add_group_args{1}/100;
 			end
 		end
 		
