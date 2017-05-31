@@ -44,6 +44,7 @@ opt.simsettings_load_from_paramfile = 0;   %Daten von Parameterdatei laden
 opt.simsettings_load_from_main_window = 1; %Einstellungen von Hauptfenster
 opt.use_same_devices = 0; %Wenn möglich, gleiche Geräteinstanzen verwenden
 opt.use_same_dsm = 0; % Wenn möglich, gleiche DSM-Instanzen verwenden
+opt.compute_parallel = 0; % Parallelrechnen per default aus.
 
 Configuration.Save = Save;
 Configuration.Options = opt; 
@@ -296,10 +297,13 @@ Model.Use_Same_DSM = true; % Sollen vorhandene DSM-Instanzen verwendet werden?
 %                   Gerätezusammenstellung und Einsatz:
 % ------------------------------------------------------------------------------
 for i=1:size(Model.Device_Assembly_Pool,1)
-	% alle Geräte aktiv setzen:
+	% alle Möglichkeiten aktiv setzen:
 	Model.Device_Assembly.(Model.Device_Assembly_Pool{i,1}) = 1; 
 end
-Model.Device_Assembly_Simulation = Model.Device_Assembly;
+for i=1:size(Model.Devices_Pool,1)
+	% alle Geräte aktiv setzen:
+	Model.Device_Assembly_Simulation.(Model.Devices_Pool{i,1}) = 1; 
+end
 %===============================================================================
 % Model-Struktur aktualisieren:
 handles.Model = Model;

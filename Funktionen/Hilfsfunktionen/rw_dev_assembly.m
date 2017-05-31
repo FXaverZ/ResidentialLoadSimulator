@@ -21,7 +21,7 @@ function arg = rw_dev_assembly(mode, obj, fileid, name, value, Model, varargin)
 %    (inkl. Überschrift) befindet. Die Parameterstruktur MODEL wird benötigt, um
 %    die Gerätenamen richtig zuordnen zu können (Feld MODEL.ELEMENTS_POOL).
 
-%    Franz Zeilinger - 04.08.2011
+%    Franz Zeilinger - 11.08.2011
 
 arg = [];
 
@@ -53,8 +53,8 @@ elseif strcmpi(mode,'read')
 	
 	for i=2:size(data,1)
 		if ischar(data{i,2}) && isnumeric(data{i,3})
-			ind = strcmp(data{i,2},Model.Elements_Pool(:,2));
-			arg.(Model.Elements_Pool{ind,1}) = data{i,3};
+			ind = strcmp(data{i,2},Model.Device_Assembly_Pool(:,2));
+			arg.(Model.Device_Assembly_Pool{ind,1}) = data{i,3};
 		end
 	end	
 end

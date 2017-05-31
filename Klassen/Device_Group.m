@@ -2,7 +2,7 @@ classdef Device_Group
 	%DEVICE_GROUP    Klasse der Gerätegruppen
 	%   Detailed explanation goes here
 	
-	% Franz Zeilinger - 29.07.2011
+	% Franz Zeilinger - 11.08.2011
 	
 	properties
 		Name
@@ -35,10 +35,11 @@ classdef Device_Group
 			% Die Argumentenlisten für diese Gerätegruppe aus der Model-Struktur
 			% kopieren:
 			obj.Args.dev = Model.Args.(obj.Name{1});
-			obj.Args.dsm = Model.Args.([obj.Name{1},'_dsm']);
-% 			% Diese Argumente nun aus der Model.Args - Struktur herausnehmen:
-% 			Model.Args = rmfield(Model.Args, obj.Name{1});
-% 			Model.Args = rmfield(Model.Args, [obj.Name{1},'_dsm']);
+			if isfield(Model.Args, [obj.Name{1},'_dsm'])
+				obj.Args.dsm = Model.Args.([obj.Name{1},'_dsm']);
+			else
+				obj.Args.dsm = {};
+			end
 			
 			% Ermitteln der Mitglieder dieser Gerätegruppe:
 			args = obj.Args.dev;
@@ -72,28 +73,26 @@ classdef Device_Group
 					% Wenn ja, Parameter zusammenführen:
 					Model.Args.(dev_name) = ...
 						obj.merge_parameters(Model.Args.(dev_name),	obj.Args.dev);
-					%
+					% Parameter gemäß der Gruppenaufteilung anpassen:
+					Model.Args.(dev_name) = ...
+						obj.adapt_parameters(Model.Args.(dev_name), ...
+						obj.Args.add(i,:));	
 				else
 					% Wenn nicht, die Parameterwerte der Gerätegruppe übernehmen:
 					Model.Args.(dev_name) = obj.Args.dev;
 				end
 				% Das gleiche für die DSM-Einstellungen:
-				if isfield(Model.Args, [dev_name,'_dsm'])
+				if ~isempty(obj.Args.dsm) && isfield(Model.Args, [dev_name,'_dsm'])
 					% Wenn ja, Parameter zusammenführen:
 					Model.Args.([dev_name,'_dsm']) = ...
 						obj.merge_parameters(Model.Args.([dev_name,'_dsm']),...
 						obj.Args.dsm);
 					%
-				else
+				elseif ~isempty(obj.Args.dsm)
 					% Wenn nicht, die Parameterwerte der Gerätegruppe übernehmen:
 					Model.Args.([dev_name,'_dsm']) = obj.Args.dsm;
 				end
 			end
-% 			% Da die Parameter der Gerätegruppe bei den Geräteargumenten nun nicht
-% 			% mehr benötigt werden (eher sogar stören), diese nun aus der 
-% 			% Model.Args - Struktur herausnehmen:
-% 			Model.Args = rmfield(Model.Args, obj.Name{1});
-% 			Model.Args = rmfield(Model.Args, [obj.Name{1},'_dsm']);
 		end
 		
 		function Model = update_device_assembly(obj, Model)
@@ -107,17 +106,23 @@ classdef Device_Group
 				Model.Device_Assembly_Simulation.(dev_name) = ...
 					Model.Device_Assembly.(grp_name);
 			end
-			% Falls die Gerätegruppe noch ein Teil der Gerätezusammenstellung ist,
-			% diese entfernen, da in DEVICE_ASSEMBLY_SIMULATION nur "echte" Geräte
-			% vorkommen (d.h. Instanzen der Subklassen der Klasse DEVICE): 
-			if isfield(Model.Device_Assembly_Simulation, grp_name)
-				Model.Device_Assembly_Simulation = ...
-					rmfield(Model.Device_Assembly_Simulation, grp_name);
-			end
 		end
 	end
 	
 	methods(Static)
+		
+		function dev_args = adapt_parameters(dev_args, add_group_args)
+			if ~isempty(add_group_args)
+				% ACHTUNG - Funktion noch nicht vollständig fertig implementiert,
+				% befindet sich noch in der Testphase - Es wird angenommen, dass in
+				% der zweiten Spalte von ADD_GROUP_ARGS eine Verteilung der einzelnen
+				% Geräte innerhalb der Gerätegruppe angegebene wurde. Diese
+				% Verteilung wird nun auf die Startwahrscheinlichkeiten
+				% aufgeschlagen:
+				idx = find(strcmpi('Start_Probability', dev_args));
+				dev_args{idx+1} = dev_args{idx+1} * add_group_args{2}/100;
+			end
+		end
 		
 		function dev_args = merge_parameters(dev_args, group_args)
 			%MERGE_PARAMETERS    zusammeführen der Gruppen- und Geräteparameter

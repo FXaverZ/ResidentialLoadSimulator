@@ -17,9 +17,9 @@ function Model = load_device_parameter(File_Path, File_Name, Model)
 %    die DSM-Einstellungen befinden, eingeleitet durch die Überschrift 'DSM -
 %    Settings:'.
 %
-%    Parameter Mitglieder einer Gerätegruppe:
+%    Parameter Mitglieder einer Gerätegruppe: (Beschreibung fehlt)
 %
-%    Franz Zeilinger - 29.07.2011
+%    Franz Zeilinger - 11.08.2011
 
 % Einleitungstext bei Fehler (wird im Fehlerfall ergänzt):
 error_text = {...
@@ -83,11 +83,11 @@ end
 % Suchen nach den DSM-Einstellungen:
 dsm_ind = find(strcmpi('DSM - Settings:',dev_data));
 if isempty(dsm_ind) && Model.Use_DSM
-	errordlg({...
-		error_text;...
-		' ';...
-		['Datei enthält keine Parameter für DSM (werden aber für ',...
-		'aktuelle Simulationseinstellung benötigt!']},...
+	errordlg([
+		error_text(:,1);...
+		{' '};...
+		{['Datei enthält keine Parameter für DSM (werden aber für ',...
+		'aktuelle Simulationseinstellung benötigt!']}],...
 		error_titl);
 	return;
 end
@@ -116,38 +116,43 @@ end
 
 % Die DSM-Einstellungen den richtigen Geräten zuordnen (immer das Gerät, das
 % unmittelbar vorher angegeben wird):
-dsm_row_new = zeros(size(dev_row));
-dsm_col_new = zeros(size(dev_row));
-for i=1:numel(dev_row)
-	if i <= numel(dev_row)-1
-		idx = dsm_row > dev_row(i) & dsm_row < dev_row(i+1);
-	else
-		idx = dsm_row > dev_row(i);
+if ~isempty(dsm_ind)
+	dsm_row_new = zeros(size(dev_row));
+	dsm_col_new = zeros(size(dev_row));
+	for i=1:numel(dev_row)
+		if i <= numel(dev_row)-1
+			idx = dsm_row > dev_row(i) & dsm_row < dev_row(i+1);
+		else
+			idx = dsm_row > dev_row(i);
+		end
+		if ~isempty(dsm_row(idx))
+			dsm_row_new(i) = dsm_row(idx);
+			dsm_col_new(i) = dsm_col(idx);
+		end
 	end
-	if ~isempty(dsm_row(idx))
-		dsm_row_new(i) = dsm_row(idx);
-		dsm_col_new(i) = dsm_col(idx);
-	end
+	dsm_row = dsm_row_new;
+	dsm_col = dsm_col_new;
 end
-dsm_row = dsm_row_new;
-dsm_col = dsm_col_new;
-	
+
 % Aufteilen des Parameterbereichs in die einzelnen Geräte:
 for i=1:numel(dev_row)
 	name = elements_pool{i,1};
-	if dsm_row(i) ~= 0
+	if ~isempty(dsm_ind) && dsm_row(i) ~= 0
 		% Gerätedaten von aktueller Zeile bis DSM-Einstellungen
 		dev_sing_data = dev_data(dev_row(i)+1:dsm_row(i)-1,dev_col(i)+1:end);
 		if i<numel(dev_row)
-			dev_sing_dsmD = dev_data(dsm_row(i)+1:dev_row(i+1)-1,dsm_col(i)+1:end);
+			dev_sing_dsmD = dev_data(dsm_row(i)+1:dev_row(i+1)-1,...
+				dsm_col(i)+1:end);
 		else
 			dev_sing_dsmD = dev_data(dsm_row(i)+1:end,dsm_col(i)+1:end);
 		end
 		% Einlesen der DSM-Parameter:
-		Model = read_parameter(Model, [name,'_dsm'], Model.DSM_Param_Pool, dev_sing_dsmD);
+		Model = read_parameter(Model, [name,'_dsm'], Model.DSM_Param_Pool,...
+			dev_sing_dsmD);
 	else
 		if i<numel(dev_row)
-			dev_sing_data = dev_data(dev_row(i)+1:dev_row(i+1)-1,dev_col(i)+1:end);
+			dev_sing_data = dev_data(dev_row(i)+1:dev_row(i+1)-1,...
+				dev_col(i)+1:end);
 		else
 			dev_sing_data = dev_data(dev_row(i)+1:end,dev_col(i)+1:end);
 		end

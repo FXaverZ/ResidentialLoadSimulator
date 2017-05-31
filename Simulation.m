@@ -1,6 +1,6 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
 % Franz Zeilinger - 29.07.2011
-% Last Modified by GUIDE v2.5 15-Jun-2011 11:58:19
+% Last Modified by GUIDE v2.5 05-Aug-2011 10:50:09
 
 function varargout = Simulation(varargin)
 
@@ -23,9 +23,9 @@ else
 % Ende Initializationscode - NICHT EDITIEREN!
 end
 
-function Simulation_OpeningFcn(hObject, ~, handles, varargin)
+function Simulation_OpeningFcn(hObject, eventdata, handles, varargin)
 % hObject    Link zu Grafik des Hauptfensters
-% ~			 nicht benötigt (MATLAB spezifisch)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 % varargin   weiter Parameter bei Aufruf in Kommandozeile
 
@@ -104,6 +104,10 @@ set(handles.Waitbar_status_text,'String',' ');
 refresh_display (handles);
 refresh_status_text(hObject,'Bereit für Simulation');
 
+% Worker für paralleles Rechnen starten oder stoppen, je aktueller nach
+% Konfiguration:
+check_compute_parallel_Callback(handles.check_compute_parallel, eventdata, handles)
+
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
@@ -123,7 +127,7 @@ case 'Ja'
 	file = Configuration.Save.Settings;
 	% Falls Pfad der Konfigurationsdatei nicht vorhanden ist, Ordner erstellen:
 	if ~isdir(file.Path)
-		mkdir(file.Pathh);
+		mkdir(file.Path);
 	end
 	save([file.Path,file.Name,file.Ext],'Configuration');
 	
@@ -180,6 +184,23 @@ set(handles.start_simulation,'Enable','on');
 set(handles.Waitbar_white,'String',' ');
 % Anzeigen aktualisieren:
 refresh_display (handles);
+% handles-Structure aktualisieren
+guidata(hObject, handles);
+
+function check_compute_parallel_Callback(hObject, ~, handles)
+% hObject    Link zu Grafikobjekt check_compute_parallel (see GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Configuration.Options.compute_parallel = get(hObject,'Value');
+% Die Worker je nach Konfigruation starten oder stoppen:
+if handles.Configuration.Options.compute_parallel && matlabpool('size') == 0
+	matlabpool('open');
+end
+if ~handles.Configuration.Options.compute_parallel && matlabpool('size') > 0;
+	matlabpool('close');
+end
+
 % handles-Structure aktualisieren
 guidata(hObject, handles);
 
@@ -872,4 +893,5 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function menu_Callback(hObject, ~, handles)
 function menu_multiple_sim_Callback(hObject, ~, handles)
-function menu_frequency_Callback(hObject, ~, handles)
+function menu_frequency_Callback(hObject, ~, handles) %#ok<*DEFNU>
+

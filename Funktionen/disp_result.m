@@ -119,4 +119,4 @@ title(titlestr,'FontWeight','bold')
 % Legende erstellen:
 legend1 = legend(axes1,'show');
 set(legend1,'Location','Best','String',...
-	Result.Displayable.DSM_Power_Class_and_Total_kW.Legend);
+	Result.Displayable.Power_Class_and_Total_kW.Legend);
