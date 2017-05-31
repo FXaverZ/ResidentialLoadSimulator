@@ -32,10 +32,10 @@ Model.Households = {...
 	'home_2',  2, 2, 'Haus - 2 Bewohner'             , 17;...
 	'home_3',  3, 3, 'Haus - 3 Bewohner'             , 12;...
 	'hom_4p',  4, 5, 'Haus - 4 und mehr Bewohner'    , 19;...
-	'flat_1',  1, 1, 'Wohnung - 1 Bewohner'          , 29;...
-	'flat_2',  2, 2, 'Wohnung - 2 Bewohner'          , 19;...
-	'flat_3',  3, 3, 'Wohnung - 3 Bewohner'          ,  9;...
-	'fla_4p',  4, 5, 'Wohnung - 4 und mehr Bewohner' ,  8;...
+% 	'flat_1',  1, 1, 'Wohnung - 1 Bewohner'          , 29;...
+% 	'flat_2',  2, 2, 'Wohnung - 2 Bewohner'          , 19;...
+% 	'flat_3',  3, 3, 'Wohnung - 3 Bewohner'          ,  9;...
+% 	'fla_4p',  4, 5, 'Wohnung - 4 und mehr Bewohner' ,  8;...
 	};
 
 % Wieviele Durchläufe sollen gemacht werden?
@@ -49,7 +49,8 @@ Model.Number_Runs = 1;
 Model.Sim_Resolution = 'min';
 
 % Welches Jahr soll simuliert werden?
-Model.Sim_Year = 2013;
+Model.Series_Date_Start = '31.12.2012';
+Model.Series_Date_End =   '31.12.2013';
 %===============================================================================
 
 Model.Weekdays =  {'Workda'; 'Saturd'; 'Sunday'};  % Typen der Wochentage
@@ -108,7 +109,7 @@ fprintf(['\n\t',str,]);
 
 % Für die Generierung der Geräteaustattung den ersten Parametersatz laden:
 file = Configuration.Save.Source;
-[~, ~, file.Parameter_Name] = day2sim_parameter(Model, Time, Time.Days_Year(1));
+[~, ~, file.Parameter_Name] = day2sim_parameter(Model, Time.Days_Year(1));
 
 % Geräteparameter laden:
 Model = load_device_parameter(file.Path,file.Parameter_Name,Model);
@@ -259,8 +260,7 @@ for j = 1:Model.Number_Runs
 		file = Configuration.Save.Source;
 		
 		% akutelle Parameter ermitteln:
-		[season, wkd, file.Parameter_Name] = day2sim_parameter(Model,...
-			Time, Time.Days_Year(k));
+		[season, wkd, file.Parameter_Name] = day2sim_parameter(Model, Time.Days_Year(k));
 		str = '-----------------------------';
 		fprintf(['\n\t',str]);
 		
@@ -480,7 +480,7 @@ for j = 1:Model.Number_Runs
 		fprintf(['\n\n\t',str]);
 		
 		Configuration = save_sim_data_for_device_profiles (Configuration,...
-			Model, Time, Time.Days_Year(k), j, Households);
+			Model, Time.Days_Year(k), j, Households);
 		
 		str = '--> erledigt!';
 		refresh_status_text(hObject,str,'Add');

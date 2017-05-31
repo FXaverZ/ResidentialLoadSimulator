@@ -1,4 +1,4 @@
-function Power_parallel = simulate_devices_for_load_profiles_parallel(Devices, Time)
+function Power_parallel = simulate_devices_for_load_profiles_new(Devices, Time)
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES_PARALLEL   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
@@ -82,8 +82,8 @@ for i = 1:numel(slow_computing_devs)
 			% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 			% berechnet wird!
 			dev = dev.next_step(time, 0);
-			btw_result(j,1:3,step) = dev.Power_Input * dev.Phase_Power_Distribution_Factor;
-			btw_result(j,4:6,step) = dev.Power_Input_Reactive * dev.Phase_Power_Distribution_Factor;
+			btw_result(j,1:3,step) = dev.Power_Input*dev.Phase_Power_Distribution_Factor;
+			btw_result(j,4:6,step) = dev.Power_Input_Reactive *devPhase_Power_Distribution_Factor;
 		end
 		Devices.(slow_computing_devs{i})(j) = dev;
 	end
@@ -101,7 +101,7 @@ time_vec = Time.Date_Start:Time.Base/Time.day_to_sec:Time.Date_End;
 
 % Berechnen der Reaktionen der Verbraucher für die restlichen Zeitpunkte, zunächst
 % die schnell rechenbaren Geräte (aufgeteilt auf die aktiven Worker):
-parfor i = 1:numel(fast_computing_devs)
+for i = 1:numel(fast_computing_devs)
 	btw_result = fast_pow{i};
 	dev = fast_device{i};
 	if isempty(dev)
@@ -123,9 +123,9 @@ parfor i = 1:numel(fast_computing_devs)
 		% punkte werden dann mit den jeweiligen Betriebswerten überschrieben
 		% (--> wenn Gerät nicht in Betrieb dann in Stand-by, im Fall, dass es
 		% keinen Stand-by-Verbrauch gibt, ist dieser Null und bleibt null...)
-		btw_result(dev.Phase_Index,j,:) = dev.Power_Stand_by * dev.Phase_Power_Distribution_Factor;
+		btw_result(dev.Phase_Index,j,:) = dev.Power_Stand_by*dev.Phase_Power_Distribution_Factor;
 		btw_result(dev.Phase_Index + 3,j,:) = dev.Power_Stand_by * ...
-			tan(acos(dev.Cos_Phi_Stand_by)) * dev.Phase_Power_Distribution_Factor;
+			tan(acos(dev.Cos_Phi_Stand_by))*dev.Phase_Power_Distribution_Factor;
 		% Nun die einzelnen Eintragungen im Einsatzplan durchgehen und
 		% entsprechend die Leistungen eintragen:
 		for step = 1:size(dev.Time_Schedule,1)
@@ -134,11 +134,11 @@ parfor i = 1:numel(fast_computing_devs)
 				time_vec < dev.Time_Schedule(step,2);
 			% Zu diesen Zeitpunkten aktuelle Leistungsaufnahme entsprechend
 			% dem Einsatzplan sezten
-			btw_result(dev.Phase_Index,j,idx) = dev.Time_Schedule(step,3) * dev.Phase_Power_Distribution_Factor;
+			btw_result(dev.Phase_Index,j,idx) = dev.Time_Schedule(step,3)*dev.Phase_Power_Distribution_Factor;
 			% Mit Hilfe des aktuell gültigen cos(phi) die Blindleistungs-
 			% aufnahme ermitteln und entsprechend sezten:
 			btw_result(dev.Phase_Index + 3,j,idx) = ...
-				dev.Time_Schedule(step,3)*tan(acos(dev.Time_Schedule(step,4))) * dev.Phase_Power_Distribution_Factor;
+				dev.Time_Schedule(step,3)*tan(acos(dev.Time_Schedule(step,4)))*dev.Phase_Power_Distribution_Factor;
 		end
 	end
 	% Das Zwischenergebnis in das Ergebnis-Cell-Array speichern:
@@ -157,7 +157,7 @@ for i = 1:numel(slow_computing_devs)
 	% Geräteklasse:
 	% Für jeden Zeitpunkt
 	device = slow_device{i};
-	parfor j = 1:size(device,2)
+	for j = 1:size(device,2)
 		% Reaktion der Verbraucher ermitteln
 		for step = 2:number_steps
 			% Aktuellen Zeitpunkt ermitteln:

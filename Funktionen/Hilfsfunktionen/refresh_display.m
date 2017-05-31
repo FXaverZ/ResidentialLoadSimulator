@@ -14,14 +14,20 @@ set(handles.edit_number_user,'String',num2str(handles.Model.Number_User));
 switch handles.Model.Sim_Resolution
 	case 'sec'
 		val = 1;
-	case 'min'
+	case '5se'
 		val = 2;
-	case '5mi'
+	case '10s'
 		val = 3;
-	case 'quh'
+	case 'min'
 		val = 4;
-	case 'hou'
+	case '2.5m'
 		val = 5;
+	case '5mi'
+		val = 6;
+	case 'quh'
+		val = 7;
+	case 'hou'
+		val = 8;
 end
 set(handles.pop_sim_res,'Value',val);
 % Simulationszeitraum:

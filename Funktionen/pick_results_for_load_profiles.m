@@ -1,4 +1,4 @@
-function Result = postprocess_results_for_load_profiles (Households, Model, Time, ...
+function Result = pick_results_for_load_profiles (Households, Model, Time, ...
 	Devices, Result)
 %POSTPROCESS_RESULTS_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
@@ -34,24 +34,9 @@ for i=1:size(hh_devices,2)
 		end
 	end
 end
-% für die weitere Verarbeitung die einzelnen Geräte zu den Gerätegruppen
-% zusammenfassen (um die Funktionen der Simulation ohne Haushaltsaufteilung verwenden
-% zu können:
-Result.Raw_Data.Power = squeeze(sum(power_ra,3));
-Result.Raw_Data.Power_Reactive = squeeze(sum(power_reactive_ra,3));
-
-
-% Simulationszeitpunkte mitspeichern:
-Result.Time = Time.Date_Start:Time.Base/Time.day_to_sec:Time.Date_End;
-Result.Time_Base = Time.Base;
 
 % Einzelleistungsaufnahme der Haushalte aufgeteilt auf die einzelnen Phasen:
 Result.Raw_Data.Households_Power_Phase = power_hh;
 Result.Raw_Data.Households_Power_Reactive_Phase = power_rea_hh;
-% Einzelleistungsaufnahme der Haushalte Gesamt:
-Result.Raw_Data.Households_Power_Total = squeeze(sum(power_hh,1));
-Result.Raw_Data.Households_Power_Reactive_Total = squeeze(sum(power_rea_hh,1));
-% Weitere Nachbehandlung der Ergebnisse:
-Result = postprocess_results(Model, Time, Devices, Result);
 end
 

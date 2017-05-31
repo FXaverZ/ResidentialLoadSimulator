@@ -1,6 +1,6 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
 % Franz Zeilinger - 14.09.2011
-% Last Modified by GUIDE v2.5 13-Dec-2012 17:36:55
+% Last Modified by GUIDE v2.5 16-Jan-2015 14:36:10
 
 function varargout = Simulation(varargin)
 
@@ -151,6 +151,7 @@ set(handles.start_simulation,'Enable','off');
 set(handles.push_generate_loadprofiles,'Enable','off');
 set (handles.push_display_result,'Enable','off');
 set (handles.push_set_device_parameter,'Enable','off');
+set(handles.push_generate_annual_loadprofiles,'Enable','off');
 
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
@@ -171,6 +172,7 @@ set(handles.start_simulation,'Enable','on');
 set(handles.push_generate_loadprofiles,'Enable','on');
 set(handles.push_display_result,'Enable','on');
 set(handles.push_set_device_parameter,'Enable','on');
+set(handles.push_generate_annual_loadprofiles,'Enable','on');
 
 handles.system.cancel_simulation = false;
 
@@ -188,6 +190,7 @@ set(handles.cancel_simulation,'Enable','off');
 set(handles.push_generate_loadprofiles,'Enable','on');
 set(handles.push_generate_deviceprofiles,'Enable','on');
 set(handles.start_simulation,'Enable','on');
+set(handles.push_generate_annual_loadprofiles,'Enable','on');
 set(handles.Waitbar_white,'String',' ');
 % Anzeigen aktualisieren:
 refresh_display (handles);
@@ -201,11 +204,11 @@ function check_compute_parallel_Callback(hObject, ~, handles)
 
 handles.Configuration.Options.compute_parallel = get(hObject,'Value');
 % Die Worker je nach Konfigruation starten oder stoppen:
-if handles.Configuration.Options.compute_parallel && matlabpool('size') == 0
-	matlabpool('open');
+if handles.Configuration.Options.compute_parallel && isempty(gcp('nocreate'))
+	parpool;
 end
-if ~handles.Configuration.Options.compute_parallel && matlabpool('size') > 0;
-	matlabpool('close');
+if ~handles.Configuration.Options.compute_parallel && ~isempty(gcp('nocreate'));
+	delete(gcp('nocreate'));
 end
 
 % handles-Structure aktualisieren
@@ -611,6 +614,69 @@ function push_display_result_Callback(~, ~, handles)
 
 disp_result(handles.Model, handles.Frequency, handles.Result);
 
+function push_generate_annual_loadprofiles_Callback(hObject, ~, handles)
+% hObject    handle to push_generate_annual_loadprofiles (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Setzen verschiedener Einstellungen für GUI:
+handles.system.cancel_simulation = false;
+set(handles.cancel_simulation,'Enable','on');
+set(handles.start_simulation,'Enable','off');
+set(handles.push_generate_loadprofiles,'Enable','off');
+set(handles.push_generate_deviceprofiles,'Enable','off');
+set(handles.push_display_result,'Enable','off');
+set(handles.push_generate_annual_loadprofiles,'Enable','off');
+set(handles.push_set_device_parameter,'Enable','off');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+% % Je nach Simulationsmodus die Simulationen durchführen:
+% if handles.Configuration.Options.multiple_simulation && ~isempty(handles.Joblist)
+% 	simulation_multip_cycle (hObject, handles);
+% else
+
+button = ...
+	questdlg({['Soll die Simulation auch die Daten auf Einzelgeräteebene ',...
+	'enthalten?'];'';...
+	'ACHTUNG! Es fallen deutlich höhere Datenmengen an!'},...
+	'Einzelgeräte-Output?','Ja','Nein','Abbrechen','Nein');
+switch button
+	case 'Ja'
+		simulation_single_annual_load_profiles_device_level (hObject, handles);
+	case 'Nein'
+		simulation_single_annual_load_profiles (hObject, handles);
+	otherwise
+		% Setzen verschiedener Einstellungen für GUI:
+		set(handles.cancel_simulation,'Enable','off');
+		set(handles.start_simulation,'Enable','on');
+		set(handles.push_generate_loadprofiles,'Enable','on');
+		set(handles.push_generate_deviceprofiles,'Enable','on');
+		set (handles.push_display_result,'Enable','on');
+		set (handles.push_set_device_parameter,'Enable','on');
+		set(handles.push_generate_annual_loadprofiles,'Enable','on');
+		handles.system.cancel_simulation = false;
+		return;
+end
+
+% aktuelle handles-Struktur auslesen (wurde in den Funktionen erweitert):
+handles = guidata(hObject);
+
+% Setzen verschiedener Einstellungen für GUI:
+set(handles.cancel_simulation,'Enable','off');
+set(handles.start_simulation,'Enable','on');
+set(handles.push_generate_loadprofiles,'Enable','on');
+set(handles.push_generate_deviceprofiles,'Enable','on');
+set (handles.push_display_result,'Enable','on');
+set (handles.push_set_device_parameter,'Enable','on');
+set(handles.push_generate_annual_loadprofiles,'Enable','on');
+handles.system.cancel_simulation = false;
+
+% Anzeigen aktualisieren:
+refresh_display (handles);
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
 function push_generate_deviceprofiles_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_generate_loadprofiles (siehe GCBO)
 % ~      	 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
@@ -623,6 +689,7 @@ set(handles.push_generate_loadprofiles,'Enable','off');
 set(handles.push_generate_deviceprofiles,'Enable','off');
 set(handles.push_display_result,'Enable','off');
 set(handles.push_set_device_parameter,'Enable','off');
+set(handles.push_generate_annual_loadprofiles,'Enable','off');
 
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
@@ -644,6 +711,7 @@ set(handles.push_generate_loadprofiles,'Enable','on');
 set(handles.push_generate_deviceprofiles,'Enable','on');
 set (handles.push_display_result,'Enable','on');
 set (handles.push_set_device_parameter,'Enable','on');
+set(handles.push_generate_annual_loadprofiles,'Enable','on');
 handles.system.cancel_simulation = false;
 
 % Anzeigen aktualisieren:
@@ -663,6 +731,7 @@ set(handles.push_generate_loadprofiles,'Enable','off');
 set(handles.push_generate_deviceprofiles,'Enable','off');
 set(handles.push_display_result,'Enable','off');
 set(handles.push_set_device_parameter,'Enable','off');
+set(handles.push_generate_annual_loadprofiles,'Enable','off');
 
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
@@ -684,6 +753,7 @@ set(handles.push_generate_loadprofiles,'Enable','on');
 set(handles.push_generate_deviceprofiles,'Enable','on');
 set (handles.push_display_result,'Enable','on');
 set (handles.push_set_device_parameter,'Enable','on');
+set(handles.push_generate_annual_loadprofiles,'Enable','on');
 handles.system.cancel_simulation = false;
 
 % Anzeigen aktualisieren:
@@ -990,3 +1060,6 @@ end
 function menu_Callback(hObject, ~, handles) %#ok<INUSD>
 function menu_multiple_sim_Callback(hObject, ~, handles) %#ok<INUSD>
 function menu_frequency_Callback(hObject, ~, handles) %#ok<INUSD,*DEFNU>
+
+
+% --- Executes on button press in push_generate_annual_loadprofiles.
