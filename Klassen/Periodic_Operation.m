@@ -26,6 +26,8 @@ classdef Periodic_Operation < Scheduled_Operation
 	%            Bei periodischem Verhalten Periodendauer des Geräts
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -45,7 +47,9 @@ classdef Periodic_Operation < Scheduled_Operation
 	%
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	
 	%    Franz Zeilinger - 04.06.2010
 

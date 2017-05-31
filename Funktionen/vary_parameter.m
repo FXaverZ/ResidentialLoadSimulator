@@ -22,7 +22,7 @@ function out = vary_parameter(mean, sigma, varargin)
 %    OUT = VARY_PARAMETER(TIME, SIGMA, 'Time') sorgt für eine Variierung des
 %    Zeitpunktes TIME (angegeben in Minuten) um SIGMA Minuten.
 %
-%    OUT = VARY_PARAMETER(LIST, PROBABILITY, 'List) sorgt für eine zufällige
+%    OUT = VARY_PARAMETER(LIST, PROBABILITY, 'List') sorgt für eine zufällige
 %    Auswahl eines Eintrages aus einer [N,1]-Liste LIST. Die [N,1]-Liste
 %    PROBABILITY gibt die jeweilige Wahrscheinlichkeitsdichte der einzelnen
 %    Listenwerte an (die Gesamtsumme aller Einträge von PROBABILITY muss somit

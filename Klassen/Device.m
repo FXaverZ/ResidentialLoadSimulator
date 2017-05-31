@@ -15,7 +15,7 @@ classdef Device
 	%
 	%    Parameter (werden in Parameterliste übergeben): 
 	%        'Power_Nominal' 
-	%            Anschlussleistung des Geräts
+	%            Anschlussleistung des Geräts. 
 	%        'Start_Probability'       
 	%            Wahrscheinlichkeit, dass Gerät aktiv ist. Kann eine zu einer
 	%            Startzeitliste gehörende Liste sein (definert dann für jeden
@@ -24,6 +24,8 @@ classdef Device
 	%            generelle Aktivität angibt (für die gesamte Simulationsdauer).
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -36,11 +38,15 @@ classdef Device
 	%
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	
-	%    Franz Zeilinger - 14.09.2010
+	%    Franz Zeilinger - 14.06.2011
 	
 	properties
+		Phase_Index
+	%            Index der Phase, an der das Gerät angeschlossen ist
 		Power_Nominal
 	%            Anschlussleistung des Geräts
 		Start_Probability
@@ -49,8 +55,10 @@ classdef Device
 	%            Startzeitpunkt die Wahrscheinlichkeit, ob Gerät aktiv wird)
 	%            oder auch ein Wert, der die Wahrscheinlichkeit für die
 	%            generelle Aktivität angibt (für die gesamte Simulationsdauer).
-		Power_Input
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+		Power_Input = zeros(3,1)
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	end
 	
 	properties (Hidden)
@@ -106,6 +114,9 @@ classdef Device
 					'. Input looks like (''Parameter_Name'', Mean_Value,',...
 					' Standard_Deviation)']);
 			end
+			
+			% Phasenzuordnung ermitteln (gleich verteilt über alle drei Phasen):
+			obj.Phase_Index = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
 		end
 		
 		function obj = add_parameter(obj, parameter, input_1, input_2)

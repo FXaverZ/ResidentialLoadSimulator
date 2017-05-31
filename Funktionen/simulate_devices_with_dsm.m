@@ -7,11 +7,11 @@ function Result = simulate_devices_with_dsm(hObject, Devices, Frequency, Time)
 %    eine Ausgabe des Fortschritts in der Konsole. HOBJECT liefert den Zugriff
 %    auf das aufrufende GUI-Fenster (für Statusanzeige).
 
-%    Franz Zeilinger - 06.08.2010
+%    Franz Zeilinger - 15.06.2011
 
 % Erstellen eines Arrays mit den Leistungsdaten:
-Result.Power = zeros([size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
-Result.Power_DSM = Result.Power;
+Result.Raw_Data.Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
+Result.Raw_Data.DSM_Power = Result.Raw_Data.Power;
 
 % Ersten Zeitpnkt simulieren und dabei alle Geräte-Einsatzpläne auf laufende
 % Matlabzeit umrechnen:
@@ -27,10 +27,10 @@ for i = 1:size(Devices.Elements_Varna,2)
 		% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 		% berechnet wird!
 		dev = dev.next_step(time, 0);
-		Result.Power(i,step) = Result.Power(i,step) + dev.Power_Input;
+		Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + dev.Power_Input;
 		dev.DSM = dev.DSM.algorithm(freq, time, 0);
 		dev.DSM = dev.DSM.next_step(dev, time, 0);
-		Result.Power_DSM(i,step) = Result.Power_DSM(i,step) + ...
+		Result.Raw_Data.DSM_Power(:,i,step) = Result.Raw_Data.DSM_Power(:,i,step) + ...
 			dev.DSM.Power_Input;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
@@ -51,10 +51,11 @@ for step = 2:Time.Number_Steps
 		for j = 1:size(Devices.(Devices.Elements_Varna{i}),2)
 			dev = Devices.(Devices.Elements_Varna{i})(j);
 			dev = dev.next_step(time, Time.Base);
-			Result.Power(i,step) = Result.Power(i,step) + dev.Power_Input;
+			Result.Raw_Data.Power(:,i,step) = Result.Raw_Data.Power(:,i,step) + ...
+				dev.Power_Input;
 			dev.DSM = dev.DSM.algorithm(freq, time, Time.Base);
 			dev.DSM = dev.DSM.next_step(dev, time, Time.Base);
-			Result.Power_DSM(i,step) = Result.Power_DSM(i,step) + ...
+			Result.Raw_Data.DSM_Power(:,i,step) = Result.Raw_Data.DSM_Power(:,i,step) + ...
 				dev.DSM.Power_Input;
 			Devices.(Devices.Elements_Varna{i})(j) = dev;
 		end

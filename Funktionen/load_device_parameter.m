@@ -12,14 +12,16 @@ function Model = load_device_parameter(File_Path, File_Name, Model)
 %    unterhalb eventueller Simulationseinstellungen befinden. Der Bereich wird
 %    duch die Überschrift 'Device Settings:' markiert. 
 %    Eine Geräteklasse muss mit ihrem Namen als Überschrift markiert werden
-%    (siehe hierzu GET_DEFAULT_VALUES).
+%    (siehe hierzu Funktion GET_DEFAULT_VALUES).
 %    Unter den Geräteparametern müssen sich dann (sofern überhaupt angegeben)
 %    die DSM-Einstellungen befinden, eingeleitet durch die Überschrift 'DSM -
 %    Settings:'.
 %
-%    Franz Zeilinger - 19.08.2010 - R2008b lauffähig
+%    Parameter Mitglieder einer Gerätegruppe:
+%
+%    Franz Zeilinger - 26.07.2011
 
-% Einleitungstext bei Fehler:
+% Einleitungstext bei Fehler (wird im Fehlerfall ergänzt):
 error_text = {...
 	'Fehler sind beim Laden der Parameterdatei aufgetreten:';...
 		' ';...
@@ -31,7 +33,7 @@ xlsn = [File_Path,File_Name,'.xls'];
 
 % Infos zur zu ladenden Konfigurationsdatei einholen:
 try
-	[message, sheets]=xlsfinfo(xlsn);
+	[~, sheets]=xlsfinfo(xlsn);
 catch ME
 	error_text(end+1) = {[' - ',ME.message]};
 	errordlg(error_text, error_titl);
@@ -49,11 +51,11 @@ if ~any(strcmpi(wshn_param, sheets))
 	return;
 end
 
-% eventuell vorhandene alte Parameter löschen:
+% eventuell vorhandene alte Argumentenliste löschen:
 Model.Args = {};
 
 % Daten einlesen:
-[numeric, text, raw_data] = xlsread(xlsn,wshn_param);
+[~, ~, raw_data] = xlsread(xlsn,wshn_param);
 % Finden der einzelnen Haupt-Bereiche für Einstellungen (müssen in der 
 % richtigen Reihenfolge vorliegen!):
 ind = find(strcmpi('Device Settings:',raw_data));
@@ -124,6 +126,9 @@ end
 
 % HILFSFUNKTIONEN:
 function Model = read_parameter(Model, name, Pool, data)
+%READ_PARAMETER    einlesen Parameter aus vorbereiteten Daten-Array
+%    MODEL = READ_PARAMETER(MODEL, NAME, POOL, DATA)
+
 Model.Args.(name)={};
 % Durchlaufen aller Zeilen und finden der Parameter:
 result = zeros(size(data,1),1);

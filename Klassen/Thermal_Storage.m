@@ -36,6 +36,8 @@ classdef Thermal_Storage < Device
 	%  	         ist.
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -50,9 +52,11 @@ classdef Thermal_Storage < Device
 	%
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	
-	%    Franz Zeilinger - 24.08.2010 - R2008b lauffähig
+	%    Franz Zeilinger - 14.06.2011
 	
 	properties
 		Dir_therm_Flow
@@ -139,7 +143,7 @@ classdef Thermal_Storage < Device
 			end
 		end
 		
-		function obj = next_step (obj, time, delta_t, varargin)
+		function obj = next_step (obj, ~, delta_t, varargin)
 			% NEXT_STEP    ermittelt die Reaktion des Gerätes
 			%    OBJ = NEXT_STEP(OBJ, ~, DELTA_T, VARARGIN) ermittelt die
 			%    Reaktion des Geräts auf die aktuelle Situation. Es liegt
@@ -165,7 +169,7 @@ classdef Thermal_Storage < Device
 			end
 			
 			% Ausgabe der Leistung für aktuellen Schritt:
-			obj.Power_Input = obj.Operating * obj.Power_Nominal;
+			obj.Power_Input(obj.Phase_Index) = obj.Operating * obj.Power_Nominal;
 		end
 		
 		function obj = update_temperature(obj, delta_t)

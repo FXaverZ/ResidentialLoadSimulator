@@ -28,6 +28,8 @@ classdef Scheduled_Operation < Device
 	%            übliche Laufzeit des Geräts zum angegebenen Startzeitpunkt.
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -47,9 +49,11 @@ classdef Scheduled_Operation < Device
 	%
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	
-	%    Franz Zeilinger - 09.09.2010
+	%    Franz Zeilinger - 14.06.2011
 	
 	properties
 		Power_Stand_by
@@ -182,11 +186,11 @@ classdef Scheduled_Operation < Device
 			%    Geräteinstanz zum Zeitpunkt TIME. Die Reaktion besteht
 			%    vordergründig in der aufgenommen Leistung zu diesem Zeitpunkt.
 			
-			[obj.Power_Input, obj.Operating] = obj.get_power_from_schedule(time, ...
+			[obj.Power_Input(obj.Phase_Index), obj.Operating] = obj.get_power_from_schedule(time, ...
 				obj.Time_Schedule);
 			
 			if ~obj.Operating
-				obj.Power_Input = obj.Power_Stand_by;
+				obj.Power_Input(obj.Phase_Index) = obj.Power_Stand_by;
 			end
 		end
 		

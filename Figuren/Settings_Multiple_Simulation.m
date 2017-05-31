@@ -23,9 +23,9 @@ else
 % Ende Initializationscode - NICHT EDITIEREN!
 end
 
-function check_simsettings_load_from_main_window_Callback(hObject, eventdata, handles)
+function check_simsettings_load_from_main_window_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_simsettings_load_from_main_window (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -68,9 +68,9 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function check_use_same_devices_Callback(hObject, eventdata, handles)
+function check_use_same_devices_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_use_same_dsm (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~	         nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -86,7 +86,7 @@ guidata(hObject, handles)
 
 function check_use_same_dsm_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_use_same_dsm (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -102,7 +102,7 @@ guidata(hObject, handles)
 
 function check_use_same_paramter_file_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_use_same_dsm (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -115,7 +115,7 @@ guidata(hObject, handles)
 
 function push_joblist_load_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_joblist_load (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 % Laden der Joblist-Datei
@@ -154,7 +154,7 @@ guidata(hObject, handles)
 
 function push_joblist_new_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_joblist_new (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.Joblist = {};
@@ -173,9 +173,9 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function push_joblist_save_Callback(hObject, eventdata, handles)
+function push_joblist_save_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_joblist_save (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 file = handles.Configuration.Save.Joblist;
@@ -187,7 +187,7 @@ file = handles.Configuration.Save.Joblist;
 	[file.Path,file.List_Name,'.xls']);
 if ~isequal(file.List_Name,0) && ~isequal(file.Path,0)
 	% Entfernen der Dateierweiterung:
-	[eventdata, file.List_Name] = fileparts(file.List_Name);
+	[~, file.List_Name] = fileparts(file.List_Name);
 	% Konfiguration übernehmen:
 	handles.Configuration.Save.Joblist = file;
 	% speichern der Job-Liste:
@@ -202,7 +202,7 @@ guidata(hObject, handles)
 
 function push_joblist_show_Callback(hObject, eventdata, handles)
 % hObject    Link zu Grafikobjekt push_joblist_show (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% eventdata  reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 if handles.changed_data
@@ -234,7 +234,7 @@ end
 
 function push_parameter_add_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_parameter_add (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 % Simulationsmodus anpassen auf Simulationsreihe:
@@ -279,9 +279,9 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function radio_simmod_multip_cyc_Callback(hObject, eventdata, handles)
+function radio_simmod_multip_cyc_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt radio_simmod_multip_cyc (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -292,9 +292,9 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function radio_simmod_single_cyc_Callback(hObject, eventdata, handles)
+function radio_simmod_single_cyc_Callback(hObject, ~, handles)
 % hObject    Link zu Grafik des Hauptfensters
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -313,7 +313,8 @@ refresh_display(handles);
 guidata(hObject, handles);
 
 function refresh_display(handles)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+% REFRESH_DISPLAY    aktualisiert die Anzeige des GUI "Einstellungen"
+%    handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 opt = handles.Configuration.Options;
 
@@ -415,9 +416,9 @@ guidata(hObject, handles);
 % Warten auf Usereingabe beenden:
 uiresume(handles.settings_multiple_sim);
 
-function Settings_Multiple_Simulation_OpeningFcn(hObject, eventdata, handles, varargin)
+function Settings_Multiple_Simulation_OpeningFcn(hObject, ~, handles, varargin)
 % hObject    Link zu Grafik des Hauptfensters
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 % varargin   Command-Line Argumente für Settings_Multiple_Simulation (siehe VARARGIN)
 
@@ -458,12 +459,12 @@ end
 % Wenn nicht vom richtigen GUI aufgerufen --> Fehlermeldung in Konsole:
 if dontOpen
 	disp('---------------------------------------------------------------');
-	disp('Falsche Argumente bei Aufruf. Es muss ein Parameter-Wert Paar')
+	disp('Falsche Argumente bei Aufruf. Es muss ein Parameter-Werte-Paar')
 	disp('übergeben werden dessen Name ''Simulation'' und Wert der Handle')
-	disp('auf das GUI von Simulation.m ist! z.B.');
-	disp('   x = Simulation()');
-	disp('   Settings_Multiple_Simulation(...');
-	disp('                           ''Simulation'', handles.main_window)');
+	disp('auf das GUI von Simulation.m ist! z.B.:');
+	disp('   x = Simulation();');
+	disp('   Settings_Multiple_Simulation(''Simulation'', ...');
+	disp('                                 handles.main_window);');
 	disp('---------------------------------------------------------------');
 	% Update handles structure
 	guidata(hObject, handles);
@@ -477,27 +478,13 @@ guidata(hObject, handles);
 % Warten auf Usereingabe
 uiwait(handles.settings_multiple_sim);
 
-function varargout = Settings_Multiple_Simulation_OutputFcn(hObject, eventdata, handles)
-% varargout  Cell-Array für Rückgabe der Output-Argumente (siehe VARARGOUT);
+function varargout = Settings_Multiple_Simulation_OutputFcn(hObject, ~, handles)
+% varargout  Cell-Array für Rückgabe der Output-Argumente (siehe VARARGOUT)
 % hObject    Link zu Grafik des Hauptfensters
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 varargout = {handles.main_handles};
 
 % Schließen des Fensters:
 delete(handles.settings_multiple_sim);
-
-
-% --- Executes on button press in check_use_different_frequency_data.
-
-
-% Hint: get(hObject,'Value') returns toggle state of check_use_different_frequency_data
-
-
-% --- Executes on button press in check_use_same_paramter_file.
-
-
-% Hint: get(hObject,'Value') returns toggle state of check_use_same_paramter_file
-
-
