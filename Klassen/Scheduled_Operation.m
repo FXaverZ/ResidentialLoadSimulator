@@ -53,7 +53,7 @@ classdef Scheduled_Operation < Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 14.06.2011
+	%    Franz Zeilinger - 17.08.2011
 	
 	properties
 		Power_Stand_by
@@ -63,6 +63,7 @@ classdef Scheduled_Operation < Device
 	%            'HH:MM' übergebbar (z.B. '12:31')
 		Time_typ_Run
 	%            übliche Laufzeit des Geräts zum angegebenen Startzeitpunkt.
+	    Time_min_Run = 0
 	end
 	
 	properties (Hidden)
@@ -133,9 +134,13 @@ classdef Scheduled_Operation < Device
 				% alle Zeiten vom nächsten Tag (> 1440 min) um einen Tag
 				% reduzieren
 				sched(sched(:,1:2)>=1440)=sched(sched(:,1:2)>=1440)-1440;
+				% nur die Startzeiten übernehmen, bei denen es auch zu einem
+				% Geräteeinsatz kommt:
+				obj.Time_Start_Day = sched(:,1);
 			end
 			% Übernehmen des neuen Einsatzplanes:
 			obj.Time_Schedule_Day = sched;
+			
 		end
 		
 		function obj = adapt_for_simulation(obj, Date_Start, Date_End, varargin)

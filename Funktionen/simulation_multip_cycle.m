@@ -287,7 +287,7 @@ for i=1:size(Joblist,1)
 		str = 'Anzeigen der Ergebnisse: ';
 		refresh_status_text(hObject,[sim_str,str]);
 		fprintf(['\n\t\t',str]);
-		disp_result(Model, Devices, Frequency, Result);
+		disp_result(Model, Frequency, Result);
 		str = '--> erledigt!';
 		refresh_status_text(hObject,str,'Add');
 		fprintf([str,'\n']);
@@ -322,14 +322,15 @@ for i=1:size(Joblist,1)
 	% handles-Struktur aktualisieren
 	guidata(hObject, handles);
 	
-	% Gong ertönen lassen
-	f = rand()*9.2+0.8;
-	load gong.mat;
-	sound(y, f*Fs);
 end
 
 fprintf('\n\t=================================\n');
 % Simulationslog beenden
 diary off
+
+% Gong ertönen lassen
+f = rand()*9.2+0.8;
+load gong.mat;
+sound(y, f*Fs);
 
 end

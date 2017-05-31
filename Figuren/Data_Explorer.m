@@ -246,7 +246,6 @@ function varargout = Data_Explorer_OutputFcn(hObject, ~, handles)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 varargout = {handles.main_handles};
-
 % Schlieﬂen des Fensters:
 delete(handles.data_explorer);
 

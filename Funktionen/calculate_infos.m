@@ -10,9 +10,12 @@ function Result = calculate_infos (Model, Time, Devices, Result)
 
 % aus den einzelnen Phasenleistungen die Gesamtleistung für jede Gerätekategorie
 % ermitteln sowie die Gesamtleistung ermitteln:
-Result.Raw_Data.Power_Devices = squeeze(sum(Result.Raw_Data.Power,1));
+pwr_dev = reshape(squeeze(sum(Result.Raw_Data.Power,1)),...
+	numel(Devices.Elements_Varna),[]); % reshape notwendig, falls nur ein Gerät 
+                                       % simuliert wurde!
+Result.Raw_Data.Power_Devices = pwr_dev;
 Result.Raw_Data.Power_Phase = squeeze(sum(Result.Raw_Data.Power,2));
-Result.Raw_Data.Power_Total = sum(Result.Raw_Data.Power_Devices,1);
+Result.Raw_Data.Power_Total = sum(Result.Raw_Data.Power_Phase,1);
 % Bei Simulation von DSM, auch diese Daten verarbeiten:
 if Model.Use_DSM
 	Result.Raw_Data.DSM_Power_Devices = squeeze(sum(Result.Raw_Data.DSM_Power,1));

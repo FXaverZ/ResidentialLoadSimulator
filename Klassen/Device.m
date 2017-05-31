@@ -42,7 +42,7 @@ classdef Device
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%    Franz Zeilinger - 14.06.2011
+	%    Franz Zeilinger - 19.08.2011
 	
 	properties
 		Phase_Index
@@ -134,6 +134,15 @@ classdef Device
 					% Parametervariation, negative Werte werden zugelassen:
 					obj.(parameter) = vary_parameter(...
 						input_1,input_2);
+				case 'Time_run_Duty_Cycle'
+					% normale Parametervariation, solange der Wert zwischen 0 und
+					% 100% liegt:
+					value = -1;
+					while (value < 0) || (value > 100)
+					 value = vary_parameter(...
+						input_1,input_2);
+					end
+					obj.(parameter) = value;
 				otherwise
 					% Noramle Parametervariation:
 					obj.(parameter) = vary_parameter(...
