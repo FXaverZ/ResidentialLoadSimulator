@@ -39,7 +39,7 @@ Model.Households = {...
 	};
 
 % Wieviele Durchläufe sollen gemacht werden?
-Model.Number_Runs = 2;
+Model.Number_Runs = 4;
 
 % Auflösung der Simulation: 'sec' = Sekundentakt
 %                           '5se' = 5-Sekunden-Takt
