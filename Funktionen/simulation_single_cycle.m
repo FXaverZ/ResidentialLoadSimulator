@@ -5,7 +5,7 @@ function simulation_single_cycle (hObject, handles)
 %    GUI, in dessen Statuszeile aktuelle Informationen zum Simulationsablauf
 %    angzeigt werden. HANDLES enthält alle notwendigen Daten (siehe GUIDATA).
 
-%    Franz Zeilinger - 11.10.2010
+%    Franz Zeilinger - 04.08.2011
 
 % Einlesen vorhandener Daten aus handles-Struktur:
 Configuration = handles.Configuration;
@@ -61,6 +61,14 @@ if Configuration.Options.use_last_frequency_data &&...
 	Frequency = handles.Frequency;
 else
 	Frequency = create_frequency_data(Time);
+end
+
+% Gerätezusammenstellung gemäß den Einstellungen auf den neuesten Stand bringen
+% (notwendig für Gerätegruppen):
+Model.Device_Assembly_Simulation = Model.Device_Assembly;
+for i=1:size(Model.Device_Groups_Pool,1)
+	Model = ...
+		Model.Device_Groups.(Model.Device_Groups_Pool{i,1}).update_device_assembly(Model);
 end
 
 % Überprüfen, ob eventuell vorhandene Geräteinstanzen verwendet werden:
@@ -137,7 +145,7 @@ end
 % handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 handles = guidata(hObject);
 % Überprüfen, ob bei Geräteerzeugung von User abgebrochen wurde:
-if handles.system.cancel_simulation
+if handles.System.cancel_simulation
 	str = '--> Geräteerzeugung abgebrochen';
 	refresh_status_text(hObject,str,'Add');
 	fprintf(['\n\t\t\t',str,'\n']);
@@ -181,7 +189,7 @@ end
 % handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 handles = guidata(hObject);
 % Überprüfen, ob während der Geräteerzeugung abgebrochen wurde:
-if handles.system.cancel_simulation
+if handles.System.cancel_simulation
 	str = '--> Simulation abgebrochen';
 	refresh_status_text(hObject,str,'Add');
 	fprintf(['\n\t\t\t',str,'\n']);
@@ -214,7 +222,7 @@ if Configuration.Options.show_data
 	refresh_status_text(hObject,str);
 	fprintf(['\n\t\t',str]);
 	
-	disp_result(Model, Devices, Frequency, Result);
+	disp_result(Model, Frequency, Result);
 	
 	str = '--> erledigt!';
 	refresh_status_text(hObject,str,'Add');

@@ -15,7 +15,7 @@ function total_time = waitbar_reset(hObject)
 %        any_statements;
 %    WAITBAR_RESET(hObject);  %Beenden der Zeitmessung und Rücksetzen der Anzeige
 %
-%    Franz Zeilinger - 17.08.2009
+%    Franz Zeilinger - 04.08.2011
 
 % Definieren der globalen Variablen für Kommunikation der waitbar_-Funktionen:
 global WAITBAR_TIC_START;
@@ -32,4 +32,6 @@ if ~isempty(WAITBAR_TIC_START)
 	pos(3) = 0.05;
 	set(handles.Wait_bar_color,'Position',pos);
 	drawnow;
+else
+	total_time = [];
 end

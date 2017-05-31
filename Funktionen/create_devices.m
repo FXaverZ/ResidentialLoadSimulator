@@ -7,7 +7,7 @@ function Devices = create_devices(hObject, Model)
 %    Statusanzeige des Fortschritts in der Konsole ausgegeben. HOBJECT liefert
 %    den Zugriff auf das aufrufende GUI-Fenster (für Statusanzeige).
 
-%    Franz Zeilinger - 17.08.2010
+%    Franz Zeilinger - 29.07.2011
 
 % Für spätere Überprüfung, ob Geräteinstanzen für eine weitere Verwendung
 % gebraucht werden können, die Anzahl der Personen in der Geräte-Struktur
@@ -15,28 +15,29 @@ function Devices = create_devices(hObject, Model)
 Devices.Number_User = Model.Number_User;  
 
 %Auflistung der verwendeten Geräte im Modell:
-Devices.Elements_Varna = {};  % Variablenname für automatisches Abarbeiten
-Devices.Elements_Names = {};  % Volle Namen für Legendenbeschriftung
+Devices.Elements_Varna = {};  % Variablennamen für automatisches Abarbeiten
+Devices.Elements_Names = {};  % Vollständige Namen der jeweiligen Geräte 
+                              %     z.B. für Legendenbeschriftung)
 Devices.Elements_Funha = {};  % Handles auf Klassenfunktionen
 Devices.Total_Number_Dev = 0; % Gesamtanzahl aller beteiligten Geräte
 Devices.DSM_included = 0;     % Sind DSM-Instanzen vorhanden?
 waitbar_start;                % Messen der Zeit, die benötigt wird - Start
 
 % Vorbereiten der Arrays für die Geräte-Instanzen der Gerätestruktur:
-for i=1:size(Model.Elements_Pool,1)
+for i=1:size(Model.Devices_Pool,1)
 	% Variablenname der aktuellen Geräteklasse:
-	name = Model.Elements_Pool{i,1};
-	if Model.Device_Assembly.(name)
+	name = Model.Devices_Pool{i,1};
+	if Model.Device_Assembly_Simulation.(name)
 		% Funktionen-Handle auf zuständige Klasse auslesen
-		dev_handle = Model.Elements_Pool{i,3};
+		dev_handle = Model.Devices_Pool{i,3};
 		% eine Instanz der Klasse erzeugen
 		dev = dev_handle();
 		% leeres Array mit Klasseninstanzen erzeugen:
 		Devices.(name) = dev.empty(0,0);
 		% die jeweilingen Namen anspeichern:
 		Devices.Elements_Varna{end+1} = name;
-		Devices.Elements_Names{end+1} = Model.Elements_Pool{i,2};
-		Devices.Elements_Funha{end+1} = Model.Elements_Pool{i,3};
+		Devices.Elements_Names{end+1} = Model.Devices_Pool{i,2};
+		Devices.Elements_Funha{end+1} = Model.Devices_Pool{i,3};
 	end
 end
 

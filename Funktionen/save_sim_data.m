@@ -5,7 +5,7 @@ function Configuration = save_sim_data (Configuration, Model, Devices, Frequency
 %    Funktion erzeugt werden ist von der Form: 
 %        Simulationszeit - Dateiinhalt - zeitliche Auflösung - Anzahl Personen
 
-%    Franz Zeilinger - 27.06.2011
+%    Franz Zeilinger - 04.08.2011
 
 file = Configuration.Save.Data;
 % Speichern der wichtigen Workspacevariablen:
@@ -35,10 +35,10 @@ save_model_parameters(Configuration, Model);
 
 % Erzeugen einer .xls-Datei mit den Simulatinsdaten inkl. Zeitstempel:
 time = Result.Time;
-resu = Result.Displayable.Power_Class_and_Total_kW;
+resu = Result.Displayable.Power_Class_and_Total_kW.Data;
 time = time - datenum('30-Dec-1899'); % Zeitformat in Excel-Format bringen
 data = [time', resu'];
-titl = [{'Zeit'},{'Gesamtleistung'},Devices.Elements_Names];
+titl = [{'Zeit'},Result.Displayable.Power_Class_and_Total_kW.Legend];
 % .xls-File schreiben:
 if (size(data,1) >= 1048665) || ~Configuration.Options.savas_xls
 	fprintf('(ohne .xls-Daten) ');
@@ -49,18 +49,19 @@ else
 	xls.write_lines(titl); % Spaltenüberschriften
 	xls.write_values('aktive Geräte:');
 	xls.next_col;
-	xls.write_lines(Result.Running_Devices); %wie viele Geräte aktiv?
+	xls.write_lines(Result.Running_Devices_in_Class); %wie viele Geräte aktiv?
 	xls.write_values('Durchschn. je Klasse:');
 	xls.next_col;
-	xls.write_lines(Result.Mean_Power_pP); %durchschn. Leistung je Klasse
+	xls.write_lines(Result.Mean_Power_pP_Class); %durchschn. Leistung je Klasse
 	xls.write_lines(data); % Daten
 	wshn = datestr(Result.Sim_date,'HHhMM.SS'); % Tabellenblattname
 	xls.set_worksheet(wshn);
 	if Model.Use_DSM
 		wshn = [datestr(Result.Sim_date,'HHhMM.SS'),'+DSM']; % Tabellenblattname
 		xls.set_worksheet(wshn);
-		titl = [{'Zeit'},{'Netzfrequenz'},{'Gesamtleistung'},Devices.Elements_Names];
-		resu = Result.Displayable.DSM_Power_Class_and_Total_kW;
+		titl = [{'Zeit'},{'Netzfrequenz'},...
+			Result.Displayable.DSM_Power_Class_and_Total_kW.Legend];
+		resu = Result.Displayable.DSM_Power_Class_and_Total_kW.Data;
 		% Ermitteln der Frequenzdaten, siehe Funktion CREATE_FREQUENCY_DATA!
 		if Result.Time_Base < 60
 			stepsize = 1;
@@ -79,10 +80,10 @@ else
 		xls.write_lines(titl); % Spaltenüberschriften
 		xls.write_values('aktive Geräte:');
 		xls.next_col(2);
-		xls.write_lines(Result.Running_Devices); %wie viele Geräte aktiv?
+		xls.write_lines(Result.Running_Devices_in_Class); %wie viele Geräte aktiv?
 		xls.write_values('Durchschn. je Klasse:');
 		xls.next_col(2);
-		xls.write_lines(Result.Mean_Power_pP); %durchschn. Leistung je Klasse
+		xls.write_lines(Result.Mean_Power_pP_Class); %durchschn. Leistung je Klasse
 		xls.write_lines(data); % Daten
 	end
 	xlsn = [file.Path,file.Data_Name,'.xlsx']; % Dateiname .xls-File

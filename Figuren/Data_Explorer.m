@@ -1,5 +1,5 @@
 % M-File für GUI nach Auswahl 'Datenexplorer ...'
-% Franz Zeilinger - 15.06.2011
+% Franz Zeilinger - 04.08.2011
 % Last Modified by GUIDE v2.5 20-Jul-2011 16:47:33
 
 function varargout = Data_Explorer(varargin)
@@ -452,64 +452,61 @@ value = contents{get(hObject,'Value')};
 % Für die jeweilige Auswahl die Anzeige ausgeben:
 switch value
 	case 'Verbrauchergruppen'
-		data = Result.Displayable.Power_Class_kW; %darzustellende Daten
-		legend_entries = Devices.Elements_Names;  %Legendeneinträge
+		data = Result.Displayable.Power_Class_kW.Data; %darzustellende Daten
+		legend_entries = Result.Displayable.Power_Class_kW.Legend;  %Legendeneinträge
 		typ_diagr = 'single';                     %normale Darstellunng
 	case 'Verbrauchergruppen + Gesamtleistung'
-		data = Result.Displayable.Power_Class_and_Total_kW;
-		legend_entries = [{'Gesamtleistung'},Devices.Elements_Names];
+		data = Result.Displayable.Power_Class_and_Total_kW.Data;
+		legend_entries = Result.Displayable.Power_Class_and_Total_kW.Legend;
 		typ_diagr = 'single';
 	case 'Aufteilung auf Phasen'
-		data = Result.Displayable.Power_Phase_kW;
-		legend_entries = [{'L1'},{'L2'},{'L3'}];
+		data = Result.Displayable.Power_Phase_kW.Data;
+		legend_entries = Result.Displayable.Power_Phase_kW.Legend;
 		typ_diagr = 'single';
 	case 'Aufteilung auf Phasen + Gesamtleistung'
-		data = [Result.Displayable.Power_Total_kW; ...
-			Result.Displayable.Power_Phase_kW];
-		legend_entries = [{'Gesamtleitung'},{'L1'},{'L2'},{'L3'}];
+		data = Result.Displayable.Power_Phase_and_Total_kW.Data;
+		legend_entries = Result.Displayable.Power_Phase_and_Total_kW.Legend;
 		typ_diagr = 'single';
 	case 'Verbrauchergruppen mit DSM'
-		data = Result.Displayable.DSM_Power_Class_kW;
-		legend_entries = Devices.Elements_Names;
+		data = Result.Displayable.DSM_Power_Class_kW.Data;
+		legend_entries = Result.Displayable.DSM_Power_Class_kW.Legend;
 		typ_diagr = 'single';
 	case 'Verbrauchergruppen mit DSM + Gesamtleistung'
-		data = Result.Displayable.DSM_Power_Class_and_Total_kW;
-		legend_entries = [{'Gesamtleistung'},Devices.Elements_Names];
+		data = Result.Displayable.DSM_Power_Class_and_Total_kW.Data;
+		legend_entries = Result.Displayable.DSM_Power_Class_and_Total_kW.Legend;
 		typ_diagr = 'single';
 	case 'Aufteilung auf Phasen mit DSM'
-		data = Result.Displayable.DSM_Power_Phase_kW;
-		legend_entries = [{'L1'},{'L2'},{'L3'}];
+		data = Result.Displayable.DSM_Power_Phase_kW.Data;
+		legend_entries = Result.Displayable.DSM_Power_Phase_kW.Legend;
 		typ_diagr = 'single';
 	case 'Aufteilung auf Phasen mit DSM + Gesamtleistung'
-		data = [Result.Displayable.DSM_Power_Total_kW; ...
-			Result.Displayable.DSM_Power_Phase_kW];
-		legend_entries = [{'Gesamtleitung'},{'L1'},{'L2'},{'L3'}];
+		data = Result.Displayable.DSM_Power_Phase_and_Total_kW.Data;
+		legend_entries = Result.Displayable.DSM_Power_Phase_and_Total_kW.Legend;
 		typ_diagr = 'single';
 	case 'Verbrauchergruppen mit und ohne DSM'
-		data = Result.Displayable.Power_Class_kW;         %darzustell. Daten o. DSM
-		DSM_data = Result.Displayable.DSM_Power_Class_kW; %darzustell. Daten m. DSM
-		legend_entries = Devices.Elements_Names;          %Legendeneinträge
-		typ_diagr = 'comparison';                         %Darstellung als Vergleich
+		data = Result.Displayable.Power_Class_kW.Data;         %darzustell. Daten o. DSM
+		DSM_data = Result.Displayable.DSM_Power_Class_kW.Data; %darzustell. Daten m. DSM
+		legend_entries = Result.Displayable.Power_Class_kW.Legend; %Legendeneinträge
+		typ_diagr = 'comparison';                                  %Darstellung als Vergleich
 	case 'Gesamtleistung mit und ohne DSM'
-		data = Result.Displayable.Power_Total_kW;
-		DSM_data = Result.Displayable.DSM_Power_Total_kW;
-		legend_entries = {'Gesamtleistung'};
+		data = Result.Displayable.Power_Total_kW.Data;
+		DSM_data = Result.Displayable.DSM_Power_Total_kW.Data;
+		legend_entries = Result.Displayable.Power_Total_kW.Legend;
 		typ_diagr = 'comparison';
 	case 'Verbrauchergruppen + Gesamtleistung mit und ohne DSM'
-		data = Result.Displayable.Power_Class_and_Total_kW;
-		DSM_data = Result.Displayable.DSM_Power_Class_and_Total_kW;
-		legend_entries = [{'Gesamtleistung'},Devices.Elements_Names];
+		data = Result.Displayable.Power_Class_and_Total_kW.Data;
+		DSM_data = Result.Displayable.DSM_Power_Class_and_Total_kW.Data;
+		legend_entries = Result.Displayable.Power_Class_and_Total_kW.Legend;
 		typ_diagr = 'comparison';
 	case 'Aufteilung auf Phasen mit und ohne DSM'
-		data = Result.Displayable.Power_Phase_kW;
-		DSM_data = Result.Displayable.DSM_Power_Phase_kW;
-		legend_entries = [{'L1'},{'L2'},{'L3'}];
+		data = Result.Displayable.Power_Phase_kW.Data;
+		DSM_data = Result.Displayable.DSM_Power_Phase_kW.Data;
+		legend_entries = Result.Displayable.Power_Phase_kW.Legend;
 		typ_diagr = 'comparison';
 	case 'Aufteilung auf Phasen + Gesamtleistung mit und ohne DSM'
-		data = [Result.Displayable.Power_Total_kW; Result.Displayable.Power_Phase_kW];
-		DSM_data = [Result.Displayable.DSM_Power_Total_kW; ...
-			Result.Displayable.DSM_Power_Phase_kW];
-		legend_entries = [{'Gesamtleitung'},{'L1'},{'L2'},{'L3'}];
+		data = Result.Displayable.Power_Phase_and_Total_kW.Data;
+		DSM_data = Result.Displayable.DSM_Power_Phase_and_Total_kW.Data;
+		legend_entries = Result.Displayable.Power_Phase_and_Total_kW.Legend;
 		typ_diagr = 'comparison';
 	otherwise
 		return;
@@ -718,7 +715,8 @@ value = contents{get(hObject,'Value')};
 if isempty(value)
 	return;
 end
-data = Result.Displayable.(value);
+data = Result.Displayable.(value).Data;
+legend_entries = Result.Displayable.(value).Legend;
 % Daten an Zeitzoombereich anpassen:
 data = data(:,idx_zoom);
 
@@ -729,10 +727,21 @@ if handles.Options.show_frequency_data
 	% Frequnzlinie formatieren:
 	set(lin_diagr_2,'LineStyle','--','Color','b');
 	set(yy_axes(2),'XColor','b','YColor','b');
+	% Legende für einfache Daten + Netzfrequenz:
+	legend_entries = [legend_entries, {'Netzfrequenz'}];
+	leg_diagr = legend(axe_diagr, [lin_diagr_1; lin_diagr_2],...
+		legend_entries);
 else
 	% Normale Darstellung ohne Frequenzdaten:
 	lin_diagr_1 = plot(axe_diagr, t_points, data);
+	% Legende für einfache Daten:
+	leg_diagr = legend(axe_diagr, lin_diagr_1, legend_entries);
 end
+
+% Legende formatieren:
+legend(axe_diagr,'show');
+% set(leg_diagr,'Location','Best','String',legend_entries);
+set(leg_diagr,'Location','Best');
 
 if numel(lin_diagr_1) < 2
 	set(lin_diagr_1,'Color','r');

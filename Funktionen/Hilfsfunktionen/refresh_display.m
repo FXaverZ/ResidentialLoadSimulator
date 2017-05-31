@@ -8,8 +8,9 @@ function refresh_display (handles)
 
 %    Franz Zeilinger - 13.10.2010
 
+% Anzahl User darstellen:
 set(handles.edit_number_user,'String',num2str(handles.Model.Number_User));
-
+% Simulationsauflösung:
 switch handles.Model.Sim_Resolution
 	case 'sec'
 		val = 1;
@@ -23,11 +24,21 @@ switch handles.Model.Sim_Resolution
 		val = 5;
 end
 set(handles.pop_sim_res,'Value',val);
+% Simulationszeitraum:
+str = handles.Model.Date_End;
+date = datenum(str);
+set(handles.edit_date_end,'String',datestr(date,0));
+str = handles.Model.Date_Start;
+date = datenum(str);
+set(handles.edit_date_start,'String',datestr(date,0));
 
+% Falls Ergebnisse vorhanden, die Buttons für die Darstellung aktivieren:
 if isfield(handles,'Result') && isfield(handles,'Frequency')
 	set (handles.push_display_result,'Enable','on');
+	set (handles.push_open_data_explorer, 'Enable', 'on');
 else
 	set (handles.push_display_result,'Enable','off');
+	set (handles.push_open_data_explorer, 'Enable', 'off');
 end
 
 % Überprüfen, ob Geräteparameter verfügbar sind:
@@ -47,7 +58,8 @@ catch ME
 	set (handles.push_set_device_parameter,'Enable','Off');
 end
 
-% Überprüfen, ob Rohdaten in xls-Format vorliegen:
+% Überprüfen, ob Rohdaten in xls-Format vorliegen, falls nicht, im Menü die
+% Möglichkeit aktivieren, die Daten in diesem Format zu speichern:
 file = handles.Configuration.Save.Data;
 try
 	fid = fopen([file.Path,file.Data_Name,'.xls'],'r');
@@ -63,21 +75,14 @@ catch ME
 	set (handles.menu_save_data_as_xls,'Enable','Off');
 end
 
-str = handles.Model.Date_End;
-date = datenum(str);
-set(handles.edit_date_end,'String',datestr(date,0));
-str = handles.Model.Date_Start;
-date = datenum(str);
-set(handles.edit_date_start,'String',datestr(date,0));
-
 % Gerätezusammentstellung anpassen:
-for k=1:12
+for k=1:12 %derzeit 12 Ceckboxen im Hauptfenster möglich
 	field = ['check_Device_Assembly_',num2str(k)];
-	if k <= size(handles.Model.Elements_Pool,1)
+	if k <= size(handles.Model.Device_Assembly_Pool,1)
 		% Gerätenamen neben Checkbox setzen und Box aktivieren:
-		set(handles.(field), 'String', handles.Model.Elements_Pool{k,2},...
+		set(handles.(field), 'String', handles.Model.Device_Assembly_Pool{k,2},...
 			'Visible','On','Value',...
-			handles.Model.Device_Assembly.(handles.Model.Elements_Pool{k,1}));
+			handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{k,1}));
 		if handles.Configuration.Options.simsettings_load_from_paramfile
 			set(handles.(field), 'Enable', 'Off');
 		else
@@ -89,6 +94,7 @@ for k=1:12
 	end
 end
 
+% Optionencheckboxen setzen:
 set(handles.check_show_data,'Value',handles.Configuration.Options.show_data);
 set(handles.check_savas_xls,'Value',handles.Configuration.Options.savas_xls);
 set(handles.check_use_dsm,'Value',handles.Model.Use_DSM);
@@ -107,7 +113,7 @@ else
 	set(handles.edit_date_end,'Enable','on');
 end
 
-% Anzeigen, wenn Simulationsreihe gestartet werden kann:
+% Anzeigen, falls Simulationsreihe gestartet werden kann (über Text im Start-Button):
 if isfield(handles,'Joblist')
 	if ~isempty(handles.Joblist) && handles.Configuration.Options.multiple_simulation
 		set(handles.start_simulation,'String','Starte Simulationsreihe');
@@ -116,14 +122,15 @@ if isfield(handles,'Joblist')
 	end
 end
 
-% Wenn aktuelle Frequenzdaten vorhanden sind, betreffende Felder
-% aktivieren:
+% Wenn aktuelle Frequenzdaten vorhanden sind, betreffende Felder aktivieren:
 if isfield(handles,'Frequency')
 	set(handles.check_use_last_frequency_data,'Enable','On');
 else
 	set(handles.check_use_last_frequency_data,'Enable','Off');
 end
 
+% Falls GUI im Modus "Simulationsreihe", und in der Jobliste auch Frequenzdateien
+% angegeben wurden
 if size(handles.Joblist,2)>2 && handles.Configuration.Options.multiple_simulation
 	set(handles.check_use_last_frequency_data,'Enable','Off','Value',0);
 end

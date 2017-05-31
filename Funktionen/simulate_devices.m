@@ -11,7 +11,7 @@ function Result = simulate_devices(hObject, Devices, Time)
 
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3
-% - 2. Dimension: Geräteklassen
+% - 2. Dimension: Gerätearten
 % - 3. Dimension: Zeitpunkte
 Result.Raw_Data.Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
 

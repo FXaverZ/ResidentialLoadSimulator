@@ -10,6 +10,9 @@ function Result = simulate_devices_with_dsm(hObject, Devices, Frequency, Time)
 %    Franz Zeilinger - 15.06.2011
 
 % Erstellen eines Arrays mit den Leistungsdaten:
+% - 1. Dimension: Phasen 1 bis 3
+% - 2. Dimension: Gerätearten
+% - 3. Dimension: Zeitpunkte
 Result.Raw_Data.Power = zeros([3 size(Devices.Elements_Varna,2) (Time.Number_Steps)]);
 Result.Raw_Data.DSM_Power = Result.Raw_Data.Power;
 

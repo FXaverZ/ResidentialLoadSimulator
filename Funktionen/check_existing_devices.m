@@ -20,7 +20,7 @@ function reply = check_existing_devices (Model, Devices, Configuration)
 %                               (daraus folgt automatisch use_same_devices = 1)
 %        use_same_dsm     = 0 : DSM-Instanzen immer neu erzeugen
 
-%    Franz Zeilinger - 16.06.2010
+%    Franz Zeilinger - 04.08.2011
 
 reply = 'n';
 
@@ -35,8 +35,11 @@ if (Model.Number_User ~= Devices.Number_User)
 	return;
 end
 
-% Überprüfen ob alle notwendigen Geräteklassen in Devices vorhanden sind:
-nec_dev = Model.Elements_Pool(logical(struct2array(Model.Device_Assembly)),1)';
+% Überprüfen ob alle notwendigen Gerätearten in Devices vorhanden sind:
+nec_dev =  fields(Model.Device_Assembly_Simulation); % mögliche Geräte
+% notwendige Geräte (alle Geräte, die für die Simulation berücksichtigt werden
+% sollen):
+nec_dev = nec_dev(logical(struct2array(Model.Device_Assembly_Simulation)))';
 count = 0;
 for i = 1:numel(nec_dev)
 	count = count + sum(strcmp(nec_dev{i},Devices.Elements_Varna));

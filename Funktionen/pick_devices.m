@@ -11,7 +11,7 @@ function New_Devices = pick_devices (Model, Devices)
 %    verfügbaren Geräte zurückgibt, für zukünftige Simulationen aber eventuell
 %    die anderen Geräteklassen benötigt werden!
 
-%    Franz Zeilinger - 17.08.2010
+%    Franz Zeilinger - 01.08.2011
 
 % Falls in vorhergehender Funktion Fehler aufgetreten ist:
 if isempty (Devices)
@@ -29,13 +29,13 @@ New_Devices.DSM_included = Devices.DSM_included;
 New_Devices.Number_User = Devices.Number_User;
 
 % Übernehmen der notwendigen Geräteklassen:
-for i=1:size(Model.Elements_Pool,1)
-	name = Model.Elements_Pool{i,1};
-	if Model.Device_Assembly.(name)
+for i=1:size(Model.Devices_Pool,1)
+	name = Model.Devices_Pool{i,1};
+	if Model.Device_Assembly_Simulation.(name)
 		New_Devices.(name) = Devices.(name);
 		New_Devices.Elements_Varna{end+1} = name;
-		New_Devices.Elements_Names{end+1} = Model.Elements_Pool{i,2};
-		New_Devices.Elements_Funha{end+1} = Model.Elements_Pool{i,3};
+		New_Devices.Elements_Names{end+1} = Model.Devices_Pool{i,2};
+		New_Devices.Elements_Funha{end+1} = Model.Devices_Pool{i,3};
 		New_Devices.Total_Number_Dev = New_Devices.Total_Number_Dev + ...
 			numel(Devices.(name));
 	end

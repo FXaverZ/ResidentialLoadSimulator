@@ -1,5 +1,5 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
-% Franz Zeilinger - 29.10.2010
+% Franz Zeilinger - 29.07.2011
 % Last Modified by GUIDE v2.5 15-Jun-2011 11:58:19
 
 function varargout = Simulation(varargin)
@@ -49,12 +49,12 @@ handles.Configuration.Save.Settings.Path = [Path,'\'];
 handles = get_default_values(handles);
 % obige Funktion liefert 
 %    handles.Configuration     und 
-%    handles.Model            (ohne Geräteparameter) 
+%    handles.Model             (ohne Geräteparameter) 
 handles.Devices = [];
 handles.Joblist = {};
 
 % Systemvariablen:
-handles.system.cancel_simulation = false;    %Simulationsabbruch
+handles.System.cancel_simulation = false;    %Simulationsabbruch auf aus setzen
 
 % Laden der letzten verwendeten Konfiguration (Falls vorhanden bzw möglich):
 try
@@ -101,8 +101,8 @@ pos(3) = 0.05;
 set(handles.Wait_bar_color,'Position',pos);
 set(handles.Waitbar_status_text,'String',' ');
 % Alle anderen Anzeigen einstellen:
-refresh_status_text(hObject,'Bereit für Simulation');
 refresh_display (handles);
+refresh_status_text(hObject,'Bereit für Simulation');
 
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
@@ -581,10 +581,10 @@ function push_display_result_Callback(~, ~, handles)
 % ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-disp_result(handles.Model, handles.Devices, handles.Frequency, handles.Result);
+disp_result(handles.Model, handles.Frequency, handles.Result);
 
 function push_open_data_explorer_Callback(hObject, eventdata, handles)
-% hObject    Link zu Grafikobjekt push_display_result (siehe GCBO)
+% hObject    Link zu Grafikobjekt push_open_data_explorer (siehe GCBO)
 % ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
@@ -657,7 +657,7 @@ function check_Device_Assembly_1_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{1,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{1,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -668,7 +668,7 @@ function check_Device_Assembly_2_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{2,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{2,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -679,7 +679,7 @@ function check_Device_Assembly_3_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{3,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{3,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -690,7 +690,7 @@ function check_Device_Assembly_4_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{4,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{4,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -701,7 +701,7 @@ function check_Device_Assembly_5_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{5,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{5,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -712,7 +712,7 @@ function check_Device_Assembly_6_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{6,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{6,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -723,7 +723,7 @@ function check_Device_Assembly_7_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{7,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{7,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -734,7 +734,7 @@ function check_Device_Assembly_8_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{8,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{8,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -745,7 +745,7 @@ function check_Device_Assembly_9_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{9,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{9,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -756,7 +756,7 @@ function check_Device_Assembly_10_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{10,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{10,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -767,7 +767,7 @@ function check_Device_Assembly_11_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{11,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{11,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
@@ -778,7 +778,7 @@ function check_Device_Assembly_12_Callback(hObject, ~, handles)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Model.Device_Assembly.(handles.Model.Elements_Pool{12,1}) = ...
+handles.Model.Device_Assembly.(handles.Model.Device_Assembly_Pool{12,1}) = ...
 	get(hObject,'Value');
 
 % handles-Struktur aktualisieren
