@@ -52,7 +52,8 @@ classdef Interrupted_Operation < Probable_Operation
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
 	
-	%   Franz Zeilinger - 21.09.2011
+	% Erstellt von:            Franz Zeilinger - 21.09.2011
+	% Letzte Änderung durch:   Franz Zeilinger - 21.09.2011
     
     properties
 		Time_run_Duty_Cycle

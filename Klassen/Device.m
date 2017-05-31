@@ -43,11 +43,13 @@ classdef Device
 	%            darstellt.
 	
 	% Erstellt von:            Franz Zeilinger - 21.09.2011
-	% Letzte Änderung durch:   Franz Zeilinger - 29.11.2012
+	% Letzte Änderung durch:   Franz Zeilinger - 11.03.2013
 	
 	properties
 		Phase_Index
 		%            Index der Phase, an der das Gerät angeschlossen ist
+		Three_Phase_Device = false
+		%            handelt es sich um ein dreiphasiges Gerät? 
 		Power_Nominal
 		%            Anschlussleistung des Geräts
 		Cos_Phi_Nominal = 1
@@ -71,6 +73,10 @@ classdef Device
 		%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 		%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
 		%            werden. Daher sollte immer ACTIVITY = 1 sein!)
+		Phase_Power_Distribution_Factor = 1
+		%            gibt an, wie sich die Leistung auf die einzelnen Phasen
+		%            aufteilt. Bei einphasigen Geräten ist der Faktor gleich 1, bei
+		%            dreiphasigen 1/3.
 		Operating
 		%            gibt an, ob das Gerät gerade aktiv ist (d.h. eingeschaltet).
 		DSM
@@ -124,7 +130,13 @@ classdef Device
 			end
 			
 			% Phasenzuordnung ermitteln (gleich verteilt über alle drei Phasen):
-			obj.Phase_Index = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
+			if obj.Three_Phase_Device
+				obj.Phase_Index = 1:3;
+				obj.Phase_Power_Distribution_Factor = 1/3;
+			else
+				obj.Phase_Index = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
+				obj.Phase_Power_Distribution_Factor = 1;
+			end
 			
 			% Anhand der nun vorhandenen Parameter, Aktivitätscheck durchführen (wird
 			% ev. in den Subklassen nochmal durchgeführt, nachdem die
@@ -178,6 +190,13 @@ classdef Device
 					cos(cos>1)=1;
 					value(:,3:3:end) = cos;
 					obj.(parameter)=value;
+				case 'Three_Phase_Device'
+					% Ist der Wert 1 --> dreiphasiges Gerät
+					if input_1 >= 0.9
+						obj.(parameter) = true;
+					else
+						obj.(parameter) = false;
+					end
 				otherwise
 					% Noramle Parametervariation:
 					obj.(parameter) = vary_parameter(...

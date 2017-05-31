@@ -90,7 +90,7 @@ elseif strcmpi(mode,'read')
 		arg{3} = 0;
 	end
 	if isnan(line{1,2})
-		% Falls kein Wert angegeben wurde NaN durch leere Zelle ersetzten, dass
+		% Falls kein Wert angegeben wurde NaN durch leere Zelle ersetzten, da
 		% dies bei einer eventuellen Geräteinstanzerzeugung zu einem Fehler
 		% führt!
 		arg{2} = [];

@@ -54,7 +54,7 @@ waitbar_start;
 % Zeitvektor erstellen:
 time_vec = Time.Date_Start:Time.Base/Time.day_to_sec:Time.Date_End;
 % Berechnen der Reaktionen der Verbraucher für die restlichen Zeitpunkte:
-for i = 1:size(Devices.Elements_Varna,2)
+parfor i = 1:size(Devices.Elements_Varna,2)
 	% Zwischenergebnis Array; enthält die Leistungsdaten aufgteilt auf die Phasen,
 	% die Einzelgeräte und die Zeitschritte für eine Gerätegruppe:
 	btw_result = pow{i};

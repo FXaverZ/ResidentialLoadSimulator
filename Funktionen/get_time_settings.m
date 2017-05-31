@@ -7,14 +7,12 @@ function Time = get_time_settings(Model)
 % Erstellt von:            Franz Zeilinger - 08.04.2008
 % Letzte Änderung durch:   Franz Zeilinger - 19.12.2012
 
-if ~isfield(Model,'Sim_Year')
-	Model.Sim_Year = str2double(datestr(datenum(Model.Date_Start),'yyyy'));
-end
-
 % Ermitteln der Zeitbasis
 switch Model.Sim_Resolution
 	case 'min'
 		Time.Base = 60;	
+	case '2.5m'
+		Time.Base = 150;	
 	case 'sec'
 		Time.Base = 1;
 	case 'hou'
@@ -32,14 +30,12 @@ Time.day_to_sec = 86400; % Umrechnungsfaktor von Tag auf Sekunden
 % Umrechnen der Zeitstrings in Linearzeit:
 Time.Date_Start = datenum(Model.Date_Start);
 Time.Date_End = datenum(Model.Date_End);
+Time.Series_Date_Start = datenum(Model.Series_Date_Start, 'dd.mm.yyyy');
+Time.Series_Date_End = datenum(Model.Series_Date_End, 'dd.mm.yyyy');
 % Berechnen der Simulationsschritte:
 Time.Dur = Time.Date_End - Time.Date_Start;
 Time.Number_Steps = round(Time.Dur * Time.day_to_sec / Time.Base+1);
 
 % Tage erstellen, die simuliert werden sollen:
-Time.Act_Year = datenum(num2str(Model.Sim_Year), 'yyyy');
-Time.Next_Year = datenum(num2str(Model.Sim_Year+1), 'yyyy');
-
-% 1.1.act_year bis 1.1.next_year
-Time.Days_Year = Time.Act_Year:1:Time.Next_Year;
+Time.Days_Year =Time.Series_Date_Start:1:Time.Series_Date_End;
 end

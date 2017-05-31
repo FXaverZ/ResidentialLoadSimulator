@@ -16,12 +16,14 @@ switch handles.Model.Sim_Resolution
 		val = 1;
 	case 'min'
 		val = 2;
-	case '5mi'
+	case '2.5m'
 		val = 3;
-	case 'quh'
+	case '5mi'
 		val = 4;
-	case 'hou'
+	case 'quh'
 		val = 5;
+	case 'hou'
+		val = 6;
 end
 set(handles.pop_sim_res,'Value',val);
 % Simulationszeitraum:

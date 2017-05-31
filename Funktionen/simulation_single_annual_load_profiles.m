@@ -1,9 +1,9 @@
-function simulation_single_cycle_for_device_profiles (hObject, handles)
+function simulation_single_annual_load_profiles (hObject, handles)
 % SIMULATION_SINGLE_CYCLE_FOR_DEVICE_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-% Erstellt von:            Franz Zeilinger - 15.11.2012
-% Letzte Änderung durch:   Franz Zeilinger - 05.12.2012
+% Erstellt von:            Franz Zeilinger - 16.01.2015
+% Letzte Änderung durch:   Franz Zeilinger - 17.01.2015
 
 % debug: Zufallszahlengenerator definiert setzen:
 % rng(27,'v5uniform');
@@ -46,11 +46,14 @@ Model.Number_Runs = 1;
 %                           '5mi' = 5-Minutentakt
 %                           'quh' = Viertelstundendtakt
 %                           'hou' = Stundentakt
-Model.Sim_Resolution = 'min';
+Model.Sim_Resolution = '2.5m';
 
 % Welches Jahr soll simuliert werden?
-Model.Series_Date_Start = '31.12.2012';
-Model.Series_Date_End =   '31.12.2013';
+Model.Series_Date_Start = '01.01.2013';
+Model.Series_Date_End =   '31.12.2015';
+
+% Über welchen Zeitraum (in Tagen) sollen die Jahreszeiten "verschliffen" werden?
+Model.Seasons_Overlap = 14;
 %===============================================================================
 
 Model.Weekdays =  {'Workda'; 'Saturd'; 'Sunday'};  % Typen der Wochentage
@@ -254,13 +257,25 @@ Summary = [];
 % Mehrere Durchläufe hintereinander:
 for j = 1:Model.Number_Runs
 	% Das Programm abarbeiten:
-	for k=1:numel(Time.Days_Year)  %ACHTUNG, zu DEBUG-Zwecken Tage reduziert!
+	for k=1:numel(Time.Days_Year)  
 		
 		% Dateiinfos laden:
 		file = Configuration.Save.Source;
 		
 		% akutelle Parameter ermitteln:
 		[season, wkd, file.Parameter_Name] = day2sim_parameter(Model, Time.Days_Year(k));
+		% vorhergehende bzw. nachfolgende Jahreszeit ermitteln, gemäß
+		% Verschleifeinstellungen:
+		[season_overlap, season_1, season_2] = day2season_overlap(Model, Time.Days_Year(k));
+		
+% 		for k=60:100
+% 			[season_overlap, season_1, season_2] = day2season_overlap(Model, Time.Days_Year(k));
+% 			if ~isempty(season_1)
+% 				disp(['@k=',num2str(k),' factor_1: ',num2str(season_1.factor),...
+% 					' factor_2: ',num2str(season_2.factor)]);
+% 				
+% 			end
+% 		end
 		str = '-----------------------------';
 		fprintf(['\n\t',str]);
 		
