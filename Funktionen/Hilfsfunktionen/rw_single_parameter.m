@@ -13,8 +13,8 @@ function arg = rw_single_parameter(mode, obj, fileid, name, value, stddev, ...
 %                               SI_UN, F_VAL, F_STD) schreibt den Wert VALUE mit                          
 %    der Einheit UNITY (als String anzugeben) sowie die Varianz dieses Wertes 
 %    STDDEV mit der zugehörigen Einheit SI_UN in das durch FILEID angegebene 
-%    txt-Filesowie in das durch die XLS_Writer-Instanz OBJ definierte xls-File. 
-%    DieFormatstrings (F_...) definieren die jeweilige Wertedarstellung (gem.
+%    txt-File sowie in das durch die XLS_Writer-Instanz OBJ definierte xls-File. 
+%    Die Formatstrings (F_...) definieren die jeweilige Wertedarstellung (gem.
 %    Matlab-Konvention).
 %    Wird für UNITY der String 'bool' übergeben wird der Wert Value als logische
 %    Variable behandelt (d.h. Ausgabe in der Form [X] bzw. [ ]).

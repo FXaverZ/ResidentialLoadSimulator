@@ -5,7 +5,7 @@ function simulation_single_cycle (hObject, handles)
 %    GUI, in dessen Statuszeile aktuelle Informationen zum Simulationsablauf
 %    angzeigt werden. HANDLES enthält alle notwendigen Daten (siehe GUIDATA).
 
-%    Franz Zeilinger - 11.10.2010
+%    Franz Zeilinger - 10.08.2011
 
 % Einlesen vorhandener Daten aus handles-Struktur:
 Configuration = handles.Configuration;
@@ -63,9 +63,29 @@ else
 	Frequency = create_frequency_data(Time);
 end
 
-% Überprüfen, ob eventuell vorhandene Geräteinstanzen verwendet werden:
-reply = check_existing_devices (Model, Devices);
+% Gerätezusammenstellung gemäß den Einstellungen auf den neuesten Stand bringen
+% (notwendig für Gerätegruppen):
+for i=1:size(Model.Devices_Pool,1)
+	% alle Geräte, die direkt ausgewählt wurden, übernehmen:
+	name = Model.Devices_Pool{i,1};
+	if isfield(Model.Device_Assembly, name)
+		Model.Device_Assembly_Simulation.(name) = Model.Device_Assembly.(name);
+	else
+		% die anderen Geräte auf null setzen (werden im nächsten Schritt behandelt)
+		Model.Device_Assembly_Simulation.(name) = 0;
+	end
+end
+for i=1:size(Model.Device_Groups_Pool,1)
+	grp_name = Model.Device_Groups_Pool{i,1};
+	if isfield(Model.Device_Groups, grp_name)
+		Model = ...
+			Model.Device_Groups.(grp_name).update_device_assembly(Model);
+	end
+end
 
+% Überprüfen, ob eventuell vorhandene Geräteinstanzen verwendet werden:
+% reply = check_existing_devices (Model, Devices);
+reply = 'n';
 % Erzeugen der Geräteinstanzen:
 switch lower(reply)
 	case 'j'
@@ -104,7 +124,11 @@ switch lower(reply)
 		str = 'Erzeuge Geräte-Instanzen: ';
 		refresh_status_text(hObject,str);
 		fprintf(['\n\t\t',str]);
-		Devices = create_devices(hObject, Model);
+		if Configuration.Options.compute_parallel
+			Devices = create_devices_parallel(hObject, Model);
+		else
+			Devices = create_devices(hObject, Model);
+		end
 		if ~isempty(Devices)
 			% Erfolgsmeldung (in Konsole + GUI):
 			str = '--> abgeschlossen!';
@@ -137,7 +161,7 @@ end
 % handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 handles = guidata(hObject);
 % Überprüfen, ob bei Geräteerzeugung von User abgebrochen wurde:
-if handles.system.cancel_simulation
+if handles.System.cancel_simulation
 	str = '--> Geräteerzeugung abgebrochen';
 	refresh_status_text(hObject,str,'Add');
 	fprintf(['\n\t\t\t',str,'\n']);
@@ -168,20 +192,29 @@ if Model.Use_DSM
 	refresh_status_text(hObject,str);
 	fprintf(['\n\t\t',str]);
 	% Simulation durchführen:
-	Result = simulate_devices_with_dsm(hObject, Devices, ...
-		Frequency, Time);
+	if Configuration.Options.compute_parallel
+		Result = simulate_devices_with_dsm_parallel(hObject, Devices, ...
+			Frequency, Time);
+	else
+		Result = simulate_devices_with_dsm(hObject, Devices, ...
+			Frequency, Time);
+	end
 else
 	% Ausgabe in Konsole und GUI:
 	str = 'Simuliere (ohne DSM): ';
 	refresh_status_text(hObject,str);
 	fprintf(['\n\t\t',str]);
 	% Simulation durchführen:
-	Result = simulate_devices(hObject, Devices, Time);
+	if Configuration.Options.compute_parallel
+		Result = simulate_devices_parallel(hObject, Devices, Time);
+	else
+		Result = simulate_devices(hObject, Devices, Time);
+	end
 end
 % handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 handles = guidata(hObject);
 % Überprüfen, ob während der Geräteerzeugung abgebrochen wurde:
-if handles.system.cancel_simulation
+if handles.System.cancel_simulation || isempty(Result)
 	str = '--> Simulation abgebrochen';
 	refresh_status_text(hObject,str,'Add');
 	fprintf(['\n\t\t\t',str,'\n']);
@@ -197,7 +230,7 @@ fprintf(['\n\t\t\tBerechnungen beendet nach ', sec2str(t_total),'\n']);
 Result.Sim_date = Sim_date;
 
 % Nachbehandlung der Ergebnisse:
-Result = calculate_infos (Model, Time, Devices, Result);
+Result = postprocess_results(Model, Time, Devices, Result);
 
 % Daten zurück in handles-Struktur speichern:
 handles.Model =         Model;
@@ -214,7 +247,7 @@ if Configuration.Options.show_data
 	refresh_status_text(hObject,str);
 	fprintf(['\n\t\t',str]);
 	
-	disp_result(Model, Devices, Frequency, Result);
+	disp_result(Model, Frequency, Result);
 	
 	str = '--> erledigt!';
 	refresh_status_text(hObject,str,'Add');
@@ -233,6 +266,11 @@ str = '--> erledigt!';
 refresh_status_text(hObject,str,'Add');
 fprintf(str);
 fprintf('\n\t=================================\n');
+
+% Gong ertönen lassen
+f = rand()*9.2+0.8;
+load gong.mat;
+sound(y, f*Fs);
 
 % Daten zurück in handles-Struktur speichern:
 handles.Configuration = Configuration;

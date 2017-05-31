@@ -21,39 +21,40 @@ function arg = rw_dev_assembly(mode, obj, fileid, name, value, Model, varargin)
 %    (inkl. Überschrift) befindet. Die Parameterstruktur MODEL wird benötigt, um
 %    die Gerätenamen richtig zuordnen zu können (Feld MODEL.ELEMENTS_POOL).
 
-%    Franz Zeilinger - 19.08.2010 - R2008b lauffähig
+%    Franz Zeilinger - 11.08.2011
 
 arg = [];
 
 % Schreibmodus:
 if strcmpi(mode,'write')
 	fprintf(fileid,['\t',name,':\n']);
-	for i = 1:size(Model.Elements_Pool,1)
-		if Model.Device_Assembly.(Model.Elements_Pool{i,1})	
+	for i = 1:size(Model.Device_Assembly_Pool,1)
+		if Model.Device_Assembly.(Model.Device_Assembly_Pool{i,1})	
 			sign = '[X] ';
 		else
 			sign = '[ ] ';
 		end
 		dist = blanks(20);
 		fprintf(fileid, ['\t', dist, sign]);
-		fprintf(fileid, [Model.Elements_Pool{i,2},'\n']);
+		fprintf(fileid, [Model.Device_Assembly_Pool{i,2},'\n']);
 	end
 	
 	obj.write_lines(name);
 	obj.next_layer;
-	obj.write_lines([Model.Elements_Pool(:,2),struct2cell(Model.Device_Assembly)]);
+	obj.write_lines([Model.Device_Assembly_Pool(:,2),...
+		struct2cell(Model.Device_Assembly)]);
 	obj.reset_layer;
 	obj.next_row;
 
-% Lesemodus
+% Lesemodus:
 elseif strcmpi(mode,'read')
 	data = obj;
 	Model = fileid;
 	
 	for i=2:size(data,1)
 		if ischar(data{i,2}) && isnumeric(data{i,3})
-			ind = strcmp(data{i,2},Model.Elements_Pool(:,2));
-			arg.(Model.Elements_Pool{ind,1}) = data{i,3};
+			ind = strcmp(data{i,2},Model.Device_Assembly_Pool(:,2));
+			arg.(Model.Device_Assembly_Pool{ind,1}) = data{i,3};
 		end
 	end	
 end

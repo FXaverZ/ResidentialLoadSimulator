@@ -7,8 +7,10 @@ function arg = rw_loadcurve_parts(mode, obj, fileid, name, loadc_parts, varargin
 %    so zu definieren, welche dieser Funktionen für den jeweiligen Parametertyp
 %    zuständig ist. Weiters werden alle notwendigen Argumente in diesem
 %    Cell-Array definiert.
+%
+%    BESCHREIBUNG FEHLT!
 
-%    Franz Zeilinger - 07.09.2010
+%    Franz Zeilinger - 27.07.2011
 
 arg = [];
 

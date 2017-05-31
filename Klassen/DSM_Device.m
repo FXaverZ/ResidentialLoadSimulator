@@ -79,7 +79,7 @@ classdef DSM_Device
 	%        'Power_Input'     
 	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt nach DSM.
 	
-	%    Franz Zeilinger - 28.10.2010 - R2008b lauffähig
+	%    Franz Zeilinger - 15.06.2010 - R2008b lauffähig
 	
 	properties						
 		Frequency_Level				
@@ -814,7 +814,7 @@ classdef DSM_Device
 		
 		function obj = turn_off (obj, device, varargin)
 			if obj.Output
-				obj.Power_Input = 0;
+				obj.Power_Input = zeros(3,1);
 			else
 				obj.Power_Input = device.Power_Input;
 			end
@@ -822,7 +822,7 @@ classdef DSM_Device
 		
 		function obj = turn_off_stand_by (obj, device, varargin)
 			if obj.Output && ~device.Operating
-				obj.Power_Input = 0;
+				obj.Power_Input = zeros(3,1);
 			else
 				obj.Power_Input = device.Power_Input;
 			end

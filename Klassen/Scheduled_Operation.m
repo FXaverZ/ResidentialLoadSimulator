@@ -28,6 +28,8 @@ classdef Scheduled_Operation < Device
 	%            übliche Laufzeit des Geräts zum angegebenen Startzeitpunkt.
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -44,21 +46,29 @@ classdef Scheduled_Operation < Device
 	%            Liste mit Einschaltzeiten des Gerätes in laufender Matlab-Zeit
 	%        'Time_Schedule'
 	%            Fahrplan des Gerätes in laufender Matlabzeit
-	%
+	%        'Fast_computing_at_no_dsm = 1'
+	%            diese Geräteklasse eignet sich dazu, falls der Einsatz von DSM nicht
+	%            simuliert werden muss, eine schnellere Berechnungsmethode
+	%            heranzuziehen
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	
-	%    Franz Zeilinger - 09.09.2010
+	%    Franz Zeilinger - 18.11.2011
 	
 	properties
 		Power_Stand_by
-	%            Stand-by-Verbrauch des Gerätes	
+	%            Stand-by-Verbrauch des Gerätes
+	    Cos_Phi_Stand_by = 1
+	%            Cos_Phi im Stand-by-Modus
 		Time_Start_Day
 	%            Liste mit Einschaltzeiten des Gerätes in min. Als String
 	%            'HH:MM' übergebbar (z.B. '12:31')
 		Time_typ_Run
 	%            übliche Laufzeit des Geräts zum angegebenen Startzeitpunkt.
+	    Time_min_Run = 0	    
 	end
 	
 	properties (Hidden)
@@ -86,6 +96,10 @@ classdef Scheduled_Operation < Device
 			% Erstellen des Einsatzplanes für jedes Gerät:
 			obj = calculate_schedule(obj);
 			obj = check_activity(obj);
+			
+			% bei dieser Geräteklasse ist eine schnellere Berechnung im Fall, dass
+			% kein DSM simuliert werden muss, möglich:
+			obj.Fast_computing_at_no_dsm = 1;
 			
 			% Falls kein Stand-by-Verbrauch angegeben wurde, diesen auf Null
 			% setzen:
@@ -129,9 +143,13 @@ classdef Scheduled_Operation < Device
 				% alle Zeiten vom nächsten Tag (> 1440 min) um einen Tag
 				% reduzieren
 				sched(sched(:,1:2)>=1440)=sched(sched(:,1:2)>=1440)-1440;
+				% nur die Startzeiten übernehmen, bei denen es auch zu einem
+				% Geräteeinsatz kommt:
+				obj.Time_Start_Day = sched(:,1);
 			end
 			% Übernehmen des neuen Einsatzplanes:
 			obj.Time_Schedule_Day = sched;
+			
 		end
 		
 		function obj = adapt_for_simulation(obj, Date_Start, Date_End, varargin)
@@ -158,11 +176,11 @@ classdef Scheduled_Operation < Device
 			% Arraygröße und Anzahl Tage ermitteln:
 			days = ceil(Date_End-Date_Start);
 			entrys_per_day = size(sched_day,1);
-			sched = zeros((days+1)*entrys_per_day,3);
+			sched = zeros((days+1)*entrys_per_day,4);
 			% Einsatzplan zusammensetzen:
 			for i=1:days+1
 				sched((i-1)*entrys_per_day+1:i*entrys_per_day,:)=...
-					[sched_day(:,1:2)+(i-1)+floor(Date_Start),sched_day(:,3)];
+					[sched_day(:,1:2)+(i-1)+floor(Date_Start),sched_day(:,3:4)];
 			end
 			obj.Time_Schedule = sched(sched(:,1)<Date_End,:);
 			% Startzeit in Matlab-Zeit ermitteln:
@@ -182,11 +200,13 @@ classdef Scheduled_Operation < Device
 			%    Geräteinstanz zum Zeitpunkt TIME. Die Reaktion besteht
 			%    vordergründig in der aufgenommen Leistung zu diesem Zeitpunkt.
 			
-			[obj.Power_Input, obj.Operating] = obj.get_power_from_schedule(time, ...
-				obj.Time_Schedule);
-			
+			[obj.Power_Input(obj.Phase_Index), cosphi, obj.Operating] = ...
+				obj.get_power_from_schedule(time, obj.Time_Schedule);
+			obj.Power_Input_Reactive = obj.Power_Input*tan(acos(cosphi));
 			if ~obj.Operating
-				obj.Power_Input = obj.Power_Stand_by;
+				obj.Power_Input(obj.Phase_Index) = obj.Power_Stand_by;
+				obj.Power_Input_Reactive = obj.Power_Input*...
+					tan(acos(obj.Cos_Phi_Stand_by));
 			end
 		end
 		
@@ -204,7 +224,8 @@ classdef Scheduled_Operation < Device
 				div1 = repmat(' - ',size(sched,1),1);
 				div2 = repmat('   ',size(sched,1),1);
 				watt = repmat(' W',size(sched,1),1);
-				value = [t1,div1,t2,div2,num2str(sched(:,3)),watt];
+				value = [t1, div1, t2, div2, num2str(sched(:,3)), watt, ...
+					div2, num2str(sched(:,4))];
 			else
 				value = 'Kein Geräteeinsatzplan vorhanden!';
 			end
@@ -224,7 +245,8 @@ classdef Scheduled_Operation < Device
 				div1 = repmat(' - ',size(sched,1),1);
 				div2 = repmat('   ',size(sched,1),1);
 				watt = repmat(' W',size(sched,1),1);
-				value = [t1,div1,t2,div2,num2str(sched(:,3)),watt];
+				value = [t1, div1, t2, div2, num2str(sched(:,3)), watt,...
+					div2, num2str(sched(:,4))];
 			else
 				value = 'Kein Geräteeinsatzplan vorhanden!';
 			end
@@ -242,7 +264,7 @@ classdef Scheduled_Operation < Device
 	
 	methods (Static)
 		
-		function [power, operating] = get_power_from_schedule(time, sched)
+		function [power, cosphi, operating] = get_power_from_schedule(time, sched)
 			%GET_POWER_FROM_SCHEDULE    ermittelt aufgenommene Leistung
 			%    POWER = GET_POWER_FROM_SCHEDULE(TIME, SCHED) ermittelt die
 			%    aufgenommene Leistung POWER des Gerätes zum Zeitpunkt TIME. Dazu
@@ -253,19 +275,20 @@ classdef Scheduled_Operation < Device
 			%    (OPERATING) zurück (ob gerade aktiv oder nicht).
 			
 			power = 0;
+			cosphi = 1;
 			operating = 0;
 			% ist Einsatzplan vorhanden?
 			if isempty(sched)
 				return;
 			end
 			% läuft Gerät zu diesem Zeitpunkt laut Einsatzplan?
-			power_sched = sched(sched(:,1)<=time & sched(:,2)>time,3);
+			power_sched = sched(sched(:,1)<=time & sched(:,2)>time,3:4);
 			% Übergabe der Leistungswerte:
 			if ~isempty(power_sched)
-				power = power_sched(1);
+				power = power_sched(1,1);
+				cosphi = power_sched(1,2);
 				operating = 1;
 			end
 		end
 	end
 end
-

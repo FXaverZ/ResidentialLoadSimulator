@@ -39,6 +39,8 @@ classdef Loadcurve_Operation < Probable_Operation
 	%                [ Start_Index, End_Index ]
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -64,10 +66,12 @@ classdef Loadcurve_Operation < Probable_Operation
 	%
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	%
 
-	%    Franz Zeilinger - 09.09.2010
+	%    Franz Zeilinger - 21.09.2010
 	
 	properties
 		
@@ -158,10 +162,10 @@ classdef Loadcurve_Operation < Probable_Operation
 			end
 			
 			% Lastkurven aufteilen & Vorberechnungen durchführen:
-			for i = 1:floor(size(loadc,2)/2)
-				loadc_act_day = loadc(:,2*i-1:2*i);
+			for i = 1:floor(size(loadc,2)/3)
+				loadc_act_day = loadc(:,3*i-2:3*i);
 				loadc_act_day = loadc_act_day(~isnan(loadc_act_day));
-				loadc_act_day = reshape(loadc_act_day,[],2);
+				loadc_act_day = reshape(loadc_act_day,[],3);
 				% Indizes für non-stop-Bereiche aufteilen:
 				if ~isempty(ns_pa) && ...
 					(i <= floor(size(ns_pa,2)/2))
@@ -191,10 +195,10 @@ classdef Loadcurve_Operation < Probable_Operation
 					ns_pa_act;
 			end
 			% Anzahl der Gesamten Lastkurven speichern:
-			load_struct_day.Number_Loadcurves = floor(size(loadc,2)/2);
+			load_struct_day.Number_Loadcurves = floor(size(loadc,2)/3);
 			load_struct.Number_Loadcurves = load_struct_day.Number_Loadcurves;
 			% Indexliste aller möglichen Lastkurven erstellen:
-			list = (1:floor(size(loadc,2)/2))';
+			list = (1:floor(size(loadc,2)/3))';
 			obj.Picked_Loadcurves = zeros(size(start));
 			% Liste der Startzeiten durchlaufen:
 			for i = 1:size(start,1)
@@ -255,7 +259,7 @@ classdef Loadcurve_Operation < Probable_Operation
 				t1 = [start(i);t2(1:end-1,1)];
 				% Start- und Endzeiten der jeweiligen Lastperioden
 				% aneinanderfügen:
-				sched(end+1:end+size(loadc_act,1),:)=[t1, t2, loadc_act(:,2)];
+				sched(end+1:end+size(loadc_act,1),:)=[t1, t2, loadc_act(:,2:3)];
 			end
 		end
 		
@@ -354,7 +358,7 @@ classdef Loadcurve_Operation < Probable_Operation
 			rem_t = l_tim(idx) - time;
 			% erste Zeile der neuen Lastkurve besteht aus verbleibender Zeit des
 			% aktuellen Programmschritts:
-			n_loc_1r = [rem_t, loadc(idx,2)];
+			n_loc_1r = [rem_t, loadc(idx,2:3)];
 			% restlichen Zeilen aus den weiteren Lastgangschritten:
 			n_loc_rr = loadc(idx+1:end,:);
 			% bisherige Laufzeiten entfernen und verbleibende Laufzeit hinzufügen:
@@ -378,7 +382,7 @@ classdef Loadcurve_Operation < Probable_Operation
 			if idx > 1
 				p_loc_rr = loadc(1:idx-1,:);
 				pre_t = time - l_tim(idx-1)+ p_loc_rr(end,1);
-				p_loc_lr = [pre_t, loadc(idx,2)];
+				p_loc_lr = [pre_t, loadc(idx,2:3)];
 				p_loc = [p_loc_rr; p_loc_lr];
 			else
 				pre_t = time - start;

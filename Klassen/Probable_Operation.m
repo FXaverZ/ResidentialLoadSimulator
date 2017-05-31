@@ -26,6 +26,8 @@ classdef Probable_Operation < Scheduled_Operation
 	%            übliche Laufzeit des Geräts zum angegebenen Startzeitpunkt.
 	%
 	%    Eigenschaften (Properties der Klasse):
+	%	     'Phase_Index'
+	%            Index der Phase, an der das Gerät angeschlossen ist
 	%        'Activity'
 	%            Ist das Gerät irgendwann im Einsatz? (Nach Erzeugen der
 	%            Geräteinstanzen könne so alle nichtaktiven Geräte aussortiert
@@ -45,7 +47,9 @@ classdef Probable_Operation < Scheduled_Operation
 	%
 	%    Ausgabe:
 	%        'Power_Input'     
-	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
+	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
+	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
+	%            darstellt.
 	
 	%   Franz Zeilinger - 04.06.2010
 
@@ -82,9 +86,10 @@ classdef Probable_Operation < Scheduled_Operation
 					(size(obj.Time_typ_Run,1) == size(obj.Time_Start_Day,1))
 				% Erzeugen des Einsatzplanes mit diesen Werten:
 				pow = repmat(obj.Power_Nominal,size(obj.Time_Start_Day,1),1);
+				cos = repmat(obj.Cos_Phi_Nominal,size(obj.Time_Start_Day,1),1);
 				t_start = obj.Time_Start_Day;
 				t_end = t_start + obj.Time_typ_Run;
-				sched = [t_start, t_end, pow];
+				sched = [t_start, t_end, pow, cos];
 				% Einsatz je nach Einsatzwahrscheinlichkeit bestimmen:
 				proba = obj.Start_Probability/100;
 				sched = sched(proba >= rand(size(obj.Time_Start_Day,1),1),:);

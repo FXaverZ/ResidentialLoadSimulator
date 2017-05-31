@@ -14,7 +14,7 @@ function arg = rw_sim_parameter(mode, obj, fileid, name, value, varargin)
 %    VALUE (String, Numeric oder Logical) erfolgt eine dem Datentyp entsprechende 
 %    Form der Ausgabe.    
 %
-%    ARG = RW_SIM_PARAMETER('Read', LINE) list aus dem [1,m]-Cell-Array die
+%    ARG = RW_SIM_PARAMETER('Read', LINE) liest aus dem [1,m]-Cell-Array die
 %    jeweilige Simulationseinstellung heraus. In der ersten Zelle darf sich nur
 %    der Name des Parameters befinden, irgendwo danach in der Zeile der Wert.
 %    Alle weiteren Einträge werden ignoriert.
@@ -22,7 +22,7 @@ function arg = rw_sim_parameter(mode, obj, fileid, name, value, varargin)
 %    als Datum erkannt und gesondert behandelt, damit als Rückgabewert der für
 %    das Simulationsprogramm notwendige Datums-String zur Verfügung steht.
 
-%    Franz Zeilinger - 15.08.2010
+%    Franz Zeilinger - 27.07.2011
 
 arg = [];
 

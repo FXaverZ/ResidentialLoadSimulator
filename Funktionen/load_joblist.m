@@ -22,7 +22,7 @@ try
 catch ME
 	% Bei Fehler leere Matrix zurückgeben, damit nachfolgende Funktionen den
 	% Fehler erkennen können:
-	Joblist = [];
+	Joblist = {};
 	return;
 end
 % Name des Worksheets, in dem die Job-Liste aufglistet sein müssen:

@@ -85,7 +85,7 @@ if strcmpi(mode,'write')
 		obj.next_row;
 		if ~strcmpi(si_un,'n.n.')
 			% Beschriftung für die Zeile mit den Varianzen einfügen:
-			fprintf(fileid,'\t''-> STDABW.:\t');
+			fprintf(fileid,'\t''-> STDABW.:\t\t');
 			obj.write_values('    ''-> Std.Dev.:');
 			if numel(stddev) == 1
 				% Nur ein Wert angegeben:

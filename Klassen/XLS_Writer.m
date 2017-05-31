@@ -68,7 +68,7 @@ classdef XLS_Writer < handle
 		end
 		
 		function write_lines(obj, input)
-			%WRITE_LINES schreibt eine komplette Zeile
+			%WRITE_LINES    schreibt eine komplette Zeile
 			%    WRITE_LINES(INPUT) schreibt komplette Zeilen mit Inhalt INPUT,
 			%    welcher ein Cell-Array, ein String oder auch ein 2D-Array sein
 			%    kann. Nach Ende von INPUT, wird in die nächste freie Zeile

@@ -6,7 +6,7 @@ function simulation_multip_cycle (hObject, handles)
 %    GUI, in dessen Statuszeile aktuelle Informationen zum Simulationsablauf
 %    angzeigt werden. HANDLES enthält alle notwendigen Daten (siehe GUIDATA).
 
-%    Franz Zeilinger - 13.10.2010
+%    Franz Zeilinger - 11.08.2011
 
 % Einlesen vorhandener Daten aus handles-Struktur:
 Configuration = handles.Configuration;
@@ -84,12 +84,12 @@ for i=1:size(Joblist,1)
 		try
 			% Überprüfen, ob Dateiendung vorhanden, wenn nicht, hinzufügen:
 			str = [Joblist{i,3},Joblist{i,4}];
-			if isempty(findstr(str,Configuration.Save.Frequency.Extension))
-				str = [str,Configuration.Save.Frequency.Extension];
+			if isempty(strfind(str,Configuration.Save.Frequency.Extension))
+				str = [str,Configuration.Save.Frequency.Extension]; %#ok<AGROW>
 			end
 			load(str,'-mat');
 			handles.Frequency = Frequency;		
-		catch ME
+		catch ME %#ok<NASGU>
 			str = '--> Ein Fehler ist aufgetreten: Abbruch!';
 			refresh_status_text(hObject,str,'Add');
 			fprintf(['\n\t\t\t',str,'\n']);
@@ -106,6 +106,26 @@ for i=1:size(Joblist,1)
 	str = '--> erledigt!';
 	refresh_status_text(hObject,str,'Add');
 	fprintf([str,'\n']);
+	
+	% Gerätezusammenstellung gemäß den Einstellungen auf den neuesten Stand bringen
+	% (notwendig für Gerätegruppen):
+	for j=1:size(Model.Devices_Pool,1)
+		% alle Geräte, die direkt ausgewählt wurden, übernehmen:
+		name = Model.Devices_Pool{j,1};
+		if isfield(Model.Device_Assembly, name)
+			Model.Device_Assembly_Simulation.(name) = Model.Device_Assembly.(name);
+		else
+			% die anderen Geräte auf null setzen (werden im nächsten Schritt behandelt)
+			Model.Device_Assembly_Simulation.(name) = 0;
+		end
+	end
+	for j=1:size(Model.Device_Groups_Pool,1)
+		grp_name = Model.Device_Groups_Pool{j,1};
+		if isfield(Model.Device_Groups, grp_name)
+			Model = ...
+				Model.Device_Groups.(grp_name).update_device_assembly(Model);
+		end
+	end
 	
 	% Überprüfen, ob eventuell vorhandene Geräteinstanzen verwendet werden:
 	reply = check_existing_devices (Model, Devices, Configuration);
@@ -153,7 +173,11 @@ for i=1:size(Joblist,1)
 			str = 'Erzeuge Geräte-Instanzen: ';
 			refresh_status_text(hObject,[sim_str,str]);
 			fprintf(['\n\t\t',str]);
-			Devices = create_devices(hObject, Model);
+			if Configuration.Options.compute_parallel
+				Devices = create_devices_parallel(hObject, Model);
+			else
+				Devices = create_devices(hObject, Model);
+			end
 			if ~isempty(Devices)
 				% Erfolgsmeldung (in Konsole + GUI):
 				str = '--> abgeschlossen!';
@@ -218,15 +242,24 @@ for i=1:size(Joblist,1)
 		refresh_status_text(hObject,[sim_str,str]);
 		fprintf(['\n\t\t',str]);
 		% Simulation durchführen:
-		Result = simulate_devices_with_dsm(hObject, Devices, ...
-			Frequency, Time);
+		if Configuration.Options.compute_parallel
+			Result = simulate_devices_with_dsm_parallel(hObject, Devices, ...
+				Frequency, Time);
+		else
+			Result = simulate_devices_with_dsm(hObject, Devices, ...
+				Frequency, Time);
+		end
 	else
 		% Ausgabe in Konsole und GUI:
 		str = 'Simuliere (ohne DSM): ';
 		refresh_status_text(hObject,[sim_str,str]);
 		fprintf(['\n\t\t',str]);
 		% Simulation durchführen:
-		Result = simulate_devices(hObject, Devices, Time);
+		if Configuration.Options.compute_parallel
+			Result = simulate_devices_parallel(hObject, Devices, Time);
+		else
+			Result = simulate_devices(hObject, Devices, Time);
+		end
 	end
 	% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 	handles = guidata(hObject);
@@ -247,14 +280,14 @@ for i=1:size(Joblist,1)
 	
 	% Nachbehandlung der Ergebnisse:
 	Result.Sim_date = Sim_date;
-	Result = calculate_infos (Model, Time, Devices, Result);
+	Result = postprocess_results(Model, Time, Devices, Result);
 	
 	% Anzeigen der Ergebnisse:
 	if Configuration.Options.show_data
 		str = 'Anzeigen der Ergebnisse: ';
 		refresh_status_text(hObject,[sim_str,str]);
 		fprintf(['\n\t\t',str]);
-		disp_result(Model, Devices, Frequency, Result);
+		disp_result(Model, Frequency, Result);
 		str = '--> erledigt!';
 		refresh_status_text(hObject,str,'Add');
 		fprintf([str,'\n']);
@@ -288,10 +321,16 @@ for i=1:size(Joblist,1)
 	
 	% handles-Struktur aktualisieren
 	guidata(hObject, handles);
+	
 end
 
 fprintf('\n\t=================================\n');
 % Simulationslog beenden
 diary off
+
+% Gong ertönen lassen
+f = rand()*9.2+0.8;
+load gong.mat;
+sound(y, f*Fs);
 
 end

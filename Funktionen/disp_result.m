@@ -1,37 +1,40 @@
-function disp_result(Model, Devices, Frequency, Result)
+function disp_result(Model, Frequency, Result)
 %DISP_RESULT    zeigt die Ergebnisse der Simulation
 %    DISP_RESULT(MODEL, DEVICES, TIME, FREQUENCY, RESULT) zeigt die Ergebnisse der
 %    Simulation (Struktur RESULT) fertig formatiert an.
+%
+%    Diese Funktion wird nicht mehr benötigt - NICHT VERWENDEN IN ZUKÜNFTIGEN
+%    VERSIONEN DER SIMULATIONSSOFTWARE!!
+%    Stattdessen sollte der Daten-Exporer verwendet werden!
 
-% Franz Zeilinger - 06.09.2010
-
+% Franz Zeilinger - 04.08.2011
 
 time = Result.Time;
 % Create figure
 figure1 = figure;
 % Create axes
 axes1 = axes('Parent',figure1);
-% 	'XTickLabel',['00:00';'06:00';'12:00';'18:00';'00:00'],...
-% 	'XTick',[7.342e+005 7.342e+005 7.342e+005 7.342e+005 7.342e+005]);
 box('on');
 hold('all');
 
-% Ermitteln der Frequenzdaten für Anzeige, siehe Funktion CREATE_FREQUENCY_DATA!
+% Zeitdaten und Frequenzdaten auslesen
 if Result.Time_Base < 60
 	stepsize = 1;
 else
 	stepsize = Result.Time_Base/30;
 end
-% Zeitdaten und Frequenzdaten auslesen
-		t_points = Result.Time;
-		Freq = Frequency(:,1:stepsize:end);
-		% ermitteln der benötigten Frequenzdaten:
-		idx = Freq(1,:)>= t_points(1) & Freq(1,:) <= t_points(end);
-		Freq = Freq(2,idx);
+t_points = Result.Time;
+Freq = Frequency(:,1:stepsize:end);
+% Ermitteln der Frequenzdaten für Anzeige, siehe Funktion CREATE_FREQUENCY_DATA!
+idx = Freq(1,:)>= t_points(1) & Freq(1,:) <= t_points(end);
+Freq = Freq(2,idx);
 
-[AX,H1,H2] = plotyy (time, Result.Aggr_Power_kW,time,Freq,'plot');
+data = Result.Displayable.Power_Class_and_Total_kW.Data;
+
+[AX,H1,H2] = plotyy (time, data , time, Freq, 'plot');
 if Model.Use_DSM
-	H3 = plot(time, Result.Aggr_Power_DSM_kW);
+	DSM_data = Result.Displayable.DSM_Power_Class_and_Total_kW.Data;
+	H3 = plot(time, DSM_data);
 	color = get(H1, 'Color');
 	for i=1:numel(H3)
 		set(H3(i),'Color',color{i});
@@ -42,27 +45,27 @@ end
 no_val = false;
 
 set(get(AX(1),'Ylabel'),'String','Aufgenommene Leistung [kW]');
-if Model.Use_DSM && (max(Result.Aggr_Power_DSM_kW(1,:)) >= ...
-		max(Result.Aggr_Power_kW(1,:)))
-	if max(Result.Aggr_Power_DSM_kW(1,:)) > 1
+if Model.Use_DSM && (max(DSM_data(1,:)) >= ...
+		max(data(1,:)))
+	if max(DSM_data(1,:)) > 1
 		axis([-Inf, Inf, 0, ...
-			(11/4)*ceil(max(Result.Aggr_Power_DSM_kW(1,:))/2.5)]);
-	elseif max(Result.Aggr_Power_DSM_kW(1,:)) < 1 && ...
-			max(Result.Aggr_Power_DSM_kW(1,:)) > 0
+			(11/4)*ceil(max(DSM_data(1,:))/2.5)]);
+	elseif max(DSM_data(1,:)) < 1 && ...
+			max(DSM_data(1,:)) > 0
 		axis([-Inf, Inf, 0, ...
-			(11/40)*ceil(max(Result.Aggr_Power_DSM_kW(1,:))/0.25)]);
+			(11/40)*ceil(max(DSM_data(1,:))/0.25)]);
 	else
 		axis([-Inf, Inf, -0.1, 0.1]);
 		no_val = true;
 	end
 else
-	if max(Result.Aggr_Power_kW(1,:)) > 1
+	if max(data(1,:)) > 1
 		axis([-Inf, Inf, 0, ...
-			(11/4)*ceil(max(Result.Aggr_Power_kW(1,:))/2.5)]);
-	elseif max(Result.Aggr_Power_kW(1,:)) < 1 && ...
-			max(Result.Aggr_Power_kW(1,:)) > 0
+			(11/4)*ceil(max(data(1,:))/2.5)]);
+	elseif max(data(1,:)) < 1 && ...
+			max(data(1,:)) > 0
 	axis([-Inf, Inf, 0, ...
-		(11/40)*ceil(max(Result.Aggr_Power_kW(1,:))/0.25)]);
+		(11/40)*ceil(max(data(1,:))/0.25)]);
 	else
 		axis([-Inf, Inf, -0.1, 0.1]);
 		no_val = true;
@@ -115,6 +118,5 @@ title(titlestr,'FontWeight','bold')
 
 % Legende erstellen:
 legend1 = legend(axes1,'show');
-set(legend1,'Location','Best','String',[{'Gesamtleistung'},...
-	Devices.Elements_Names]);
-end
+set(legend1,'Location','Best','String',...
+	Result.Displayable.Power_Class_and_Total_kW.Legend);

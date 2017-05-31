@@ -7,7 +7,7 @@ function save_model_parameters(Configuration, Model)
 
 %    Franz Zeilinger - 15.08.2010
 
-try
+% try
 	file = Configuration.Save.Data;
 	sour = Configuration.Save.Source;
 	
@@ -55,12 +55,18 @@ try
 	xls.write_lines('Device Settings:');
 	xls.next_layer;
 	
-	% Eintragen der Geräteparameter:
-	for i=1:size(Model.Elements_Pool,1)
-		name = Model.Elements_Pool{i,1};
-		if Model.Device_Assembly.(name)
-			write_txt_header(fileid,Model.Elements_Pool{i,2},Line_lenght,'-')
-			xls.write_lines(Model.Elements_Pool{i,2});
+	% Eintragen der Geräteparameter: möglich sind die Parameter von Geräten und von
+	% Gerätegruppen
+	elements = [Model.Device_Groups_Pool; Model.Devices_Pool(:,1:2)];
+	for i=1:size(elements,1)
+		name = elements{i,1};
+		% Ist die Gerätegruppe oder das Gerät aktiv, dann speichern der Parameter:
+		if (isfield(Model.Device_Assembly, name) && ...
+				Model.Device_Assembly.(name)) || ...
+				(isfield(Model.Device_Assembly_Simulation, name) && ...
+				Model.Device_Assembly_Simulation.(name))
+			write_txt_header(fileid, elements{i,2},Line_lenght,'-')
+			xls.write_lines(elements{i,2});
 			args = Model.Args.(name);
 			xls.next_layer;
 			% Schreiben aller angegebenen Geräteparameterwerte:
@@ -112,12 +118,12 @@ try
 	xls.set_worksheet('Parameters');
 	xlsn = [file.Path,file.Parameter_Name,'.xls']; % Dateiname .xls-File
 	xls.write_output(xlsn);
-catch ME
-	
-	% Fehlerbehandlung:
-	errordlg({'Ein Fehler ist beim Schreiben der Parameterdateien aufgetreten:';...
-		' ';ME.message},'Fehler beim Schreiben der Parameterdatei');
-end
+% catch ME
+% 	
+% 	% Fehlerbehandlung:
+% 	errordlg({'Ein Fehler ist beim Schreiben der Parameterdateien aufgetreten:';...
+% 		' ';ME.message},'Fehler beim Schreiben der Parameterdatei');
+% end
 end
 
 %Hilfsfunktion:
