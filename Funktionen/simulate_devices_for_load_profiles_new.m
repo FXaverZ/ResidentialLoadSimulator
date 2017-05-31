@@ -83,7 +83,7 @@ for i = 1:numel(slow_computing_devs)
 			% berechnet wird!
 			dev = dev.next_step(time, 0);
 			btw_result(j,1:3,step) = dev.Power_Input*dev.Phase_Power_Distribution_Factor;
-			btw_result(j,4:6,step) = dev.Power_Input_Reactive *devPhase_Power_Distribution_Factor;
+			btw_result(j,4:6,step) = dev.Power_Input_Reactive *dev.Phase_Power_Distribution_Factor;
 		end
 		Devices.(slow_computing_devs{i})(j) = dev;
 	end

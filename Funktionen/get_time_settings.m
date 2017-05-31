@@ -5,7 +5,7 @@ function Time = get_time_settings(Model)
 %    speichert diese in der TIME-Struktur.
 
 % Erstellt von:            Franz Zeilinger - 08.04.2008
-% Letzte Änderung durch:   Franz Zeilinger - 19.12.2012
+% Letzte Änderung durch:   Franz Zeilinger - 31.05.2017
 
 % Ermitteln der Zeitbasis
 switch Model.Sim_Resolution
@@ -34,8 +34,16 @@ Time.day_to_sec = 86400; % Umrechnungsfaktor von Tag auf Sekunden
 % Umrechnen der Zeitstrings in Linearzeit:
 Time.Date_Start = datenum(Model.Date_Start);
 Time.Date_End = datenum(Model.Date_End);
-Time.Series_Date_Start = datenum(Model.Series_Date_Start, 'dd.mm.yyyy');
-Time.Series_Date_End = datenum(Model.Series_Date_End, 'dd.mm.yyyy');
+if isfield(Model,'Series_Date_Start')
+	Time.Series_Date_Start = datenum(Model.Series_Date_Start, 'dd.mm.yyyy');
+else
+	Time.Series_Date_Start = Time.Date_Start;
+end
+if isfield(Model,'Series_Date_End')
+	Time.Series_Date_End = datenum(Model.Series_Date_End, 'dd.mm.yyyy');
+else
+	Time.Series_Date_End = Time.Date_End;
+end
 % Berechnen der Simulationsschritte:
 Time.Dur = Time.Date_End - Time.Date_Start;
 Time.Number_Steps = round(Time.Dur * Time.day_to_sec / Time.Base+1);

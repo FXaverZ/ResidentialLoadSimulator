@@ -208,7 +208,7 @@ for a = 1:Model.Number_Runs
 		Households.Result.Sim_date = Sim_date;
 		% Dateieinstellungen speichern:
 		Configuration.Save.Data = file;
-		% Wichte Daten sichern:
+		% Wichtige Daten sichern:
 		save([file.Path,file.Modelcopy_Name], ...
 			'Model', 'Households', 'Time', 'Configuration');
 		

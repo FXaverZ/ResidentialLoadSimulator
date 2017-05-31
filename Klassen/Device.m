@@ -16,6 +16,8 @@ classdef Device
 	%    Parameter (werden in Parameterliste übergeben):
 	%        'Power_Nominal'
 	%            Anschlussleistung des Geräts.
+	%	     'Cos_Phi_Nominal'
+	%            Leistungsfaktor bei Normalbetrieb
 	%        'Start_Probability'
 	%            Wahrscheinlichkeit, dass Gerät aktiv ist. Kann eine zu einer
 	%            Startzeitliste gehörende Liste sein (definert dann für jeden
@@ -45,6 +47,8 @@ classdef Device
 	%            Leistungsaufnahme des Geräts zum aktuellen Zeitpunkt. Ist ein [3,1]
 	%            Array, wobei jede Zeile die aufgenommene Leistung einer Phase
 	%            darstellt.
+	%		 'Power_Input_Reactive'
+	%            Blindleistungsaufnahme des Geräts zum aktuellen Zeitpunkt.
 	
 	% Erstellt von:            Franz Zeilinger - 21.09.2011
 	% Letzte Änderung durch:   Franz Zeilinger - 19.08.2016
@@ -87,7 +91,7 @@ classdef Device
 		%            Instanz der Klasse 'DSM_Device', welche das DSM-Verhalten des
 		%            Verbrauchers beinhaltet und steuert.
 		Fast_computing_at_no_dsm = 0
-		%            diese Option zeigt an, ob im Fall, dass kein DSM simuliert werden
+		%            diese Option zeigt an, ob im Fall, wenn kein DSM simuliert werden
 		%            muss, eine schnellere Berechnung durchgeführt werden kann (d.h.
 		%            nicht jeder Zeitschritt extra). Diese Option ist generell
 		%            deaktiviert und muss in den entsprechnenden Geärteklassen auf Eins
@@ -251,7 +255,7 @@ classdef Device
 			% Liste mit Parameterwerten, die geändert werden können, alle anderen
 			% werden einfach ignoriert:
 			args_list = {...
-				'Temp_Ambiance';...
+% 				'Temp_Ambiance';...
 				'Time_Period';...
 				'Time_typ_Run';...
 				'Time_Start';...
@@ -325,7 +329,7 @@ classdef Device
 		function out = clocktime_to_min (timelist)
 			%CLOCKTIME_TO_MIN    konvergiert Uhrzeitstring in laufende Minuten
 			%    OUT = CLOCKTIME_TO_MIN (TIMELIST) rechnet den Uhrzeitstrings
-			%    'HH:MM' im Vektor TIEMLIST in laufende Minutenzeit (0-1440min
+			%    'HH:MM' im Vektor TIMELIST in laufende Minutenzeit (0-1440min
 			%    entspricht 0-24h) um.
 			
 			t = datevec(datenum(timelist));

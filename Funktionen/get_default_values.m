@@ -56,8 +56,8 @@ handles.Configuration = Configuration;
 %===============================================================================
 %
 %-------------------------------------------------------------------------------
-% Möglichkeiten für alle zu simulierenden Geräte: Cell_Array für  
-% automatisches Abarbeiten:
+% Möglichkeiten für alle zu simulierenden Geräte: Cell-Array für  
+% automatisches abarbeiten:
 %     { Variablenname, ausgeschriebener Name, Handle auf zuständige Klasse}
 %-------------------------------------------------------------------------------
 Model.Devices_Pool = {...
