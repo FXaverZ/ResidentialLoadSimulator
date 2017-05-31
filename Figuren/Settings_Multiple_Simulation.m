@@ -37,9 +37,9 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function check_simsettings_load_from_paramfile_Callback(hObject, eventdata, handles)
+function check_simsettings_load_from_paramfile_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_simsettings_load_from_paramfile (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -51,9 +51,9 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function check_use_different_frequency_data_Callback(hObject, eventdata, handles)
+function check_use_different_frequency_data_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_use_same_dsm (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~	         nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 val = get(hObject,'Value');
@@ -84,7 +84,7 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function check_use_same_dsm_Callback(hObject, eventdata, handles)
+function check_use_same_dsm_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_use_same_dsm (siehe GCBO)
 % eventdata	 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -100,7 +100,7 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function check_use_same_paramter_file_Callback(hObject, eventdata, handles)
+function check_use_same_paramter_file_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt check_use_same_dsm (siehe GCBO)
 % eventdata	 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -113,7 +113,7 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function push_joblist_load_Callback(hObject, eventdata, handles)
+function push_joblist_load_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_joblist_load (siehe GCBO)
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -128,7 +128,7 @@ file = handles.Configuration.Save.Joblist;
 
 if ~isequal(file.List_Name,0) && ~isequal(file.Path,0)
 	% Entfernen der Dateierweiterung:
-	[eventdata, file.List_Name] = fileparts(file.List_Name);
+	[~, file.List_Name] = fileparts(file.List_Name);
 	% Jobliste laden:
 	handles.Joblist = load_joblist(file.Path, file.List_Name);
 	if ~isempty(handles.Joblist)
@@ -152,7 +152,7 @@ refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles)
 
-function push_joblist_new_Callback(hObject, eventdata, handles)
+function push_joblist_new_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_joblist_new (siehe GCBO)
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -232,9 +232,9 @@ catch ME
 	errordlg(error_text, error_titl);
 end
 
-function push_parameter_add_Callback(hObject, eventdata, handles)
+function push_parameter_add_Callback(hObject, ~, handles)
 % hObject    Link zu Grafikobjekt push_parameter_add (siehe GCBO)
-% eventdata			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 % Simulationsmodus anpassen auf Simulationsreihe:
@@ -253,7 +253,7 @@ if ~handles.Configuration.Options.use_same_paramter_file || ...
 end
 if ~isequal(file.Parameter_Name,0) && ~isequal(file.Path,0)
 	% Entfernen der Dateierweiterung:
-	[dummy, file.Parameter_Name] = fileparts([file.Path, file.Parameter_Name]);
+	[~, file.Parameter_Name] = fileparts([file.Path, file.Parameter_Name]);
 	Joblist = {file.Path, file.Parameter_Name};
 	handles.Configuration.Save.Joblist = file;
 	handles.changed_data = 1;
@@ -268,7 +268,7 @@ if handles.Configuration.Options.use_different_frequency_data
 		file.Path);
 	if ~isequal(file.Name,0) && ~isequal(file.Path,0)
 		% Entfernen der Dateierweiterung:
-		[dummy, file.Name] = fileparts([file.Path, file.Name]);
+		[~, file.Name] = fileparts([file.Path, file.Name]);
 		Joblist = {Joblist{:}, file.Path, [file.Name, file.Extension]};
 		handles.Configuration.Save.Frequency = file;
 	end

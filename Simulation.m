@@ -1,6 +1,6 @@
 % Hauptfile für Simulation von Verbrauchern mit DSM - inkl. GUI
-% Franz Zeilinger - 29.10.2010 - R2008b lauffähig
-% Last Modified by GUIDE v2.5 29-Oct-2010 16:26:48
+% Franz Zeilinger - 29.10.2010
+% Last Modified by GUIDE v2.5 03-Feb-2011 10:53:18
 
 function varargout = Simulation(varargin)
 
@@ -23,14 +23,14 @@ else
 % Ende Initializationscode - NICHT EDITIEREN!
 end
 
-function Simulation_OpeningFcn(hObject, eventdata, handles, varargin)
+function Simulation_OpeningFcn(hObject, ~, handles, varargin)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 % varargin   weiter Parameter bei Aufruf in Kommandozeile
 
 % Wo ist "Simulation.m" zu finden?
-[Success, Source_File] = fileattrib('Simulation.m');
+[~, Source_File] = fileattrib('Simulation.m');
 % Ordner, in dem "Simulation.m" sich befindet, enthält Programm:
 if ischar(Source_File)
 	fprintf([Source_File,' - Current Directory auf Datei setzen, in der sich ',...
@@ -63,7 +63,8 @@ try
 	handles.Configuration = Configuration;
 	% Laden der letzen Simulationsdaten (Falls vorhanden):
 	try
-		load([Configuration.Save.Data.Data_Name,'.mat']);
+		file = Configuration.Save.Data;
+		load([file.Path,file.Data_Name,'.mat']);
 		% Paramtetereinstellungen der gespeicherten Daten anpassen (damit
 		% ev. neue Parameter nicht verloren gehen):
 		Model.Parameter_Pool = handles.Model.Parameter_Pool;
@@ -106,7 +107,7 @@ refresh_display (handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function main_window_CloseRequestFcn(hObject, eventdata, handles)
+function main_window_CloseRequestFcn(~, ~, handles)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -119,18 +120,18 @@ case 'Abbrechen'
 case 'Ja'
 	% Konfiguration speichern:
     Configuration = handles.Configuration;
+	file = Configuration.Save.Settings;
 	% Falls Pfad der Konfigurationsdatei nicht vorhanden ist, Ordner erstellen:
-	if ~isdir(Configuration.Save.Data.Main_Path)
-		mkdir(Configuration.Save.Data.Main_Path);
+	if ~isdir(file.Path)
+		mkdir(file.Pathh);
 	end
-	file = handles.Configuration.Save.Settings;
 	save([file.Path,file.Name,file.Ext],'Configuration');
 	
 	% Fenster schließen:
 	delete(handles.main_window);
 end
 
-function start_simulation_Callback(hObject, eventdata, handles)
+function start_simulation_Callback(hObject, ~, handles)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -169,7 +170,7 @@ refresh_display (handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function cancel_simulation_Callback(hObject, eventdata, handles)
+function cancel_simulation_Callback(hObject, ~, handles)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -182,7 +183,7 @@ refresh_display (handles);
 % handles-Structure aktualisieren
 guidata(hObject, handles);
 
-function pop_sim_res_Callback(hObject, eventdata, handles)
+function pop_sim_res_Callback(hObject, ~, handles)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -192,7 +193,7 @@ handles.Model.Sim_Resolution = contents{get(hObject,'Value')};
 % handles-Structure aktualisieren
 guidata(hObject, handles);
 
-function edit_number_user_Callback(hObject, eventdata, handles)
+function edit_number_user_Callback(hObject, ~, handles)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -201,10 +202,15 @@ handles.Model.Number_User = round(str2double(get(hObject,'String')));
 % handles-Structure aktualisieren
 guidata(hObject, handles);
 
-function menu_show_frequency_data_Callback(hObject, eventdata, handles)
+function menu_show_frequency_data_Callback(~, ~, handles)
 % hObject    handle to menu_show_frequency_data (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if ~isfield(handles, 'Frequency')
+	warndlg('Keine Frequenzdaten vorhanden!','Frequenzdaten');
+	return;
+end
 
 % Create figure
 figure1 = figure;
@@ -719,6 +725,50 @@ handles.Model.Device_Assembly.(handles.Model.Elements_Pool{8,1}) = ...
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
+function check_Device_Assembly_9_Callback(hObject, eventdata, handles)
+% hObject    Link zu Grafik des Hauptfensters
+% eventdata			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Model.Device_Assembly.(handles.Model.Elements_Pool{9,1}) = ...
+	get(hObject,'Value');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function check_Device_Assembly_10_Callback(hObject, eventdata, handles)
+% hObject    Link zu Grafik des Hauptfensters
+% eventdata			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Model.Device_Assembly.(handles.Model.Elements_Pool{10,1}) = ...
+	get(hObject,'Value');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function check_Device_Assembly_11_Callback(hObject, eventdata, handles)
+% hObject    Link zu Grafik des Hauptfensters
+% eventdata			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Model.Device_Assembly.(handles.Model.Elements_Pool{11,1}) = ...
+	get(hObject,'Value');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function check_Device_Assembly_12_Callback(hObject, eventdata, handles)
+% hObject    Link zu Grafik des Hauptfensters
+% eventdata			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Model.Device_Assembly.(handles.Model.Elements_Pool{12,1}) = ...
+	get(hObject,'Value');
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
 function check_show_data_Callback(hObject, eventdata, handles)
 % hObject    Link zu Grafik des Hauptfensters
 % eventdata			 nicht benötigt (MATLAB spezifisch)
@@ -807,14 +857,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function menu_Callback(hObject, eventdata, handles)
 function menu_multiple_sim_Callback(hObject, eventdata, handles)
-
-% --------------------------------------------------------------------
 function menu_frequency_Callback(hObject, eventdata, handles)
-% hObject    handle to menu_frequency (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% --------------------------------------------------------------------
 
 
-% --------------------------------------------------------------------
+

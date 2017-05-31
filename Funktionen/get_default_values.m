@@ -5,7 +5,7 @@ function handles = get_default_values(handles)
 %    keine anderen Programmeinstellungen (z.B. von einem früheren
 %    Simultionsdurchlauf) vorhanden sind, werden diese Werte herangezogen.
 
-%    Franz Zeilinger - 19.08.2010 - R2008b lauffähig
+%    Franz Zeilinger - 02.02.2011 - R2008b lauffähig
 
 %===============================================================================
 %                  D E F A U L T - D E F I N I T I O N E N
@@ -18,15 +18,19 @@ function handles = get_default_values(handles)
 Save = handles.Configuration.Save;
 Save.Settings.Name = 'Einstellungen';
 Save.Settings.Ext = '.conf';
-Save.Data.Main_Path = [Save.Settings.Path,'Simulationsergebnisse\'];
+% Ergebnisse und zusätzliche Daten werden im übergeordneten Verzeichnis
+% abgelegt. Dieses muss zuvor ermittelt werden:
+ind = strfind(Save.Settings.Path,'\');
+Save.Additional_Data.Path = Save.Settings.Path(1:ind(end-1));
+Save.Data.Main_Path = [Save.Additional_Data.Path,'Simulationsergebnisse\'];
 % Default-Parameterwerte sollten hier abgelegt sein:
 Save.Source.Path = Save.Settings.Path;
 Save.Source.Parameter_Name = 'Default_Parameterwerte';
 % Parameter für Joblistendatei (Multiple Simulationen):
-Save.Joblist.Path = Save.Settings.Path;
+Save.Joblist.Path = Save.Additional_Data.Path;
 Save.Joblist.Parameter_Name = Save.Source.Parameter_Name;
 Save.Joblist.List_Name = 'Simulationsreihe';
-Save.Frequency.Path = Save.Settings.Path;
+Save.Frequency.Path = Save.Additional_Data.Path;
 Save.Frequency.Name = 'Frequenzdaten';
 Save.Frequency.Extension = '.fqd';
 
@@ -45,32 +49,40 @@ Configuration.Save = Save;
 Configuration.Options = opt; 
 handles.Configuration = Configuration;
 
-%-------------------------------------------------------------------------------
-% Parameterdefinitionen:
+%===============================================================================
+%               P A R A M E T E R D E F I N I T I O N E N :
+%===============================================================================
+%
 %-------------------------------------------------------------------------------
 % Möglichkeiten für zu simulierende Geräte: Cell_Array für automatisches 
 % Abarbeiten:
 % { Variablenname, ausgeschriebener Name, Handle auf zuständige Klasse}
+%-------------------------------------------------------------------------------
 Model.Elements_Pool = {...
+	'office', 'Bürogeräte',           @Probable_Operation;...
+	'tv_set', 'Audio-Video-Geräte',   @Probable_Operation;...
+	'illumi', 'Beleuchtung',          @Probable_Operation;...
 	'refrig', 'Kühlschränke',         @Thermal_Storage;...
 	'freeze', 'Gefriergeräte',        @Thermal_Storage;...
-	'tv_set', 'Audio-Video-Geräte',   @Probable_Operation;...
 	'washer', 'Waschmaschinen',       @Loadcurve_Operation;...
 	'dishwa', 'Geschirrspüler',       @Loadcurve_Operation;...
-	'illumi', 'Beleuchtung',          @Probable_Operation;...
-	'office', 'Bürogeräte',           @Probable_Operation;...
-	'test_d', 'Testgeräte',           @Cont_Operation;...
+	'cl_dry', 'Wäschetrockner',       @Loadcurve_Operation;...
+% 	'cookin', 'Kochen & Backen',      @Probable_Operation;...
+% 	'war_wa', 'Warmwasser',           @Probable_Operation;...
+% 	'cir_pu', 'Umwälzpumpe',          @Probable_Operation;...
+% 	'miscel', 'Diverses',             @Probable_Operation;...
 	}; 
 
 %-------------------------------------------------------------------------------
 % ACHTUNG: folgende Listen definieren die möglichen Namen für die verschiedenen,
 % in diesem Programm vorkommenden Parameter. Werden diese Namen hier geändert,
 % müssen die korrespondieren Properties in den Geräteklassen (bzw. bei den
-% Simlationsparametern in den Programmfunktionen) dementsprechend geändert
+% Simulationsparametern in den Programmfunktionen) dementsprechend geändert
 % werden! Diese Definitionen dienen dazu, zukünftige weitere Parameter einfach
 % ins Programm einfügen zu können, da deren Behandlung für Einlesen und Ausgabe
 % mit Hilfe der rw_Funktinen automatisiert abläuft.
-% Für nähere Infos siehe Hilfetext der verwendeten rw_-Funktionen!
+% Für nähere Infos siehe Hilfetext der verwendeten rw_-Funktionen (zu
+% finden im Ordner 'Hilfsfunktionen' im Programmverzeichnis
 %-------------------------------------------------------------------------------
 
 % Auflistung aller möglichen Simulationsparameter:
@@ -196,6 +208,11 @@ Model.DSM_Param_Pool = {...
 	    @rw_single_parameter,... 
 	    'min', '%',   f_val,  f_sig, [],    [];... 
 	};
+
+%-------------------------------------------------------------------------------
+% Auflistung der implementierten DSM-Funktionen:
+%-------------------------------------------------------------------------------
+
 Model.DSM_Input_Mode = {...			% DSM-Algorithmus:	
 	'No_DSM_Function',...               % Keine DSM-Funktion
 	'Frequency_Response_Simple',...	    % Frequenzschaltschwelle	
@@ -214,7 +231,7 @@ Model.DSM_Output_Mode = {...        % Reaktion des Gerätes:
 %===============================================================================
 %              S I M U L A T I O N S E I N S T E L L U N G E N
 %===============================================================================
-
+%
 % Startzeitpunkt TT-Mon-JJJJ HH:MM:SS
 Model.Date_Start = '19-Feb-2010 00:00:00';
 % Endzeitpunkt   TT-Mon-JJJJ HH:MM:SS
@@ -238,8 +255,9 @@ Model.Use_Same_DSM = true; % Sollen vorhandene DSM-Instanzen verwendet werden?
 %                   Gerätezusammenstellung und Einsatz:
 % ------------------------------------------------------------------------------
 for i=1:size(Model.Elements_Pool,1)
-	Model.Device_Assembly.(Model.Elements_Pool{i,1}) = 1; %alle Geräte aktiv setzen
+	% alle Geräte aktiv setzen:
+	Model.Device_Assembly.(Model.Elements_Pool{i,1}) = 1; 
 end
 %===============================================================================
-
+% Model-Struktur aktualisieren:
 handles.Model = Model;

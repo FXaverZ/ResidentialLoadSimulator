@@ -71,7 +71,7 @@ date = datenum(str);
 set(handles.edit_date_start,'String',datestr(date,0));
 
 % Gerätezusammentstellung anpassen:
-for k=1:8
+for k=1:12
 	field = ['check_Device_Assembly_',num2str(k)];
 	if k <= size(handles.Model.Elements_Pool,1)
 		% Gerätenamen neben Checkbox setzen und Box aktivieren:

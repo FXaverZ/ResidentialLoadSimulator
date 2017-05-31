@@ -39,9 +39,9 @@ time = time - datenum('30-Dec-1899'); % Zeitformat in Excel-Format bringen
 data = [time', resu'];
 titl = [{'Zeit'},{'Gesamtleistung'},Devices.Elements_Names];
 % .xls-File schreiben:
-if (size(data,1) >= 65530) || ~Configuration.Options.savas_xls
-	fprintf('(ohne .xls-Daten) ');
-else
+% if (size(data,1) >= 65530) || ~Configuration.Options.savas_xls
+% 	fprintf('(ohne .xls-Daten) ');
+% else
 	xls = XLS_Writer();
 	xls.write_lines({'Simulationsdaten vom Durchlauf am','','',...
 		datestr(Result.Sim_date)});
@@ -85,7 +85,7 @@ else
 		xls.write_lines(Result.Mean_Power_pP); %durchschn. Leistung je Klasse
 		xls.write_lines(data); % Daten
 	end
-	xlsn = [file.Path,file.Data_Name,'.xls']; % Dateiname .xls-File
+	xlsn = [file.Path,file.Data_Name,'.xlsx']; % Dateiname .xls-File
 	xls.write_output(xlsn);
-end
+% end
 end

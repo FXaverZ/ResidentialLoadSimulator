@@ -18,10 +18,10 @@ classdef DSM_Device
 	%            Frequenzwert, ab dem DSM eingreift
 	%        'Check_former_Frequ_Data'    
 	%            Sollen zurückliegende Frequenzdaten überprüft werden (Für
-	%            genauere zeitliche Auflösung)?
+	%            genauere zeitliche Auflösung aber erhöhten Rechenaufwand)?
 	%	     'Time_Delay_Restore_Op'
-	%            Zeit die vergehen soll, wenn von einer Leistungsbeeinflussung
-	%            zu der normalen Geräteoperation zurückgekehrt werden kann.
+	%            Zeit die vergehen soll, bis von einer Leistungsbeeinflussung
+	%            zu der normalen Geräteoperation zurückgekehrt werden soll.
 	%        'DSM_Input_Mode'				
 	%            Auswahl des zu verwendenden DSM-Algorithmus
 	%        'DSM_Output_Mode'				
@@ -270,39 +270,52 @@ classdef DSM_Device
 				otherwise
 					obj.(parameter) = vary_parameter(...
 						input_1,input_2);
-					
 					obj.(parameter)(obj.(parameter)<0)=0;
 			end
 		end
 		
 		function [obj,frequency] = frequency_filter (obj, frequency)
+			%FREQUENCY_FILTER    führt eine Filterung der Frequenzdaten durch
+			%    [OBJ,FREQUENCY] = FREQUENCY_FILTER (OBJ, FREQUENCY) filtert die
+			%    Frequenzdaten des [2,m]-Frequenzarrays FREQUENCY über eine
+			%    laufende Mittelwertbildung, die die Frequenzwerte des 
+			%    Zeitraumes OBJ.FREQU_FILTER_TIME berücksichtigt. Ist die
+			%    Filterzeit kein Vielfaches der Zeiten zwischen zwei
+			%    Frequenzwerten, werden die Frequenzwerte linear interpoliert.
+			%    Zusätzlich speichert diese Funktion in OBJ.LAST_FREQUENCY_DATA
+			%    die bisherigen Frequenzdaten.
+			%    Zurückgegeben werden die gefilterten Frequenzwerte FREQUENCY. 
 			
 			if size(frequency,2) < 2
 				return;
 			end
 			
-			% Filterung der Frequenzdaten
+			% auslesen wichtiger Parameter:
 			dt_frequ = frequency(1,2)-frequency(1,1);
 			dt_filte = obj.Frequ_Filter_Time/1440;
-			% Zeitspanne für Interpolation für den letzten verfügbaren Wert:
-			diff = mod(dt_filte,dt_frequ);
 			% wieviel Frequenzwerte liegen für Mittelwertbildung vor?
 			ind = floor((dt_filte/dt_frequ)+1e-5)+1;
 			if isempty(obj.Last_Frequency_Data)
-				% vorhergehende Frequenzdaten erzeugen:
+				% vorhergehende Frequenzdaten erzeugen: Dies sind Dummy-Werte,
+				% um die Mittelwertbildung mit ersten werten zu versorgen. Der
+				% Wert der Frequenz ist jener des ersten Frequenzpunktes:
 				fre_n = zeros(2,ind);
 				for k = 1:ind
 					fre_n(:,ind+1-k) = [frequency(1,1)-k*dt_frequ; 50];
 				end
 				obj.Last_Frequency_Data = fre_n;
 			end
-			% ursprüngliches Frequenzdaten_Array:
+			% ursprüngliches Frequenzdaten_Array aus vorhergehenden und
+			% aktuellen Frequenzdaten zusammensetzen:
 			freq = [obj.Last_Frequency_Data, frequency];
-			% Linear interpolierte Zwischenwerte:
+			% Zeitspanne für Interpolation für den letzten verfügbaren Wert:
+			diff = mod(dt_filte,dt_frequ);
+			% Linear interpolierte Zwischenwerte. Diese sind notwendig, damit
+			% die genaue Filterzeit eingehalten werden kann:
 			freq_int = (freq(2,2:end)-freq(2,1:end-1))*(1-diff/dt_frequ)+...
 				freq(2,1:end-1);
 			% Aufsummieren aller notwendigen Frequenzwerte für laufende
-			% Mittelwertbildung, Beginn die jeweiligen aktuellen + bereits
+			% Mittelwertbildung, zu Beginn die jeweiligen aktuellen + bereits
 			% interpolierten Werte:
 			sum = freq(2,ind+1:end) + freq_int(1:end-(ind-1));
 			for k=1:ind-1
@@ -318,12 +331,27 @@ classdef DSM_Device
 		end
 		
 		function obj = delay_restore_op(obj, frequency, time, delta_t)
+			%DELAY_RESTORE_OP    verzögert Rückkehr zum Normalbetrieb
+			%    OBJ = DELAY_RESTORE_OP(OBJ, FREQUENCY, TIME, DELTA_T)
+			%    verzögert, falls es zu einer Leistungsbeeinflussung kam, die
+			%    Rückkehr zum Normalbetrieb um die Zeit
+			%    OBJ.TIME_DELAY_RESTORE_OP.
+			%    Für die Berechnung ist der aktuelle Zeitpunkt TIME sowie die
+			%    Simulationsschrittweite DELTA_T notwendig.
+			
 			if (isempty(obj.Output_for_Delay) || ~obj.Output_for_Delay) && ...
 					~obj.Output
+				% Falls keine Leistungsbeeinflussung notwendig ist (Output und 
+				% Output_Delay sind nicht aktiv) Funktion verlassen, da keine
+				% Aktion durchgeführt werden muss.
 				return;
 			elseif (isempty(obj.Output_for_Delay) || ~obj.Output_for_Delay ||...
-					obj.Time_Delay_Active) && ...
-				obj.Output
+					obj.Time_Delay_Active) && obj.Output
+				% Wenn Output_for_Delay nicht aktiv ist, aber eine
+				% Leistungsbeeinflussung gemeldet wird (Output = 1), sofort mit
+				% der Leistungsbeeinflussung beginnen. Time_Delay_Active wird
+				% auf null gesetzt, weil die Verzögerung erst beim Ende der
+				% Leistungsbeeinflussung notwendig ist.
 				obj.Output_for_Delay = obj.Output;
 				obj.Time_Delay_Active = 0;
 			elseif (~isempty(obj.Output_for_Delay) && ...
@@ -332,60 +360,105 @@ classdef DSM_Device
 					(obj.Time_Output_Stop < time && ...
 					(obj.Time_Output_Stop > time-delta_t/86400 || ...
 					abs(obj.Time_Output_Stop - time-delta_t/86400) < 1e-8)))
-				% Stopzeit der DSM-Funktion speichern, falls keiner vorhanden
-				% ist:
+				% Wenn die Leistungsbeeinflussung beendet wird (Output_for_Delay
+				% = 1 und Output = 0 ODER die Stopzeit (sofern vorhanden) der
+				% DSM-Funktion fällt in den betrachteten Zeitraum), wird die die
+				% Verzögerung durchgeführt.
+				
+				% Stopzeit der DSM-Funktion speichern, falls keine vorhanden
+				% ist (als Stopzeit wird der Beginn des betrachteten
+				% Zeitintervalls gesetzt):
 				if isempty(obj.Time_Output_Stop) || obj.Time_Output_Stop == 0
 					obj.Time_Output_Stop = time-delta_t/86400;
 				end
-				% Verzugszeit zur Stopzeit hinzufügen:
+				% Verzögerungszeit zur Stopzeit hinzufügen:
 				if obj.Time_Delay_Active == 0
 					obj.Time_Output_Stop = obj.Time_Output_Stop + ...
 						obj.Time_Delay_Restore_Op/1440;
+					% Merken, das Verzögerung im Gange ist, damit nicht weiter
+					% verzögert wird:
 					obj.Time_Delay_Active = 1;
 				end
+				% Ist die (neue) Stopzeit der DSM-Funktion nicht mehr im 
+				% betrachteten Intervall, DSM-Output übernehmen (meist Output =
+				% 0):
 				if obj.Time_Output_Stop < time-delta_t/86400 || ...
 						abs(obj.Time_Output_Stop - time-delta_t/86400) < 1e-8
 					obj.Output_for_Delay = obj.Output;
 				end
 			end
+			% DSM-Output entsprechend setzen:
 			obj.Output = obj.Output_for_Delay;
 		end
 		
 		function obj = algorithm (obj, frequency, varargin)
-			% algorithm (OBJ, FREQUENCY, POWER, VARARGIN) simuliert das
-			% Verhalten eines DSM-Chips.
-			% Ausgegeben wird ein Signal, ob Gerät weiterlaufen darf (OUTPUT)
+			%ALGORITHM    ermittelt, ob DSM-Beeinflussung notwendig ist
+			%    OBJ = ALGORITHM (OBJ, FREQUENCY) ermittelt aufgrund der
+			%    übergebenen Frequenzdaten, ob ein Eingriff in das
+			%    Geräteverhalten notwendig ist. Die Information darüber wird in
+			%    OUTPUT ausgegeben.
+			%    Welcher Algorithmus dieser Entscheidung zugrunde liegt, wird in
+			%    der Funktion GET_FUNCTION_FOR_INPUT im Funktionenhandle
+			%    OBJ.INPUT_ALGORITHM den Anforderungen entsprechend ausgewählt.
 			
+			% Falls eine Filterzeit angegeben wurde, die Frequenzdaten filtern:
 			if ~isempty(obj.Frequ_Filter_Time)
 				[obj,frequency] = obj.frequency_filter(frequency);
 			end
+			% Aus den Frequenzdaten die Reaktion der DSM-Einheit ermitteln:
 			obj = obj.input_algorithm(obj, frequency, varargin{:});
-			if ~isempty(obj.Time_Delay_Restore_Op) && obj.Time_Delay_Restore_Op > 0
+			% Falls eine Verzögerungszeit angegeben wurde, dementsprechend die
+			% Rückkehr zum Normalbetrieb verzögern:
+			if ~isempty(obj.Time_Delay_Restore_Op) && ...
+					obj.Time_Delay_Restore_Op > 0
 				obj = obj.delay_restore_op(frequency, varargin{:});
 			end
 		end
 		
 		function obj = next_step(obj, device, time, delta_t, varargin)
+			%NEXT_STEP    ermittelt Gerätereaktion für aktuellen Zeitschritt
+			%    OBJ = NEXT_STEP(OBJ, DEVICE, TIME, DELTA_T) ermittelt die
+			%    Gerätereaktion inkl. DSM für den aktuellen Simulationsschritt.
+			%    Der dafür notwendige Algorithmus wird in der Funktion
+			%    GET_FUNCTION_FOR_INPUT festgelegt und über den Funktionenhandle
+			%    OBJ.OUTPUT_NEXT_STEP aufgerufen.
+			
 			obj = obj.output_next_step(obj, device, time, delta_t, varargin{:});
 		end
 		
 		function obj = combine_device_with (obj, device)
-			% 			if isempty(obj.Controlled_Device)
-			obj.Controlled_Device = device;
-			% 			end
+			%COMBINE_DEVICE_WITH    verknüpft die DSM-Instanz mit Geräteinstanz
+			%    OBJ = COMBINE_DEVICE_WITH (OBJ, DEVICE) erstellt eine Kopie der
+			%    Geräteinstanz DEVICE und speichert diese in
+			%    OBJ.CONTROLLED_DEVICE. Auf diese Kopie kann die DSM-Einheit
+			%    Einfluss nehmen. Das ursprüngliche Gerät bleibt davon
+			%    unberührt.
+			%    Diese Funktion muss vorm bzw. beim ersten Simulationsschritt
+			%    aufgerufen werden!
+			
+% 			if isempty(obj.Controlled_Device)
+				obj.Controlled_Device = device;
+% 			end
 		end
 		
 		function obj = get_function_for_input (obj)
+			%GET_FUNCTION_FOR_INPUT    Auswahl des Input-Algorithmus
+			%    OBJ = GET_FUNCTION_FOR_INPUT (OBJ) ermittelt mit Hilfe der
+			%    Angabe des Input-Modus in OBJ.DSM_INPUT_MODE sowie weiteren
+			%    Optionen den Input-Algorithmus für die DSM-Einheit.
+			
 			switch obj.DSM_Input_Mode
 				case 'Frequency_Response_Simple'
 					% Simple Frequenzreaktion des "DSM-Chips":
 					obj.Frequency_Level = 50 - obj.Frequency_Level;
 					if isempty(obj.Frequency_Hysteresis)
 						if obj.Check_former_Frequ_Data
-							obj.input_algorithm =@frequency_response_simple_look_back;
+							obj.input_algorithm = ...
+								@frequency_response_simple_look_back;
 						else
 							obj.input_algorithm = @frequency_response_simple;
 						end
+					% Falls eine Frequenzhysterese gefordert ist:
 					else
 						if obj.Check_former_Frequ_Data
 							obj.input_algorithm = ...
@@ -416,7 +489,23 @@ classdef DSM_Device
 						obj.Frequency_Level = 50 - frequ;
 						% Mit dieser Auslösefrequenz wird nun der simple
 						% Frequenzalgorithmus verwendet:
-						obj.input_algorithm = @frequency_response_simple;
+						if isempty(obj.Frequency_Hysteresis)
+							if obj.Check_former_Frequ_Data
+								obj.input_algorithm = ...
+									@frequency_response_simple_look_back;
+							else
+								obj.input_algorithm = @frequency_response_simple;
+							end
+						% Falls eine Frequenzhysterese gefordert ist:
+						else
+							if obj.Check_former_Frequ_Data
+								obj.input_algorithm = ...
+									@frequency_response_simple_hysteresis_look_back;
+							else
+								obj.input_algorithm = ...
+									@frequency_response_simple_hysteresis;
+							end
+						end
 					else
 						% Falls nicht alle notwendigen Parameter angegeben
 						% wurden --> Fehlermeldung:
@@ -431,7 +520,13 @@ classdef DSM_Device
 		end
 		
 		function obj = get_function_for_output (obj, device)
+			%GET_FUNCTION_FOR_OUTPUT    Auswahl des Output-Algorithmus
+			%    OBJ = GET_FUNCTION_FOR_OUTPUT (OBJ) ermittelt mit Hilfe der
+			%    Angabe des Output-Modus in OBJ.DSM_OUTPUT_MODE sowie weiteren
+			%    Optionen den Output-Algorithmus für die DSM-Einheit.
+			
 			switch obj.DSM_Output_Mode
+				% Verändern der Solltemperatur bei thermischen Speichern:
 				case 'Change_Temp_Set'
 					if strcmpi(class(device),'Thermal_Storage')
 						if obj.Check_former_Frequ_Data
@@ -445,10 +540,11 @@ classdef DSM_Device
 							'Geräteklasse anwenden, da diese nicht ',...
 							'kompatibel zueinander sind!']);
 					end
+				% Abschalten des Gerätes:
 				case 'Turn_Off'
 					% Normale Abschaltfunktion
 					obj.output_next_step = @turn_off;
-					% Bei Geräten mit thermischen Speicher: erhöhen der
+					% Bei Geräten mit thermischen Speicher: Erhöhen der
 					% Solltemperatur auf Unendlich, damit Funktion in der Zeit
 					% der Regelfunktion ausgesetzt wird (der Speicher aber
 					% normal weiterläuft...
@@ -460,6 +556,10 @@ classdef DSM_Device
 						obj.output_next_step = @change_temp_set;
 						end
 					end
+					% Bei Geräten mit Lastkurve unterbrechen des Programms.
+					% Teile der Lastkurve, die eigentlich nicht unterbrochen
+					% werden dürften und hier unterbrochen werden, werden
+					% wiederholt!
 					if strcmpi(class(device),'Loadcurve_Operation')
 						obj.Consider_non_stop_Parts = 0;
 						obj.Time_Postpone_max = Inf;
@@ -473,14 +573,17 @@ classdef DSM_Device
 							obj.find_start_idx = @find_start_idx_simple;
 						end
 					end
+				% Abschalten Stand-by-Verbrauch:
 				case 'Turn_Off_Stand_by'
 					if ~isempty(device.Power_Stand_by) && device.Power_Stand_by > 0
 						obj.output_next_step = @turn_off_stand_by;
 					else
 						obj.output_next_step = @turn_off;
 					end
+				% Reduzieren der Leistungsaufnahme:
 				case 'Reduce_Input_Power'
 					obj.output_next_step = @reduce_input_power;
+				% Startzeit verschieben:
 				case 'Postpone_Start'
 					% Falls Verschiebungszeit null, auf Minimalwert
 					% (1 min) setzten, da sonst Gefahr für eine
@@ -513,6 +616,7 @@ classdef DSM_Device
 					else
 						obj.output_next_step = @no_dsm_function_output;
 					end
+				% Programm pausieren
 				case 'Pause_Programm'
 					% Falls Verschiebungszeit null, auf Minimalwert
 					% (1 min) setzten, da sonst Gefahr für eine
@@ -547,6 +651,7 @@ classdef DSM_Device
 					else
 						obj.output_next_step = @no_dsm_function_output;
 					end
+				% Keine DSM-Output Funktion
 				otherwise
 					obj.output_next_step = @no_dsm_function_output;
 			end

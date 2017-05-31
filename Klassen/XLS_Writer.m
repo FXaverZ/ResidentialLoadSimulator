@@ -6,7 +6,7 @@ classdef XLS_Writer < handle
 	%    Mit Hilfe des Befehls WRITE_OUTPUT(XLSN) wird dann das
 	%    Output-Cell-Array als .xls-Datei abgespeichert.
 	%
-	%    Franz Zeilinger - 03.08.2010
+	%    Franz Zeilinger - 14.06.2011
 	
 	properties
 		row_count  %Aktuelle Zeile
@@ -91,34 +91,25 @@ classdef XLS_Writer < handle
 			col_c = obj.col_count.(['WSH',num2str(obj.wsh_count)]);
 			% verschiedene Behandlung der INPUT-Daten je nach vorliegender
 			% Struktur:
-			if iscell(input)
-				for i=1:rows
-					for j=1:cols
-						% Durchgehen der Daten Zeilen und Spaltenweise und
-						% eintragen in das Output-Array:
-						obj.output.(['WSH',num2str(obj.wsh_count)])...
-							(row_c+i-1,col_c+j-1)=input(i,j);
-					end
-				end
-				% Aktuelle Position ermitteln (nach Eintrag der Daten):
-				obj.row_count.(['WSH',num2str(obj.wsh_count)]) = ...
-					row_c + rows - 1;
-				obj.col_count.(['WSH',num2str(obj.wsh_count)]) = ...
-					col_c + cols;
-			elseif ischar(input)
+			if ischar(input)
 				% Bei Übergabe eines Strings, diesen in eine Zelle schreiben und
-				% zur nächsten Spalte springen:
+				% zur nächsten Spalte springen.
 				obj.output.(['WSH',num2str(obj.wsh_count)])...
 					(row_c,col_c)={input};
 				obj.col_count.(['WSH',num2str(obj.wsh_count)]) = ...
 					col_c + 1;
 			else
-				for i=1:rows
-					for j=1:cols
-						obj.output.(['WSH',num2str(obj.wsh_count)])...
-							(row_c+i-1,col_c+j-1)={input(i,j)};
-					end
+				if isnumeric(input)
+					% Numerisches Array in ein Cell-Array umwandeln
+					input_cell = num2cell(input);
+				elseif iscell(input)
+					% ist INPUT bereits ein Cell-Array, dieses übernehmen
+					input_cell = input;
 				end
+				% Daten in OUTPUT schreiben:
+                obj.output.(['WSH',num2str(obj.wsh_count)])...
+					(row_c:row_c+rows-1, col_c:col_c+cols-1)= input_cell;
+				% Aktuelle Position ermitteln (nach Eintrag der Daten):
 				obj.row_count.(['WSH',num2str(obj.wsh_count)]) = ...
 					row_c + rows - 1;
 				obj.col_count.(['WSH',num2str(obj.wsh_count)]) = ...

@@ -53,6 +53,8 @@ for i=1:size(Joblist,1)
 	% Wenn gefordert, Simulationsparameter aus Parameterdatei laden:
 	if Configuration.Options.simsettings_load_from_paramfile
 		Model = load_simulation_parameter(Joblist{i,1}, Joblist{i,2}, Model);
+		% Spezielle Konfigurationseinstellungen übernehmen:
+		Configuration.Options.use_same_dsm = Model.Use_Same_DSM;
 	end
 	% Geräteparameter laden:
 	Model = load_device_parameter(Joblist{i,1}, Joblist{i,2},Model);
@@ -228,7 +230,7 @@ for i=1:size(Joblist,1)
 	end
 	% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
 	handles = guidata(hObject);
-	% Überprüfen, ob während der Geräteerzeugung abgebrochen wurde:
+	% Überprüfen, ob während der Simulation abgebrochen wurde:
 	if handles.system.cancel_simulation
 		str = '--> Simulation abgebrochen';
 		refresh_status_text(hObject,str,'Add');
@@ -270,7 +272,14 @@ for i=1:size(Joblist,1)
 	if i < size(Joblist,1)
 		fprintf('\n\t---------------------------------\n');
 	end
-	
+	% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)
+	handles = guidata(hObject);	
+	if handles.system.cancel_simulation
+		str = '--> Simulation abgebrochen';
+		refresh_status_text(hObject,str);
+		fprintf(['\n\t\t',str,'\n']);
+		return;
+	end
 	% Daten zurück in handles-Struktur speichern:
 	handles.Configuration = Configuration;
 	handles.Model =         Model;
