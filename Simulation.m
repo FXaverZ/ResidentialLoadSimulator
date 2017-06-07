@@ -207,7 +207,7 @@ handles.Configuration.Options.compute_parallel = get(hObject,'Value');
 if handles.Configuration.Options.compute_parallel && isempty(gcp('nocreate'))
 	parpool;
 end
-if ~handles.Configuration.Options.compute_parallel && ~isempty(gcp('nocreate'));
+if ~handles.Configuration.Options.compute_parallel && ~isempty(gcp('nocreate'))
 	delete(gcp('nocreate'));
 end
 

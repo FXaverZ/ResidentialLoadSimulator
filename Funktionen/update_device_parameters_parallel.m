@@ -47,7 +47,7 @@ parfor i=1:numel(Devices.Elements_Varna)
 % 		% dies Auslesen:
 % 		proba = arg{idx+1};
 % 		% über alle Haushalte:
-		for j=1:number_hh;
+		for j=1:number_hh
 % 			% Wieviele Personen leben in diesem Haushalt:
 % 			persons = number_pers(j); %#ok<PFBNS>
 % 			% Wieviele Geräte hat der Haushalt?

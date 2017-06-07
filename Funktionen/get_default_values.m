@@ -369,18 +369,26 @@ Model.DSM_Output_Mode = {...        % Reaktion des Gerätes:
 %              S I M U L A T I O N S E I N S T E L L U N G E N
 %===============================================================================
 %
-% Startzeitpunkt TT-Mon-JJJJ HH:MM:SS
+% Startzeitpunkt der Simulation im Format TT-Mon-JJJJ HH:MM:SS
 Model.Date_Start = '19-Feb-2010 00:00:00';
-% Endzeitpunkt   TT-Mon-JJJJ HH:MM:SS
+% Endzeitpunkt der Simulation im Format  TT-Mon-JJJJ HH:MM:SS
 Model.Date_End =   '20-Feb-2010 00:00:00'; 
 
 % Auflösung der Simulation: 'sec' = Sekundentakt
+%                           '5se' = 5s Takt
+%                           '10s' = 10s Takt
 %                           'min' = Minutentakt
+%                           '2.5m' = 2.5-Minutentakt (150s)
 %                           '5mi' = 5-Minutentakt
-%                           'quh' = Viertelstundendtakt
+%                           'quh' = Viertelstundentakt
 %                           'hou' = Stundentakt
 Model.Sim_Resolution = 'quh';
-Model.Number_User = 500;     % Anzahl der Personen, die die Geräte verwenden
+
+% Anzahl der Personen, deren durchschnittlicher Verbrauch simuliert werden soll. Wird hier
+% der Wert 1 angegeben, wird von jedem zu simulierenden Gerätetyp ein aktives Gerät
+% erzeugt und simuliert (siehe Abschnitt „2.2.1.3.1 Klasse Device“, Attribut Activity)  
+Model.Number_User = 500;
+
 Model.Use_DSM = false;       % Soll der DSM-Algorithmus laufen?
 Model.Use_Same_DSM = false;% Sollen vorhandene DSM-Instanzen verwendet werden? 
                            %    (nur für Simulationsreihe relevant: Wert 'false'

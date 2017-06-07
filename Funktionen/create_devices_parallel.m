@@ -1,4 +1,4 @@
-function Devices = create_devices_parallel(hObject, Model)
+function Devices = create_devices_parallel(~, Model)
 %CREATE_DEVICES    erzeugt Geräteinstanzen für Simulation
 %    DEVICES = CREATE_DEVICES(HOBJECT, MODEL) erzeugt aus den in der
 %    MODEL-Struktur angegebenen Daten ein Array von Geräteinstanzen in der
@@ -93,7 +93,6 @@ end
 try
 	% Erzeugen der jeweiligen Geräteinstanzen:
 	dev_handles = Devices.Elements_Funha;
-	total_number_dev = 0;
 	num_user = Model.Number_User;
 	equ_level = Devices.Elements_Eq_Le;
 	parfor j=1:numel(Devices.Elements_Varna)
@@ -109,11 +108,10 @@ try
 				% Überprüfen, ob Gerät überhaupt im Einsatz, sonst verwerfen, dazu
 				% eine Zufallszahl zwischen 0 und 100 erzeugen:
 				fort = rand()*100;
-				if fort <= equ_l;
+				if fort <= equ_l
 					% Geräteinstanz in jeweiligen Array speichern:
 					device{j}(end+1) = dev;
 					% Anzahl der erzeugten Geräte aktualisieren:
-					total_number_dev = total_number_dev + 1;
 				end
 				% Reduzieren des Ausstattungsgrades:
 				equ_l = equ_l - 100;
@@ -137,8 +135,10 @@ end
 
 % Die erzeugten Geräteinstanzen im ursprünglichen Format in die Devices-Strukutr
 % übernehmen:
+total_number_dev = 0;
 for i = 1:size(Devices.Elements_Varna,2)
 	Devices.(Devices.Elements_Varna{i}) = device{i};
-	Devices.Total_Number_Dev = total_number_dev;
+	total_number_dev = total_number_dev + numel(device{i});
 end
+Devices.Total_Number_Dev = total_number_dev;
 end
