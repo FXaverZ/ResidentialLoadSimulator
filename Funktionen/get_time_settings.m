@@ -5,7 +5,7 @@ function Time = get_time_settings(Model)
 %    speichert diese in der TIME-Struktur.
 
 % Erstellt von:            Franz Zeilinger - 08.04.2008
-% Letzte Änderung durch:   Franz Zeilinger - 31.05.2017
+% Letzte Änderung durch:   Franz Zeilinger - 28.06.2017
 
 % Ermitteln der Zeitbasis
 switch Model.Sim_Resolution
@@ -27,6 +27,7 @@ switch Model.Sim_Resolution
 		Time.Base = 300;
 	otherwise
 		Time.Base = 3600;
+		warning('Time resolution was not recognized! Setting to Default ("hou")!');
 end
 
 % Berechnen der einzelnen Zeitschritte:

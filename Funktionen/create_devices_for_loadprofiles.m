@@ -128,6 +128,12 @@ for i=1:numel(Varna_known)
 		end
 		% Geräteinstanz erzeugen:
 		dev = dev_handle(Model.Args.(name){:});
+% 		% Oder diese Version?
+% 		while ~dev.Activity
+% 			% Solange Geräteinstanz erzeugen, bis ein aktives Gerät
+% 			% erzeugt wird:
+% 			dev = dev_handle(Model.Args.(name){:});
+% 		end
 		% aktuellen Geräteindex in Geräteinstanz und Geräteindexarray speichern
 		% und Zähler erhöhen:
 		dev_idx(i,j)= j;
