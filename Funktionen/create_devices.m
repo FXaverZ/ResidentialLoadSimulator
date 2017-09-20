@@ -130,10 +130,13 @@ try
 					% eine Zufallszahl zwischen 0 und 100 erzeugen:
 					fort = rand()*100;
 					if fort <= equ_level
-						% Geräteinstanz in jeweiligen Array speichern:
-						Devices.(name)(end+1) = dev;
-						% Anzahl der erzeugten Geräte aktualisieren:
-						Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
+						% überprüfen, ob Gerät überhaupt aktiv
+						if dev.Activity
+							% Geräteinstanz in jeweiligen Array speichern:
+							Devices.(name)(end+1) = dev;
+							% Anzahl der erzeugten Geräte aktualisieren:
+							Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
+						end
 					end
 					% Reduzieren des Ausstattungsgrades:
 					equ_level = equ_level - 100;

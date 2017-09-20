@@ -519,7 +519,7 @@ for a = 1:Model.Number_Runs
 			if Configuration.Options.compute_parallel
 				Result = simulate_devices_for_load_profiles_parallel(Devices, Time);
 			else
-				Result = simulate_devices_for_load_profiles_new(Devices, Time);
+				Result = simulate_devices_for_annual_load_profiles(Devices, Time);
 			end
 			
 			% handles Struktur aktualisieren (falls Abbrechen-Button gedrückt wurde)

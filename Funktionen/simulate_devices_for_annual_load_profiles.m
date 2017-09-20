@@ -1,4 +1,4 @@
-function Power_parallel = simulate_devices_for_load_profiles_new(Devices, Time)
+function Power_parallel = simulate_devices_for_annual_load_profiles(Devices, Time)
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES_PARALLEL   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 

@@ -109,9 +109,10 @@ try
 				% eine Zufallszahl zwischen 0 und 100 erzeugen:
 				fort = rand()*100;
 				if fort <= equ_l
-					% Geräteinstanz in jeweiligen Array speichern:
-					device{j}(end+1) = dev;
-					% Anzahl der erzeugten Geräte aktualisieren:
+					if dev.Activity
+						% Geräteinstanz in jeweiligen Array speichern:
+						device{j}(end+1) = dev;
+					end
 				end
 				% Reduzieren des Ausstattungsgrades:
 				equ_l = equ_l - 100;
