@@ -4,22 +4,23 @@
 
 % Excel-Datei mit den Zuordnungen der Haushalten:
 path_xls = pwd;
-name_xls = '1_Haushaltsdefinition 126 aus 1260.xlsx';
+name_xls = '1_Haushaltsdefinition 126 aus 1260_neue_Ausstattung.xlsx';
+% In welcher Spalte ist die Haushaltszuordnungs-ID?
+name_col_HH_ids = 'ID_HH_f_neue_Ausstattung';%'ID - HH (Liste 1260)';
 
 % Ort der Profile:
-path = ['D:\Projekte_Stuff (soll nicht auf Server oder ist schon auf Server)',...
-	'\aDSM\5_Synthetische_HH_Lasten\03_Synthetische_Profile_(Rohdaten)',...
-	'\13.01.15 - Geräteprofile'];
+path = ['D:\Projekte\aDSM\5_Synthetische_HH_Lasten\03_Synthetische_Profile_(Rohdaten)',...
+	'\13.10.18 - Geräteprofile (Neue Austattung, f. Siedlung x 10)'];
 
 % Output wird wohingespeichert?
-save_path = [pwd,filesep,'aDSM_HH_Daten_aufbereitet_3'];
-if ~isdir(save_path)git a
+save_path = [pwd,filesep,'aDSM_HH_Daten_aufbereitet_4'];
+if ~isdir(save_path)
 	mkdir(save_path)
 end
 	
 % Einstellungen aus der Simulation:
 sim_year = 2013;
-sim_date = '16_26.14';
+sim_date = '11_07.20';
 sim_numb = 1;
 sim_reso = 'min';
 sep = ' - ';
@@ -48,10 +49,10 @@ todo = {...
 	'H2', 'home_2';...
 	'H3', 'home_3';...
 	'H4+','hom_4p';...
-	'W1', 'flat_1';...
-	'W2', 'flat_2';...
-	'W3', 'flat_3';...
-	'W4+','fla_4p';...
+% 	'W1', 'flat_1';...
+% 	'W2', 'flat_2';...
+% 	'W3', 'flat_3';...
+% 	'W4+','fla_4p';...
 	};
 for i=1:size(todo,1)
 	idx = find(strcmp(todo{i,1}, hh_aDSM_types));
@@ -61,7 +62,7 @@ for i=1:size(todo,1)
 end
 
 % Die IDs der Haushalte in der großen Simulation laden:
-idx = strcmp('ID - HH (Liste 1260)', raw(1,:));
+idx = strcmp(name_col_HH_ids, raw(1,:));
 hh_aDSM_ids = cell2mat(raw(2:end,idx));
 
 % ----------------------------------------------------------------------------------------
@@ -73,9 +74,7 @@ diary([pwd,filesep,datestr(now,'yyyy-mm-dd_HH-MM-SS'),' - Log.txt']);
 % Vektor mit allen Tagen erstellen (Neuer Beginn: 31.12.2012!):
 days = datenum(sim_year,1,1)-1:1:datenum(sim_year+1,1,1)-1;
 % Geräteklassen und Hilfsfunktionen in den Matlab-Suchpfad aufnehmen:
-Folder = pwd;
-Folder = fullfile(Folder,'..','..','Klassen');
-addpath(Folder);
+addpath([pwd,filesep,'Klassen']);
 addpath([pwd,filesep,'Hilfsfunktionen']);
 
 fprintf('\n============================');
@@ -101,12 +100,22 @@ for i=1:size(todo,1)
 	
 	% Arrays indidzieren:
 	Output = [];
+	Summary.(todo{i,2}) =[];
+	Summary.(todo{i,2}).HH_Number = 0;
 	for j=1:numel(nam)
 		Output.(nam{j}).Time_Data = zeros(...
 			numel(res{j,1}),...
 			2,...
 			tp_num*numel(days));
 		Output.(nam{j}).Device_Names = res{j,1};
+		Summary.(todo{i,2}).HH_Number = Summary.(todo{i,2}).HH_Number + 1;
+		for k=1:numel(res{j,1})
+			if isfield(Summary.(todo{i,2}), res{j,1}{k})
+				Summary.(todo{i,2}).(res{j,1}{k}) = Summary.(todo{i,2}).(res{j,1}{k}) + 1;
+			else
+				Summary.(todo{i,2}).(res{j,1}{k}) = 1;
+			end
+		end
 	end
 	
 	fprintf(['\tBearbeite Typ "',todo{i,2},'" ...\n']);
@@ -147,22 +156,14 @@ for i=1:size(todo,1)
 			for l=1:numel(id_dev)
 				% Einsatzplan auslesen:
 				oplan = res{k,4}{id_dev(l)};
+				% Geräteinstanz:
+				dev_i = res{k,2}{id_dev(l)};
 				% Gerät als erledigt markieren:
 				dev_idxs_to_do(dev_idxs_to_do == id_dev(l)) = [];
-				% Überprüfen, ob ein gültiger Einsatzplan vorliegt:
-				if size(oplan,2) < 3
-					continue;
-				end
-				% Einsatzplan abarbeiten und Einsatzzeiten eintragen:
-				for m=1:size(oplan,1)
-					% Indizes finden (jene Minuten), in denen das Gerät aktiv ist:
-					idx = find(vec >= oplan(m,1)-1 & ...
-						vec < oplan(m,2));
-					% Diese Zeitpunkte als aktiv markieren:
-					Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
-				end
-				% Überprüfen, ob Daten korrekt eingetragen wurden:
-				
+				% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist:
+				idx = find(squeeze(Output.(nam{k}).Time_Data(id_dev(l),1,(j-1)*tp_num+1:j*tp_num)) == dev_i.Power_Nominal);
+				% Aktivitätsmatrix entsprechend anpassen:
+				Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
 			end
 			
 			% nun die Geräte berarbeiten, die ein Programm abfahren (Geschirrspüler,
@@ -172,22 +173,14 @@ for i=1:size(todo,1)
 				strcmp(Output.(nam{k}).Device_Names, 'dishwa') |...
 				strcmp(Output.(nam{k}).Device_Names, 'cl_dry'));
 			for l=1:numel(id_dev)
-				% Einsatzplan auslesen:
-				oplan = res{k,4}{id_dev(l)};
+				% Geräteinstanz:
+				dev_i = res{k,2}{id_dev(l)};
 				% Gerät als erledigt markieren:
 				dev_idxs_to_do(dev_idxs_to_do == id_dev(l)) = [];
-				% Überprüfen, ob ein gültiger Einsatzplan vorliegt:
-				if size(oplan,2) < 3
-					continue;
-				end
-				% Einsatzplan abarbeiten und Einsatzzeiten eintragen:
-				for m=1:size(oplan,1)
-					% Indizes finden (jene Minuten), in denen das Gerät aktiv ist:
-					idx = find(vec >= oplan(m,1) & ...
-						vec <= oplan(m,2));
-					% Diese Zeitpunkte als aktiv markieren:
-					Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
-				end
+				% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist:
+				idx = find(squeeze(Output.(nam{k}).Time_Data(id_dev(l),1,(j-1)*tp_num+1:j*tp_num)) > 0);
+				% Aktivitätsmatrix entsprechend anpassen:
+				Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
 			end
 			
 			% Geräte für die kein Einsatzplan extrahiert wurde (z.B. weil Gerätegruppen
@@ -200,6 +193,7 @@ for i=1:size(todo,1)
 				strcmp(Output.(nam{k}).Device_Names, 'microw') | ...
 				strcmp(Output.(nam{k}).Device_Names, 'ki_mic'));
 			for l=1:numel(id_dev)
+				stby = 0;
 				% Geräteinstanzen laden
 				devs = res{k,2}{id_dev(l)};
 				% Gerät(e) als erledigt markieren:
@@ -209,43 +203,34 @@ for i=1:size(todo,1)
 					dev = devs(m);
 					% Check, ob noch ein Cell-Array vorliegt
 					if ~iscell(dev)
-						% Wenn nicht, Einzelgerät vorhanden, Einsatzplan abarbeiten
-						for n=1:size(dev.Time_Schedule_Day,1)
-							idx = find(vec >= dev.Time_Schedule_Day(n,1) & ...
-								vec <= dev.Time_Schedule_Day(n,2));
-							Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
-						end
+						% Wenn nicht, Einzelgerät vorhanden, Stand-by aufaddieren:
+						stby = stby + dev.Power_Stand_by;
 					else
 						% Falls noch ein Cell-Aray vorliegt, liegen unterschiedliche
 						% Geräteklassen vor, diese "aufdröseln":
 						d = devs{m};
 						for n=1:numel(d)
-							dev=d(n);
-							% Nun Einzelfahrplan abarbeiten:
-							for o=1:size(dev.Time_Schedule_Day,1)
-								idx = find(vec >= dev.Time_Schedule_Day(o,1) & ...
-									vec <= dev.Time_Schedule_Day(o,2));
-								Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
-							end
+							dev = d(n);
+							% Stand-by aufaddieren:
+							stby = stby + dev.Power_Stand_by;
 						end
 					end
 				end
+				% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist:
+				idx = find(squeeze(Output.(nam{k}).Time_Data(id_dev(l),1,(j-1)*tp_num+1:j*tp_num)) > stby);
+				% Aktivitätsmatrix entsprechend anpassen:
+				Output.(nam{k}).Time_Data(id_dev(l),2,(j-1)*tp_num+idx) = 1;
 			end
 			
 			% Nun noch die restlichen Geräte abarbeiten, für diese wurde bereits ein
 			% Einsatzplan extrahiert:
 			for l=1:numel(dev_idxs_to_do)
-				oplan = res{k,4}{dev_idxs_to_do(l)};
-				% Überprüfen, ob ein gültiger Einsatzplan vorliegt:
-				if size(oplan,2) < 3
-					continue;
-				end
-				% Normaler Einsatzplan vorhanden, diesen verwenden:
-				for m=1:size(oplan,1)
-					idx = find(vec >= oplan(m,1) & ...
-						vec < oplan(m,2)+1);
-					Output.(nam{k}).Time_Data(dev_idxs_to_do(l),2,(j-1)*tp_num+idx) = 1;
-				end
+				% Geräteinstanz:
+				dev_i = res{k,2}{dev_idxs_to_do(l)};
+				% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist:
+				idx = find(squeeze(Output.(nam{k}).Time_Data(dev_idxs_to_do(l),1,(j-1)*tp_num+1:j*tp_num)) > dev_i.Power_Stand_by);
+				% Aktivitätsmatrix entsprechend anpassen:
+				Output.(nam{k}).Time_Data(dev_idxs_to_do(l),2,(j-1)*tp_num+idx) = 1;
 			end
 		end
 		% Statusinfo zum Gesamtfortschritt an User:
@@ -267,6 +252,17 @@ for i=1:size(todo,1)
 		fprintf(['(ID = ',num2str(ids(k)),')\n']);
 	end
 	fprintf('\t--> erledigt!\n - - - - - - \n');
+end
+
+fprintf('Informationen zur Geräteausstattung:\n');
+for i=1:size(todo,1)
+	fprintf(['\t',todo{i,2},':\n']);
+	devs = fieldnames(Summary.(todo{i,2}));
+	devs(strcmp(devs,'HH_Number'))=[];
+	for j=1:numel(devs)
+		fprintf(['\t\t',devs{j},': ',num2str(Summary.(todo{i,2}).(devs{j})),' Geräte, '...
+			num2str(Summary.(todo{i,2}).(devs{j})*100/Summary.(todo{i,2}).HH_Number),'%%\n']);
+	end
 end
 
 diary('off');
