@@ -1,0 +1,224 @@
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('xlsread', 'C:\Program Files\MATLAB\R2015b\toolbox\matlab\iofun\xlsread.m', 132)" style="font-weight:bold">xlsread</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2015b\toolbox\matlab\iofun\xlsread.m',132,0)">line 132</a>)
+XLSREAD unable to open file
+'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx'.
+File
+'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx'
+not found.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('Step_3_allocate_household_profiles', 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\Step_3_allocate_household_profiles.m', 34)" style="font-weight:bold">Step_3_allocate_household_profiles</a> (<a href="matlab: opentoline('D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\Step_3_allocate_household_profiles.m',34,0)">line 34</a>)
+	[~,~,xls_input] = xlsread(input_lpt,sheet_name);
+} 
+Step_3_allocate_household_profiles
+===========
+Following loadprofile typs were found for "ETZ": 
+    'B1'
+    'G1'
+    'G2'
+    'G3'
+    'G4'
+    'G5'
+    'G6'
+    'G7'
+    'H0'
+    'L1'
+    'Nicht zugeordnet'
+
+-----------
+For all load profile typs a share of 100% of the yearly energy consumption of 1316.6167MWh can be realized.
+207 loadpoints of 207 can be supplied with a loadprofile.
+-----------
+For all load profile typs in "ETZ" are 
+	1 yearly energy values zero, 
+	17 values smaller than the minimal simulated energy value, 
+	7 values higher than the maximal simulated energy vaulue.
+-----------
+Starting of allocation of households.
+-------------------------------------
+Allocation for "ETZ" and for all load profile typs (all profiles)
+	Beginning with eps from 0 to 1 in 0.01 kWh steps: 42 profiles of 207 allocated.
+		Trying with combinded profiles: 145 profiles of 207 allocated.
+		Trying with extended combinded profiles: 152 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 155 profiles of 207 allocated.
+			Trying with combinded profiles: 155 profiles of 207 allocated.
+			Trying with extended combinded profiles: 155 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 164 profiles of 207 allocated.
+			Trying with combinded profiles: 165 profiles of 207 allocated.
+			Trying with extended combinded profiles: 165 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 172 profiles of 207 allocated.
+			Trying with combinded profiles: 172 profiles of 207 allocated.
+			Trying with extended combinded profiles: 172 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 174 profiles of 207 allocated.
+			Trying with combinded profiles: 175 profiles of 207 allocated.
+			Trying with extended combinded profiles: 175 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 181 profiles of 207 allocated.
+			Trying with combinded profiles: 181 profiles of 207 allocated.
+			Trying with extended combinded profiles: 181 profiles of 207 allocated.
+	Trying with eps from 1 to 10 in 0.1 kWh steps: 183 profiles of 207 allocated.
+		Trying with combinded profiles: 183 profiles of 207 allocated.
+		Trying with extended combinded profiles: 183 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 184 profiles of 207 allocated.
+			Trying with combinded profiles: 184 profiles of 207 allocated.
+			Trying with extended combinded profiles: 184 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 185 profiles of 207 allocated.
+			Trying with combinded profiles: 185 profiles of 207 allocated.
+			Trying with extended combinded profiles: 185 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 185 profiles of 207 allocated.
+			Trying with combinded profiles: 185 profiles of 207 allocated.
+			Trying with extended combinded profiles: 185 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 185 profiles of 207 allocated.
+			Trying with combinded profiles: 185 profiles of 207 allocated.
+			Trying with extended combinded profiles: 185 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 187 profiles of 207 allocated.
+			Trying with combinded profiles: 187 profiles of 207 allocated.
+			Trying with extended combinded profiles: 187 profiles of 207 allocated.
+	Trying with eps from 10 to 100 in 0.5 kWh steps: 187 profiles of 207 allocated.
+		Trying with combinded profiles: 187 profiles of 207 allocated.
+		Trying with extended combinded profiles: 187 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 187 profiles of 207 allocated.
+			Trying with combinded profiles: 187 profiles of 207 allocated.
+			Trying with extended combinded profiles: 187 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 187 profiles of 207 allocated.
+			Trying with combinded profiles: 187 profiles of 207 allocated.
+			Trying with extended combinded profiles: 187 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 189 profiles of 207 allocated.
+			Trying with combinded profiles: 189 profiles of 207 allocated.
+			Trying with extended combinded profiles: 189 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 189 profiles of 207 allocated.
+			Trying with combinded profiles: 189 profiles of 207 allocated.
+			Trying with extended combinded profiles: 189 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 190 profiles of 207 allocated.
+			Trying with combinded profiles: 190 profiles of 207 allocated.
+			Trying with extended combinded profiles: 190 profiles of 207 allocated.
+	Trying with eps from 100 to 1000 in 1 kWh steps: 207 profiles of 207 allocated.
+		Trying with combinded profiles: 207 profiles of 207 allocated.
+		Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+{Undefined function or variable 'suptitle'.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('household_allocation', 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\household_allocation.m', 95)" style="font-weight:bold">household_allocation</a> (<a href="matlab: opentoline('D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\household_allocation.m',95,0)">line 95</a>)
+suptitle(titlestr);
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('Step_3_allocate_household_profiles', 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\Step_3_allocate_household_profiles.m', 226)" style="font-weight:bold">Step_3_allocate_household_profiles</a> (<a href="matlab: opentoline('D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\Step_3_allocate_household_profiles.m',226,0)">line 226</a>)
+	[allocation, found] = household_allocation (ye_to_use, xls_input_id_to_use, Energy_information,
+    Energy_values, eps_lst, tstr, estr);
+} 
+opentoline('D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\household_allocation.m',95,0)
+household_allocation
+{Not enough input arguments.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('household_allocation', 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\household_allocation.m', 7)" style="font-weight:bold">household_allocation</a> (<a href="matlab: opentoline('D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\02_Scripts_for_Output_(Matlab)\household_allocation.m',7,0)">line 7</a>)
+allocation = cell(9,numel(ye_to_use));
+} 
+Step_3_allocate_household_profiles
+===========
+Following loadprofile typs were found for "ETZ": 
+    'B1'
+    'G1'
+    'G2'
+    'G3'
+    'G4'
+    'G5'
+    'G6'
+    'G7'
+    'H0'
+    'L1'
+    'Nicht zugeordnet'
+
+-----------
+For all load profile typs a share of 100% of the yearly energy consumption of 1316.6167MWh can be realized.
+207 loadpoints of 207 can be supplied with a loadprofile.
+-----------
+For all load profile typs in "ETZ" are 
+	1 yearly energy values zero, 
+	17 values smaller than the minimal simulated energy value, 
+	7 values higher than the maximal simulated energy vaulue.
+-----------
+Starting of allocation of households.
+-------------------------------------
+Allocation for "ETZ" and for all load profile typs (all profiles)
+	Beginning with eps from 0 to 1 in 0.01 kWh steps: 42 profiles of 207 allocated.
+		Trying with combinded profiles: 145 profiles of 207 allocated.
+		Trying with extended combinded profiles: 152 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 155 profiles of 207 allocated.
+			Trying with combinded profiles: 155 profiles of 207 allocated.
+			Trying with extended combinded profiles: 155 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 164 profiles of 207 allocated.
+			Trying with combinded profiles: 165 profiles of 207 allocated.
+			Trying with extended combinded profiles: 165 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 172 profiles of 207 allocated.
+			Trying with combinded profiles: 172 profiles of 207 allocated.
+			Trying with extended combinded profiles: 172 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 174 profiles of 207 allocated.
+			Trying with combinded profiles: 175 profiles of 207 allocated.
+			Trying with extended combinded profiles: 175 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 181 profiles of 207 allocated.
+			Trying with combinded profiles: 181 profiles of 207 allocated.
+			Trying with extended combinded profiles: 181 profiles of 207 allocated.
+	Trying with eps from 1 to 10 in 0.1 kWh steps: 183 profiles of 207 allocated.
+		Trying with combinded profiles: 183 profiles of 207 allocated.
+		Trying with extended combinded profiles: 183 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 184 profiles of 207 allocated.
+			Trying with combinded profiles: 184 profiles of 207 allocated.
+			Trying with extended combinded profiles: 184 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 185 profiles of 207 allocated.
+			Trying with combinded profiles: 185 profiles of 207 allocated.
+			Trying with extended combinded profiles: 185 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 185 profiles of 207 allocated.
+			Trying with combinded profiles: 185 profiles of 207 allocated.
+			Trying with extended combinded profiles: 185 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 185 profiles of 207 allocated.
+			Trying with combinded profiles: 185 profiles of 207 allocated.
+			Trying with extended combinded profiles: 185 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 187 profiles of 207 allocated.
+			Trying with combinded profiles: 187 profiles of 207 allocated.
+			Trying with extended combinded profiles: 187 profiles of 207 allocated.
+	Trying with eps from 10 to 100 in 0.5 kWh steps: 187 profiles of 207 allocated.
+		Trying with combinded profiles: 187 profiles of 207 allocated.
+		Trying with extended combinded profiles: 187 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 187 profiles of 207 allocated.
+			Trying with combinded profiles: 187 profiles of 207 allocated.
+			Trying with extended combinded profiles: 187 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 187 profiles of 207 allocated.
+			Trying with combinded profiles: 187 profiles of 207 allocated.
+			Trying with extended combinded profiles: 187 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 189 profiles of 207 allocated.
+			Trying with combinded profiles: 189 profiles of 207 allocated.
+			Trying with extended combinded profiles: 189 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 189 profiles of 207 allocated.
+			Trying with combinded profiles: 189 profiles of 207 allocated.
+			Trying with extended combinded profiles: 189 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 190 profiles of 207 allocated.
+			Trying with combinded profiles: 190 profiles of 207 allocated.
+			Trying with extended combinded profiles: 190 profiles of 207 allocated.
+	Trying with eps from 100 to 1000 in 1 kWh steps: 207 profiles of 207 allocated.
+		Trying with combinded profiles: 207 profiles of 207 allocated.
+		Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 95% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 90% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 85% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 80% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.
+			Trying with 75% reduced profiles: 207 profiles of 207 allocated.
+			Trying with combinded profiles: 207 profiles of 207 allocated.
+			Trying with extended combinded profiles: 207 profiles of 207 allocated.

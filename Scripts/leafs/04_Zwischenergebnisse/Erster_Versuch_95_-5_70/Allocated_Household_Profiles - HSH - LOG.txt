@@ -1,0 +1,109 @@
+===========
+Following loadprofile typs were found for "HSH": 
+    'G0'
+    'G1'
+    'G3'
+    'G4'
+    'G6'
+    'H0'
+    'HF'
+    'L0'
+    'L2'
+    'Nicht zugeordnet'
+
+-----------
+For all load profile typs a share of 100% of the yearly energy consumption of 990.526MWh can be realized.
+139 loadpoints of 139 can be supplied with a loadprofile.
+-----------
+For all load profile typs in "HSH" are 
+	2 yearly energy values zero, 
+	15 values smaller than the minimal simulated energy value, 
+	7 values higher than the maximal simulated energy vaulue.
+-----------
+Starting of allocation of households.
+-------------------------------------
+Allocation for "HSH" and for all load profile typs (all profiles)
+	Beginning with eps from 0 to 1 in 0.01 kWh steps: 31 profiles of 139 allocated.
+		Trying with combinded profiles: 104 profiles of 139 allocated.
+		Trying with extended combinded profiles: 111 profiles of 139 allocated.
+			Trying with 95% reduced profiles: 112 profiles of 139 allocated.
+			Trying with combinded profiles: 112 profiles of 139 allocated.
+			Trying with extended combinded profiles: 112 profiles of 139 allocated.
+			Trying with 90% reduced profiles: 112 profiles of 139 allocated.
+			Trying with combinded profiles: 112 profiles of 139 allocated.
+			Trying with extended combinded profiles: 112 profiles of 139 allocated.
+			Trying with 85% reduced profiles: 115 profiles of 139 allocated.
+			Trying with combinded profiles: 115 profiles of 139 allocated.
+			Trying with extended combinded profiles: 115 profiles of 139 allocated.
+			Trying with 80% reduced profiles: 117 profiles of 139 allocated.
+			Trying with combinded profiles: 117 profiles of 139 allocated.
+			Trying with extended combinded profiles: 117 profiles of 139 allocated.
+			Trying with 75% reduced profiles: 119 profiles of 139 allocated.
+			Trying with combinded profiles: 119 profiles of 139 allocated.
+			Trying with extended combinded profiles: 119 profiles of 139 allocated.
+			Trying with 70% reduced profiles: 121 profiles of 139 allocated.
+			Trying with combinded profiles: 123 profiles of 139 allocated.
+			Trying with extended combinded profiles: 123 profiles of 139 allocated.
+	Trying with eps from 1 to 10 in 0.1 kWh steps: 123 profiles of 139 allocated.
+		Trying with combinded profiles: 123 profiles of 139 allocated.
+		Trying with extended combinded profiles: 123 profiles of 139 allocated.
+			Trying with 95% reduced profiles: 125 profiles of 139 allocated.
+			Trying with combinded profiles: 125 profiles of 139 allocated.
+			Trying with extended combinded profiles: 125 profiles of 139 allocated.
+			Trying with 90% reduced profiles: 126 profiles of 139 allocated.
+			Trying with combinded profiles: 126 profiles of 139 allocated.
+			Trying with extended combinded profiles: 126 profiles of 139 allocated.
+			Trying with 85% reduced profiles: 126 profiles of 139 allocated.
+			Trying with combinded profiles: 126 profiles of 139 allocated.
+			Trying with extended combinded profiles: 126 profiles of 139 allocated.
+			Trying with 80% reduced profiles: 126 profiles of 139 allocated.
+			Trying with combinded profiles: 126 profiles of 139 allocated.
+			Trying with extended combinded profiles: 126 profiles of 139 allocated.
+			Trying with 75% reduced profiles: 127 profiles of 139 allocated.
+			Trying with combinded profiles: 127 profiles of 139 allocated.
+			Trying with extended combinded profiles: 127 profiles of 139 allocated.
+			Trying with 70% reduced profiles: 128 profiles of 139 allocated.
+			Trying with combinded profiles: 128 profiles of 139 allocated.
+			Trying with extended combinded profiles: 128 profiles of 139 allocated.
+	Trying with eps from 10 to 100 in 0.5 kWh steps: 131 profiles of 139 allocated.
+		Trying with combinded profiles: 131 profiles of 139 allocated.
+		Trying with extended combinded profiles: 131 profiles of 139 allocated.
+			Trying with 95% reduced profiles: 131 profiles of 139 allocated.
+			Trying with combinded profiles: 131 profiles of 139 allocated.
+			Trying with extended combinded profiles: 131 profiles of 139 allocated.
+			Trying with 90% reduced profiles: 131 profiles of 139 allocated.
+			Trying with combinded profiles: 131 profiles of 139 allocated.
+			Trying with extended combinded profiles: 131 profiles of 139 allocated.
+			Trying with 85% reduced profiles: 131 profiles of 139 allocated.
+			Trying with combinded profiles: 131 profiles of 139 allocated.
+			Trying with extended combinded profiles: 131 profiles of 139 allocated.
+			Trying with 80% reduced profiles: 131 profiles of 139 allocated.
+			Trying with combinded profiles: 131 profiles of 139 allocated.
+			Trying with extended combinded profiles: 131 profiles of 139 allocated.
+			Trying with 75% reduced profiles: 131 profiles of 139 allocated.
+			Trying with combinded profiles: 131 profiles of 139 allocated.
+			Trying with extended combinded profiles: 131 profiles of 139 allocated.
+			Trying with 70% reduced profiles: 131 profiles of 139 allocated.
+			Trying with combinded profiles: 131 profiles of 139 allocated.
+			Trying with extended combinded profiles: 131 profiles of 139 allocated.
+	Trying with eps from 100 to 1000 in 1 kWh steps: 139 profiles of 139 allocated.
+		Trying with combinded profiles: 139 profiles of 139 allocated.
+		Trying with extended combinded profiles: 139 profiles of 139 allocated.
+			Trying with 95% reduced profiles: 139 profiles of 139 allocated.
+			Trying with combinded profiles: 139 profiles of 139 allocated.
+			Trying with extended combinded profiles: 139 profiles of 139 allocated.
+			Trying with 90% reduced profiles: 139 profiles of 139 allocated.
+			Trying with combinded profiles: 139 profiles of 139 allocated.
+			Trying with extended combinded profiles: 139 profiles of 139 allocated.
+			Trying with 85% reduced profiles: 139 profiles of 139 allocated.
+			Trying with combinded profiles: 139 profiles of 139 allocated.
+			Trying with extended combinded profiles: 139 profiles of 139 allocated.
+			Trying with 80% reduced profiles: 139 profiles of 139 allocated.
+			Trying with combinded profiles: 139 profiles of 139 allocated.
+			Trying with extended combinded profiles: 139 profiles of 139 allocated.
+			Trying with 75% reduced profiles: 139 profiles of 139 allocated.
+			Trying with combinded profiles: 139 profiles of 139 allocated.
+			Trying with extended combinded profiles: 139 profiles of 139 allocated.
+			Trying with 70% reduced profiles: 139 profiles of 139 allocated.
+			Trying with combinded profiles: 139 profiles of 139 allocated.
+			Trying with extended combinded profiles: 139 profiles of 139 allocated.

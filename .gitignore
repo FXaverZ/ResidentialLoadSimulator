@@ -2,3 +2,5 @@
 *.xls
 *.xlsx
 *.asv
+*.mat
+*.fig

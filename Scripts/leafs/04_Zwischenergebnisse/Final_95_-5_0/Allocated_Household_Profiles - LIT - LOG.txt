@@ -1,0 +1,272 @@
+===========
+Following loadprofile typs were found for "LIT": 
+    'G1'
+    'G2'
+    'G3'
+    'H0'
+    'L1'
+
+-----------
+For all load profile typs a share of 100% of the yearly energy consumption of 251.6275MWh can be realized.
+27 loadpoints of 27 can be supplied with a loadprofile.
+-----------
+For all load profile typs in "LIT" are 
+	0 yearly energy values zero, 
+	2 values smaller than the minimal simulated energy value, 
+	2 values higher than the maximal simulated energy vaulue.
+-----------
+Starting of allocation of households.
+-------------------------------------
+Allocation for "LIT" and for all load profile typs (all profiles)
+	Beginning with eps from 0 to 1 in 0.01 kWh steps: 6 profiles of 27 allocated.
+		Trying with combinded profiles: 23 profiles of 27 allocated.
+		Trying with extended combinded profiles: 24 profiles of 27 allocated.
+			Trying with 95% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 90% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 85% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 80% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 75% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 70% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 65% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 60% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 55% reduced profiles: 25 profiles of 27 allocated.
+			Trying with combinded profiles: 25 profiles of 27 allocated.
+			Trying with extended combinded profiles: 25 profiles of 27 allocated.
+			Trying with 50% reduced profiles: 26 profiles of 27 allocated.
+			Trying with combinded profiles: 26 profiles of 27 allocated.
+			Trying with extended combinded profiles: 26 profiles of 27 allocated.
+			Trying with 45% reduced profiles: 26 profiles of 27 allocated.
+			Trying with combinded profiles: 26 profiles of 27 allocated.
+			Trying with extended combinded profiles: 26 profiles of 27 allocated.
+			Trying with 40% reduced profiles: 26 profiles of 27 allocated.
+			Trying with combinded profiles: 26 profiles of 27 allocated.
+			Trying with extended combinded profiles: 26 profiles of 27 allocated.
+			Trying with 35% reduced profiles: 26 profiles of 27 allocated.
+			Trying with combinded profiles: 26 profiles of 27 allocated.
+			Trying with extended combinded profiles: 26 profiles of 27 allocated.
+			Trying with 30% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 25% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 20% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 15% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 10% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 5% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 0% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+	Trying with eps from 1 to 10 in 0.1 kWh steps: 27 profiles of 27 allocated.
+		Trying with combinded profiles: 27 profiles of 27 allocated.
+		Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 95% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 90% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 85% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 80% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 75% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 70% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 65% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 60% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 55% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 50% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 45% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 40% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 35% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 30% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 25% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 20% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 15% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 10% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 5% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 0% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+	Trying with eps from 10 to 100 in 0.5 kWh steps: 27 profiles of 27 allocated.
+		Trying with combinded profiles: 27 profiles of 27 allocated.
+		Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 95% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 90% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 85% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 80% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 75% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 70% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 65% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 60% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 55% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 50% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 45% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 40% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 35% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 30% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 25% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 20% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 15% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 10% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 5% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 0% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+	Trying with eps from 100 to 1000 in 1 kWh steps: 27 profiles of 27 allocated.
+		Trying with combinded profiles: 27 profiles of 27 allocated.
+		Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 95% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 90% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 85% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 80% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 75% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 70% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 65% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 60% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 55% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 50% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 45% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 40% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 35% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 30% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 25% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 20% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 15% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 10% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 5% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.
+			Trying with 0% reduced profiles: 27 profiles of 27 allocated.
+			Trying with combinded profiles: 27 profiles of 27 allocated.
+			Trying with extended combinded profiles: 27 profiles of 27 allocated.

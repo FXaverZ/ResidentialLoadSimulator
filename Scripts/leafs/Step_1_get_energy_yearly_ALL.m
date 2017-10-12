@@ -1,6 +1,7 @@
 clear;
 % source_path = 'E:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
-source_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+% source_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+source_path = 'D:\Verbrauchersimulation mit DSM\Simulationsergebnisse';
 
 content = dir(source_path);
 content = struct2cell(content);
