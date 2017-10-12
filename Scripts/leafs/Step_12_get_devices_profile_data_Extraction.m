@@ -32,7 +32,7 @@ eval_id = [];
 for a=1:numel(content)
 	filename = content{a};
 	name_parts = regexp(filename, sep, 'split');
-	if strcmp(name_parts{2},'Settings.mat');
+	if strcmp(name_parts{2},'Settings.mat')
 		eval_id = name_parts{1};
 		%laden der Modelldaten:
 		load([output.dest_path,filesep,filename])
@@ -74,7 +74,7 @@ for a=1:numel(allo_sim_folders)
 	for b=1:numel(content)
 		filename = content{b};
 		name_parts = regexp(filename, sep, 'split');
-		if numel(name_parts) > 2 && strcmp(name_parts{3},'Modeldaten.mat');
+		if numel(name_parts) > 2 && strcmp(name_parts{3},'Modeldaten.mat')
 			sim_date = name_parts{1};
 			%laden der Modelldaten:
 			load([source_path,filesep,filename])
@@ -127,7 +127,8 @@ for a=1:numel(allo_sim_folders)
 				tdata = squeeze(sum(tdata,3))*Time.Base/timebase_output;
 				% Adjust the power values according to the given
 				% scale-Factor and convert to a int16 array:
-				tdata = tdata * act_allocation_numb{9,d};
+				scalefactor =  act_allocation_numb{9,d};
+				tdata = tdata * scalefactor;
 				tdata = int16(round(tdata));
 				
 				% Operationsmatrix erstellen, dazu die verschiedenen Gerätearten seperat
@@ -149,8 +150,11 @@ for a=1:numel(allo_sim_folders)
 					dev_i = res{1,2}{id_dev(e)};
 					% Gerät als erledigt markieren:
 					dev_idxs_to_do(dev_idxs_to_do == id_dev(e)) = [];
-					% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist:
-					idx = squeeze(sum(tdata(id_dev(e),:,:),2)) >= dev_i.Power_Nominal;
+					% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist
+					% (wenn in einem Zeitpunkt die Nominalleistung um 50%
+					% überschritten wird, wird der Zeitpunkt als aktiv
+					% gezählt (--> notwendig wegen Mittelwertbildung!))
+					idx = squeeze(sum(tdata(id_dev(e),:,:),2)) >= dev_i.Power_Nominal * scalefactor *0.5;
 					% Aktivitätsmatrix entsprechend anpassen:
 					oparr(id_dev(e),idx) = 1;
 				end
@@ -193,7 +197,7 @@ for a=1:numel(allo_sim_folders)
 						% Check, ob noch ein Cell-Array vorliegt
 						if ~iscell(dev)
 							% Wenn nicht, Einzelgerät vorhanden, Stand-by aufaddieren:
-							stby = stby + dev.Power_Stand_by;
+							stby = stby + dev.Power_Stand_by * scalefactor;
 						else
 							% Falls noch ein Cell-Aray vorliegt, liegen unterschiedliche
 							% Geräteklassen vor, diese "aufdröseln":
@@ -201,7 +205,7 @@ for a=1:numel(allo_sim_folders)
 							for g=1:numel(de)
 								dev = de(g);
 								% Stand-by aufaddieren:
-								stby = stby + dev.Power_Stand_by;
+								stby = stby + dev.Power_Stand_by * scalefactor;
 							end
 						end
 					end
@@ -217,7 +221,7 @@ for a=1:numel(allo_sim_folders)
 					% Geräteinstanz:
 					dev_i = res{1,2}{dev_idxs_to_do(e)};
 					% Zeitpunkte ermitteln, zu denen das Gerät aktiv ist:
-					idx = squeeze(sum(tdata(dev_idxs_to_do(e),:,:),2)) > dev_i.Power_Stand_by;
+					idx = squeeze(sum(tdata(dev_idxs_to_do(e),:,:),2)) > dev_i.Power_Stand_by * scalefactor;
 					% Aktivitätsmatrix entsprechend anpassen:
 					oparr(dev_idxs_to_do(e),idx) = 1;
 				end
@@ -271,10 +275,14 @@ for a=1:numel(allo_sim_folders)
 		fprintf('Saving data...\n');
 		fprintf('---------------------------------\n');
 		nams = fieldnames(Output);
+		time_idx_new = [];
 		for c=1:numel(nams)
-			Time_Data = Output.(nams{c}).Time_Data;
+			if isempty(time_idx_new)
+				time_idx_new = workaround_shift_timeidx(size(Output.(nams{c}).Time_Data,3),Settings.Timebase_Output);
+			end
+			Time_Data = Output.(nams{c}).Time_Data(:,:,time_idx_new);
 			Device_Names = Output.(nams{c}).Device_Names;
-			Operation_Data = Output.(nams{c}).Operation_Data;
+			Operation_Data = Output.(nams{c}).Operation_Data(:,time_idx_new);
 			Output.(nams{c}) = [];
 			save([output.dest_path,filesep,eval_id,sep,nams{c},'.mat'],'-v7.3','Device_Names','Time_Data','Operation_Data');
 			fprintf(['\t\t\t',nams{c},' saved.\n']);

@@ -111,7 +111,7 @@ for a=1:numel(allo_sim_folders)
 	for b=1:numel(content)
 		filename = content{b};
 		name_parts = regexp(filename, sep, 'split');
-		if numel(name_parts) > 2 && strcmp(name_parts{3},'Modeldaten.mat');
+		if numel(name_parts) > 2 && strcmp(name_parts{3},'Modeldaten.mat')
 			sim_date = name_parts{1};
 			%laden der Modelldaten:
 			load([source_path,filesep,filename])

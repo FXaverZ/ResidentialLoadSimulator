@@ -15,18 +15,18 @@ phase_composition_quantile = 0.999;% Given quantile, in which the power of
 % single phase power is not too high. 1 = max
 
 % MD1JFTNC - Fujitsu Laptop
-input_lpt.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
-input_fll.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
-input_tem.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
-input_simdata.path = 'F:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
-output.dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
+% input_lpt.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
+% input_fll.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
+% input_tem.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
+% input_simdata.path = 'F:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+% output.dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 
 % MD1EEZ0C - Simulationsrechner
-% input_lpt.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
-% input_fll.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
-% input_tem.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
-% input_simdata.path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
-% output.dest_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
+input_lpt.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
+input_fll.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
+input_tem.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
+input_simdata.path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+output.dest_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 
 output.dest_path_powers = 'Powers_Flexible_Loads';
 %--------------------------------------------------------------------------
@@ -133,7 +133,7 @@ idx = strcmp(xls_fll.header,input_fll.header_name);
 xls_fll.names = xls_fll.data(:,idx);
 clear a b idx
 
-% for grid_selector=1:numel(grid_names)
+for grid_selector=1:numel(grid_names)
 if ~isdir([output.dest_path,filesep,output.dest_path_powers])
 	mkdir([output.dest_path,filesep,output.dest_path_powers]);
 end
@@ -336,4 +336,4 @@ for a = 1:numel(xls_lpt.loadprofiles_typs)
 end
 fprintf('===========\n');
 diary ('off');
-% end
+end
