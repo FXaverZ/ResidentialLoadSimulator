@@ -1,11 +1,14 @@
 clear;
 
-% input_lpt.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
-input_lpt.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
+% MD1JFTNC - Fujitsu Laptop
+input_lpt.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
+output.dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 
-% output.dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
-output.dest_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
-% output.dest_path = 'E:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
+
+% MD1EEZ0C - Simulationsrechner
+% input_lpt.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
+% output.dest_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
+
 output.dest_path_powers.fixed = 'Powers_Fixed_Loads';
 output.dest_path_powers.inflex = 'Powers_Flexible_Loads';
 output.dest_path_powers.hps = 'Powers_HP_Loads';
@@ -33,8 +36,8 @@ data_typs = fields(output.dest_path_powers);
 
 % selection of the grid to be assigned:
 grid_names = {'ETZ', 'LIT', 'KOE', 'HSH'};
-grid_selector = 1;
-for grid_selector = 2:4
+grid_selector = 3;
+% for grid_selector = 1:4
 	cur_grid = grid_names{grid_selector};
 	modelload = false;
 	PV_EV = [];
@@ -67,6 +70,7 @@ for grid_selector = 2:4
 		end
 	end
 	% load ([input_allocation_path,filesep,'Allocated_Household_Profiles',sep,sheet_names{sheet_selector},'.mat']);
+	Allocation = [Allocation, Allocation_Commercial];
 	ids = [Allocation{1,:}];
 	[~, IX] = sort(ids);
 	Allocation_Sort = Allocation(:,IX);
@@ -91,11 +95,11 @@ for grid_selector = 2:4
 	
 	number_categories  = numel(output_col_headers)-1;
 	
-	Loadprofiles_Data = zeros(...
+	Loadprofiles_Data = int16(zeros(...
 		numel(time),...
-		size(Allocation_Sort,2)*number_categories*3+2);
+		size(Allocation_Sort,2)*number_categories*3+2));
 	
-	Loadprofiles_Data(:,1) = time;
+	Loadprofiles_Data(:,1) = int16(time);
 	clear time;
 	
 	Loadprofiles_Header = cell(3,size(Loadprofiles_Data,2));
@@ -107,8 +111,15 @@ for grid_selector = 2:4
 	Loadprofiles_Header{3,2} = '';
 	
 	for a = 1:size(Allocation_Sort,2)
-		ID = cell2mat(Allocation_Sort{1,a});
-		fprintf(['\t',ID,': ']);
+		try
+			ID = cell2mat(Allocation_Sort(1,a));
+		catch
+			ID = cell2mat(Allocation_Sort{1,a});
+		end
+		
+		sumload = int16(zeros(size(Loadprofiles_Data,1),3));
+		
+		fprintf(['\t',ID,': \n']);
 		load([output.dest_path,filesep,output.dest_path_powers.fixed,...
 			filesep,simtimeid.fixed,sep,ID,sep,'Overall_Power.mat']);
 		for b = 1:size(Allocation_Sort,1)
@@ -128,23 +139,26 @@ for grid_selector = 2:4
 			Loadprofiles_Header{3,2+(a-1)*number_categories*3+(b-1)*3+2}='L2';
 			Loadprofiles_Header{3,2+(a-1)*number_categories*3+(b-1)*3+3}='L3';
 		end
-		Loadprofiles_Data(:,(a-1)*number_categories*3+(3:5))=Loadprofile/1000;
-		pr_energy = sum(sum(Loadprofile*Settings.Timebase_Output/(60*60*1000)));
-		fprintf(['Fixed Load (',num2str(pr_energy/1000),' MWh); ']);
+		Loadprofiles_Data(:,(a-1)*number_categories*3+(3:5))=Loadprofile;
+		sumload = sumload + Loadprofile;
+		pr_energy = sum(sum(double(Loadprofile)*Settings.Timebase_Output/(60*60*1000)));
+		fprintf(['\t\tFixed Load (',num2str(pr_energy/1000),' MWh); ']);
 		filename = [output.dest_path,filesep,output.dest_path_powers.inflex,...
 			filesep,simtimeid.inflex,sep,ID,sep,'Overall_Power.mat'];
 		if exist(filename, 'file') == 2
 			load(filename);
-			Loadprofiles_Data(:,(a-1)*number_categories*3+(6:8))=Loadprofile/1000;
-			pr_energy = sum(sum(Loadprofile*Settings.Timebase_Output/(60*60*1000)));
+			Loadprofiles_Data(:,(a-1)*number_categories*3+(6:8))=Loadprofile;
+			sumload = sumload + Loadprofile;
+			pr_energy = sum(sum(double(Loadprofile)*Settings.Timebase_Output/(60*60*1000)));
 			fprintf(['Flexible Load (',num2str(pr_energy/1000),' MWh); ']);
 		end
 		filename = [output.dest_path,filesep,output.dest_path_powers.hps,...
 			filesep,simtimeid.hps,sep,ID,sep,'Overall_Power.mat'];
 		if exist(filename, 'file') == 2
 			load(filename);
-			Loadprofiles_Data(:,(a-1)*number_categories*3+(9:11))=Loadprofile/1000;
-			pr_energy = sum(sum(Loadprofile*Settings.Timebase_Output/(60*60*1000)));
+			Loadprofiles_Data(:,(a-1)*number_categories*3+(9:11))=Loadprofile;
+			sumload = sumload + Loadprofile;
+			pr_energy = sum(sum(double(Loadprofile)*Settings.Timebase_Output/(60*60*1000)));
 			fprintf(['Heat Pumps (',num2str(pr_energy/1000),' MWh); ']);
 		end
 		if isempty(PV_EV)
@@ -160,13 +174,20 @@ for grid_selector = 2:4
 		ev_energy = sum(sum(PV_EV.Loadprofiles_Data(:,idx+(3:5))))*Settings.Timebase_Output/(60*60);
 		pv_energy = sum(sum(PV_EV.Loadprofiles_Data(:,idx+(0:2))))*Settings.Timebase_Output/(60*60);
 		if ev_energy > 0
-			Loadprofiles_Data(:,(a-1)*number_categories*3+(12:14)) = PV_EV.Loadprofiles_Data(:,idx+(3:5));
+			Loadprofiles_Data(:,(a-1)*number_categories*3+(12:14)) = int16(round(PV_EV.Loadprofiles_Data(:,idx+(3:5))*1000));
+			sumload = sumload + Loadprofiles_Data(:,(a-1)*number_categories*3+(12:14));
 			fprintf(['EV (',num2str(ev_energy/1000),' MWh); ']);
 		end
 		if pv_energy < 0
-			Loadprofiles_Data(:,(a-1)*number_categories*3+(15:17)) = PV_EV.Loadprofiles_Data(:,idx+(0:2));
+			Loadprofiles_Data(:,(a-1)*number_categories*3+(15:17)) = int16(round(PV_EV.Loadprofiles_Data(:,idx+(0:2))*1000));
 			fprintf(['PV Infeed (',num2str(pv_energy/1000),' MWh); ']);
-		end
+		end 
+		fprintf(['\n\t\tOverall load energy: ',num2str(sum(sum(double(sumload)*Settings.Timebase_Output/(60*60*1000*1000)))),'MWh; ']);
+		fprintf(['max. power: ',num2str(max(max(sumload))),'W; ']);
+		max_diff_phase = max(max(sumload,[],2) - min(sumload,[],2));
+		fprintf([' max. phase difference: ',num2str(max_diff_phase),'W; ']);
+		max_diff_phase = quantile(max(sumload,[],2) - min(sumload,[],2),0.99);
+		fprintf([' max. phase difference (99%%-quantile): ',num2str(max_diff_phase),'W']);
 		fprintf('\n');
 	end
 	fprintf('--------------\n');
@@ -177,5 +198,5 @@ for grid_selector = 2:4
 	fprintf('===============\n');
 	fprintf('\n');
 	diary off;
-end
+% end
 

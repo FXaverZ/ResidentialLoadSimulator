@@ -3,17 +3,17 @@ clear;
 % Settings
 %--------------------------------------------------------------------------
 % input_lpt = 'D:\Projekte\Leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-09-20_load_types_anonymised.xls';
-input_lpt = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
-% input_lpt = 'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
+% input_lpt = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
+input_lpt = 'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
 % input_simdata_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
-input_simdata_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+% input_simdata_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+input_simdata_path = 'G:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
 % input_simdata_path = 'D:\Verbrauchersimulation mit DSM\Simulationsergebnisse';
 % input_simdata_path = 'D:\Projekte_Stuff\leafs\01_Simulation_Data\Household_Simulation\00_RAW_Data';
 
-% Input_LPTs_to_use = {'H0','L0','L1','L2'};
-% Input_LPTs_to_use = {'H0'};
-output_dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
+% output_dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 % output_dest_path = 'D:\Projekte_Stuff\leafs\01_Simulation_Data\Household_Simulation\01_Output_final';
+output_dest_path = 'G:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 %--------------------------------------------------------------------------
 % General Information
 %--------------------------------------------------------------------------
@@ -46,7 +46,9 @@ eps_lst = [...
 %==========================================================================
 addpath([pwd,filesep,'01_Hilfsfunktionen']);
 for sheet_selector = 1:4
-	Input_LPTs_to_use = {'All'};
+% 	Input_LPTs_to_use = {'H0','L0','L1','L2'};
+	Input_LPTs_to_use = {'H0', 'ALTENHEIM'};
+% 	Input_LPTs_to_use = {'All'};
 %--------------------------------------------------------------------------
 % Read in Excel-configuration information
 %--------------------------------------------------------------------------
@@ -140,7 +142,7 @@ for sheet_selector = 1:4
 	Evaluation.Possible_Number_Loadpoints = numel(idx_lpt_to_use);
 %--------------------------------------------------------------------------
 % Get the yearly energy consumption values for the relevant loads defined by
-%loadprofile typ to be considered:
+% loadprofile typ to be considered:
 %--------------------------------------------------------------------------
 	ye_to_use = xls_input_ye(idx_lpt_to_use);
 	xls_input_id_to_use = xls_input_id_to_use(idx_lpt_to_use);

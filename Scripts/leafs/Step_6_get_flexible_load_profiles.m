@@ -8,24 +8,26 @@ Timebase_Number_Days = 365;
 % Which input data should be used?
 % input_selector = 'As simulated';
 input_selector = 'Without flexible loads';
+max_power_single_phase = 2300; %max power for single phase operation
+% between the phases in W
+phase_composition_quantile = 0.999;% Given quantile, in which the power of
+% the single phases are obsorved an it it is tryed to ensure, that the
+% single phase power is not too high. 1 = max
 
-input_lpt.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
-% input_lpt.path = 'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
-% input_lpt.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
-input_fll.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
-% input_fll.path = 'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
-% input_fll.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
-input_tem.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
-% input_tem.path = 'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
-% input_tem.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
+% MD1JFTNC - Fujitsu Laptop
+input_lpt.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-12-06_load_types_anonymised_FZ.xlsx';
+input_fll.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
+input_tem.path = 'D:\Projekte\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
+input_simdata.path = 'F:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+output.dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 
-input_simdata.path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
-% input_simdata.path = 'E:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+% MD1EEZ0C - Simulationsrechner
+% input_lpt.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-15_load_types_anonymised_FZ.xlsx';
+% input_fll.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2016-11-23_Zusammenstellung_Flex_Loads.xlsx';
+% input_tem.path = 'D:\leafs\leafs_4Sync\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\2014-01-01_Termperaturdaten_2014.xlsx';
+% input_simdata.path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\00_RAW_Data';
+% output.dest_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 
-output.dest_path = 'D:\leafs\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
-% output.dest_path = 'E:\Projekte\leafs\Inhalte\02_Durchfuehrung\03_WP3\Task3.2_synthetic_Profiles\01_Output_final';
-% output.dest_path = 'D:\Projekte\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
-% output.dest_path = 'E:\leafs_only_Data_not4Sync\01_Simulation_Data\Household_Simulation\01_Output_final';
 output.dest_path_powers = 'Powers_Flexible_Loads';
 %--------------------------------------------------------------------------
 % General Information
@@ -38,7 +40,7 @@ input_tem.sheet_name = 'Temperaturen';
 
 % selection of the grid to be assigned:
 grid_names = {'ETZ', 'LIT', 'KOE', 'HSH'};
-grid_selector = 2;
+grid_selector = 3;
 
 input_lpt.header_row   = 2; %Row, in which the header information can be found
 input_lpt.data_cut_row = 4; %From this row on, the data in the input excel can be found!
@@ -79,7 +81,8 @@ Settings.Eps_Lst = eps_lst;
 
 addpath([pwd,filesep,'01_Hilfsfunktionen']);
 eval_time = now;
-eval_id = datestr(eval_time,'yyyy-mm-dd_HH.MM.SS');
+% eval_id = datestr(eval_time,'yyyy-mm-dd_HH.MM.SS');
+eval_id = '2017-01-12_13.48.34';
 output_year_number = datenum('2014','yyyy');
 
 % Prepare a temperature profile:
@@ -130,7 +133,7 @@ idx = strcmp(xls_fll.header,input_fll.header_name);
 xls_fll.names = xls_fll.data(:,idx);
 clear a b idx
 
-for grid_selector=1:numel(grid_names)
+% for grid_selector=1:numel(grid_names)
 if ~isdir([output.dest_path,filesep,output.dest_path_powers])
 	mkdir([output.dest_path,filesep,output.dest_path_powers]);
 end
@@ -279,7 +282,7 @@ for a = 1:numel(xls_lpt.loadprofiles_typs)
 			else
 				ontime = flexload_runtimelist2ontime(runtimes(3:end),timepoints);
 				[Energy_information, Energy_values] = ...
-					flexload_allocatoin_get_profile_energy(input_simdata.path, sep, ...
+					flexload_allocatoin_get_profile_energy(input_simdata, sep, ...
 					input_selector, Timebase_Output, ontime);
 				save(filename,'-v7.3',...
 					'input_selector','Energy_information','Energy_values',...
@@ -291,6 +294,8 @@ for a = 1:numel(xls_lpt.loadprofiles_typs)
 				xls_lpt.id_to_use(a), Energy_information, Energy_values, eps_lst, tstr, estr, 0);
 			fprintf(['Profile with ',num2str(Allocation{8,1}),...
 				'%% error found (',num2str(Allocation{6,1}),'kW for ',num2str(xls_lpt.annual_energy{a}),'kW) ']);
+			Settings.max_power_single_phase = max_power_single_phase;
+			Settings.phase_composition_quantile = phase_composition_quantile;
 			
 			get_loadprofiles(Allocation, 0, sep, eval_id, input_simdata.path, ...
 				output.dest_path, output.dest_path_powers, Settings, []);
@@ -319,6 +324,10 @@ for a = 1:numel(xls_lpt.loadprofiles_typs)
 	end
 	if ~isempty(Loadprofile)
 		Load_ID = xls_lpt.id_to_use{a};
+		
+		Loadprofile = round(Loadprofile);
+		Loadprofile = int16(Loadprofile);
+		
 		filename = [output.dest_path,filesep,output.dest_path_powers,filesep,eval_id,sep,Load_ID,sep,'Overall_Power.mat'];
 		save(filename,'Loadprofile','Load_ID','Source');
 		fprintf('File saved! ');
@@ -327,4 +336,4 @@ for a = 1:numel(xls_lpt.loadprofiles_typs)
 end
 fprintf('===========\n');
 diary ('off');
-end
+% end
