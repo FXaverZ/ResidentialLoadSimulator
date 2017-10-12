@@ -4,7 +4,7 @@ function ontime = flexload_runtimelist2ontime(runtimelist, timepoints)
 
 ontime = zeros(size(timepoints));
 for a=1:4:numel(runtimelist)
-	if isnan(runtimelist{a})
+	if isempty(runtimelist{a}) || isnan(runtimelist{a})
 		return;
 	end
 	daylist = (runtimelist{a}:1:runtimelist{a+1});

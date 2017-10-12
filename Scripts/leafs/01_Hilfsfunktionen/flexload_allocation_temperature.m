@@ -4,9 +4,11 @@ function loadprofile = flexload_allocation_temperature(energy, runtimelist, ...
 %   energy in kWh, timebase in Seconds
 %   Detailed explanation goes here
 
-temp_cut_off = 5;
-delta_time_max_energy = 60 * 60; %how much time should be left in off state in seconds, also at the most cold day
-max_power_single_phase = 4000; %max power for single phase operation in W
+temp_cut_off = 15;
+delta_time_max_energy = 2 * 60 * 60; %how much time should be left in off state in seconds, also at the most cold day
+max_power_single_phase = 2300; %max power for single phase operation in W
+power_factor = 2/3;
+power_stepsize = 2500; %stepsize of the used power values
 
 ontime = flexload_runtimelist2ontime(runtimelist, timepoints);
 ontime_day = reshape(ontime,1440,[]);
@@ -22,8 +24,12 @@ idx_max_factor = find(factor_day == max_factor);
 ontime_max = ontime_day(idx_max_factor) - delta_time_max_energy;
 
 power = energy_day(idx_max_factor)/ontime_max;
-% Power in 100W steps:
-power = round(power/100)*100;
+% Power in "power_stepsize" steps and a possible reduction factor:
+if power > power_stepsize
+power = round(power*power_factor/power_stepsize)*power_stepsize;
+else
+	power = power*power_factor;
+end
 
 runtime_day = (energy_day / power) / timebase;
 delta_ontime = ontime - [ontime(end);ontime(1:end-1)];

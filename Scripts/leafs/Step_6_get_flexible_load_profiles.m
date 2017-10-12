@@ -326,7 +326,7 @@ for a = 1:numel(xls_lpt.loadprofiles_typs)
 		Load_ID = xls_lpt.id_to_use{a};
 		
 		Loadprofile = round(Loadprofile);
-		Loadprofile = int16(Loadprofile);
+		Loadprofile = int32(Loadprofile);
 		
 		filename = [output.dest_path,filesep,output.dest_path_powers,filesep,eval_id,sep,Load_ID,sep,'Overall_Power.mat'];
 		save(filename,'Loadprofile','Load_ID','Source');

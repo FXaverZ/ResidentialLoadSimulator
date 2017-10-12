@@ -4,6 +4,8 @@ function get_loadprofiles(Allocation, write_output, sep, eval_id, input_simdata_
 %   Detailed explanation goes here
 
 input_selector = Settings.Input_Selector;
+phase_composition_quantile = Settings.phase_composition_quantile;
+max_difference_power_phase = Settings.max_power_single_phase; 
 
 % Adopt the allocation: resolve mulitple entries:
 Allocation_resolved = cell(9,0);
@@ -20,7 +22,7 @@ for a=1:size(Allocation,2)
 			end
 		end
 	else
-		Allocation_resolved{1,end+1} = Allocation{1,a}; 
+		Allocation_resolved{1,end+1} = Allocation{1,a};
 		for c=2:9
 			Allocation_resolved{c,end} = Allocation{c,a};
 		end
@@ -78,7 +80,7 @@ end
 % operate over all power-outputs and get the profiles
 %--------------------------------------------------------------------------
 if write_output
-disp('-------------------');
+	disp('-------------------');
 end
 for a = 1:to_do.num_sf
 	sfsnam = ['Sim_folder_',num2str(a)];
@@ -171,10 +173,43 @@ for a = 1:to_do.num_sf
 			end
 			Load_ID = cell2mat(ids{c});
 			filename = [output_dest_path,filesep,output_dest_powers,filesep,eval_id,sep,Load_ID,sep,'Overall_Power.mat'];
+			Loadprofile = round(Loadprofile);
+			Loadprofile = int32(Loadprofile);
 			if exist(filename, 'file') == 2
+				permute = 0;
+				permute_success = 0;
 				Loadprofile_add = Loadprofile;
 				load(filename);
-				Loadprofile = Loadprofile + Loadprofile_add; %#ok<NASGU>
+				% Check, if a single phase power is exceeded:
+				permutes = [...
+					1,2,3;...
+					2,3,1;...
+					3,1,2;...
+					2,1,3;...
+					2,3,1;...
+					3,2,1;...
+					];
+				max_powers_per_permutation = zeros(size(permutes,1),1);
+				for d = 1:size(permutes,1)
+					Loadprofile_temp = Loadprofile + Loadprofile_add(:,permutes(d,:));
+					max_diff_phase = quantile(max(Loadprofile_temp,[],2) - min(Loadprofile_temp,[],2),phase_composition_quantile);
+					max_powers_per_permutation(d) = max_diff_phase;
+					if max_diff_phase > max_difference_power_phase
+						permute = 1;
+					else
+						permute_success = 1;
+						break;
+					end
+				end
+				% if no suitable permutation was found, use at least the
+				% one, with the smallest power difference between the
+				% phases:
+				if ~permute_success
+					idx = find(max_powers_per_permutation == min(max_powers_per_permutation),1);
+					Loadprofile_temp = Loadprofile + Loadprofile_add(:,permutes(idx,:));
+					max_diff_phase = quantile(max(Loadprofile_temp,[],2) - min(Loadprofile_temp,[],2),phase_composition_quantile);
+				end
+				Loadprofile = Loadprofile_temp; %#ok<NASGU>
 			end
 			if isempty(Source)
 				unique = true;
@@ -196,11 +231,23 @@ for a = 1:to_do.num_sf
 			save(filename,...
 				'Loadprofile','Load_ID','Source');
 			if write_output
-			if unique
-				disp(['Saved   ',Load_ID, ' (Typ "',act_hh,'" from Folder "',simfname,'").']);
-			else
-				disp(['Updated ',Load_ID, ' (Typ "',act_hh,'" from Folder "',simfname,'").']);
-			end
+				if unique
+					fprintf(['Saved   ',Load_ID, ' (Typ "',act_hh,'" from Folder "',simfname,'").\n']);
+				else
+					fprintf(['Updated ',Load_ID, ' (Typ "',act_hh,'" from Folder "',simfname,'")']);
+					if permute
+						fprintf(': Phase Power Violation!');
+						if permute_success
+							fprintf([' Solved via permutation [',num2str(permutes(d,:)),']']);
+						else
+							fprintf([' Used minimal phase difference [',num2str(permutes(idx,:)),']']);
+						end
+						fprintf([' (max. Phase difference: ',num2str(max_diff_phase),'W).\n']);
+					else
+						fprintf('.\n');
+					end
+					
+				end
 			end
 		end
 	end

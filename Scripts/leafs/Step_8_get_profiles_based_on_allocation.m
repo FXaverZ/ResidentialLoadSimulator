@@ -98,7 +98,7 @@ for sheet_selector=1:4
 		end
 		
 		Loadprofile = round(Loadprofile);
-		Loadprofile = int16(Loadprofile);
+		Loadprofile = int32(Loadprofile);
 		
 		Source.Allocation = Allocation{:,a};
 		Source.Settings = Settings;

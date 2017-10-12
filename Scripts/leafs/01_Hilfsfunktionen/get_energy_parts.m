@@ -117,23 +117,12 @@ for i=1:Model.Number_Runs
 					idx_devs_flex = idx_devs_flex | strcmp(devs, Dev_4Flex_Output{m});
 				end
 								
-				ene = cell2mat(Result.(act_hh_typ)(l,5));
-				ene_hps = sum(ene(idx_devs_energy));
-				ene_ifl = sum(ene(idx_devs_flex));
-				ene_fle = sum(ene(~idx_devs_flex));
-				Energy_Day_HPs.(act_hh_typ)(j,(i-1)*act_hh_num+l) = ene_hps;
-				Energy_Day_Flex.(act_hh_typ)(j,(i-1)*act_hh_num+l) = ene_fle;
-				Energy_Day_InFlex.(act_hh_typ)(j,(i-1)*act_hh_num+l) = ene_ifl;
-				ene_hps = sum(ene(idx_devs_energy))+ Energy_HPs.(act_hh_typ)((i-1)*act_hh_num+l);
-				ene_fle = sum(ene(~idx_devs_flex))+ Energy_InFlex.(act_hh_typ)((i-1)*act_hh_num+l);
-				ene_ifl = sum(ene(idx_devs_flex))+ Energy_InFlex.(act_hh_typ)((i-1)*act_hh_num+l);
-				Energy_HPs.(act_hh_typ)((i-1)*act_hh_num+l) = ene_hps;
-				Energy_InFlex.(act_hh_typ)((i-1)*act_hh_num+l) = ene_ifl;
-				Energy_Flex.(act_hh_typ)((i-1)*act_hh_num+l) = ene_fle;
-				
 				pow = cell2mat(Result.(act_hh_typ)(l,3));
 				pow = pow(:,:,1:end-1);
 				for m=1:size(pow,1)
+% 					dev_typ = Result.(act_hh_typ){k,1}{m};
+% Maybe add here some adaption of the profiles depending on devices. e.g.
+% remove start-tip of refigerators a.s.o.
 					for n=0:2
 						powp = squeeze(pow(m,n+1,:));
 						powp = reshape(powp,Timebase_Output/Time.Base,[]);
@@ -158,6 +147,21 @@ for i=1:Model.Number_Runs
 						clear powpfl powpif powphp
 					end
 				end
+				
+				ene = cell2mat(Result.(act_hh_typ)(l,5));
+				ene_hps = sum(ene(idx_devs_energy));
+				ene_ifl = sum(ene(idx_devs_flex));
+				ene_fle = sum(ene(~idx_devs_flex));
+				Energy_Day_HPs.(act_hh_typ)(j,(i-1)*act_hh_num+l) = ene_hps;
+				Energy_Day_Flex.(act_hh_typ)(j,(i-1)*act_hh_num+l) = ene_fle;
+				Energy_Day_InFlex.(act_hh_typ)(j,(i-1)*act_hh_num+l) = ene_ifl;
+				ene_hps = sum(ene(idx_devs_energy))+ Energy_HPs.(act_hh_typ)((i-1)*act_hh_num+l);
+				ene_fle = sum(ene(~idx_devs_flex))+ Energy_InFlex.(act_hh_typ)((i-1)*act_hh_num+l);
+				ene_ifl = sum(ene(idx_devs_flex))+ Energy_InFlex.(act_hh_typ)((i-1)*act_hh_num+l);
+				Energy_HPs.(act_hh_typ)((i-1)*act_hh_num+l) = ene_hps;
+				Energy_InFlex.(act_hh_typ)((i-1)*act_hh_num+l) = ene_ifl;
+				Energy_Flex.(act_hh_typ)((i-1)*act_hh_num+l) = ene_fle;
+				
 			end
 			if j == 1
 				fprintf([...

@@ -6,8 +6,9 @@ function loadprofile = flexload_allocation_power (energy, runtimelist, ...
 
 % temp_cut_off = 5;
 delta_time_max_energy = 60 * 60; %how much time should be left in off state in seconds, also at the most cold day
-max_power_single_phase = 4000; %max power for single phase operation in W
-factor_power_input_to_reality = 0.8; %how much power should be used of the given value in the input file?
+max_power_single_phase = 2300; %max power for single phase operation in W
+power_factor = 2/3;
+factor_power_input_to_reality = 0.8 * power_factor; %how much power should be used of the given value in the input file?
 
 power = factor_power_input_to_reality * power * 1000; % real used power in W
 energy = energy * 1000 * 60 * 60;  % energy in Ws;

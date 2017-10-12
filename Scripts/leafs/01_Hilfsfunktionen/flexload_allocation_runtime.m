@@ -3,7 +3,7 @@ function loadprofile = flexload_allocation_runtime(energy, runtimelist, timepoin
 % FLEXLOAD_ALLOCATION_RUNTIME Summary of this function goes here
 %   Detailed explanation goes here
 
-max_power_single_phase = 4000; %max power for single phase operation in W
+max_power_single_phase = 2300; %max power for single phase operation in W
 
 ontime = flexload_runtimelist2ontime(runtimelist, timepoints);
 

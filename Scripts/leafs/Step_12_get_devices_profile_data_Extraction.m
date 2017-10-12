@@ -126,10 +126,10 @@ for a=1:numel(allo_sim_folders)
 				tdata = reshape(tdata,size(tdata,1),size(tdata,2),timebase_output/Time.Base,[]);
 				tdata = squeeze(sum(tdata,3))*Time.Base/timebase_output;
 				% Adjust the power values according to the given
-				% scale-Factor and convert to a int16 array:
+				% scale-Factor and convert to a int32 array:
 				scalefactor =  act_allocation_numb{9,d};
 				tdata = tdata * scalefactor;
-				tdata = int16(round(tdata));
+				tdata = int32(round(tdata));
 				
 				% Operationsmatrix erstellen, dazu die verschiedenen Gerätearten seperat
 				% behandeln:
