@@ -13,7 +13,7 @@ path = ['D:\Projekte_Stuff (soll nicht auf Server oder ist schon auf Server)',..
 
 % Output wird wohingespeichert?
 save_path = [pwd,filesep,'aDSM_HH_Daten_aufbereitet_3'];
-if ~isdir(save_path)
+if ~isdir(save_path)git a
 	mkdir(save_path)
 end
 	
