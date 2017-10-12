@@ -1,0 +1,78 @@
+===========
+Following loadprofile typs were found for "HSH": 
+    'G0'
+    'G1'
+    'G3'
+    'G4'
+    'G6'
+    'H0'
+    'HF'
+    'L0'
+    'L2'
+    'Nicht zugeordnet'
+
+-----------
+For load profile typs "G0", "G1", "G3", "G4", "G6", "HF", "L0", "L2" and "Nicht zugeordnet" a share of 64.423% of the yearly energy consumption of 990.526MWh can be realized.
+56 loadpoints of 139 can be supplied with a loadprofile.
+-----------
+Starting allocation of commercial loads.
+----------------------------------------
+	HSH-002: G1 (123740 kWh)
+	HSH-003: G1 (3945 kWh)
+	HSH-011: L0 (1919 kWh)
+	HSH-012: G0 (3466 kWh)
+	HSH-015: L0 (7861 kWh)
+	HSH-016: L0 (1400 kWh)
+	HSH-019: G0 (1346 kWh)
+	HSH-020: G0 (8123 kWh)
+	HSH-021: G0 (3431 kWh)
+	HSH-022: HF (3355 kWh)
+	HSH-027: L0 (52804 kWh)
+	HSH-029: G0 (9886 kWh)
+	HSH-030: G1 (3190 kWh)
+	HSH-032: L0 (9979 kWh)
+	HSH-038: G0 (1311 kWh)
+	HSH-039: G0 (1586 kWh)
+	HSH-041: L0 (4812 kWh)
+	HSH-053: G1 (1014 kWh)
+	HSH-055: G1 (38452 kWh)
+	HSH-059: Yearly energy = 0! (Nicht zugeordnet)
+	HSH-060: L0 (7141 kWh)
+	HSH-074: Yearly energy = 0! (Nicht zugeordnet)
+	HSH-078: L0 (18 kWh)
+	HSH-079: L0 (5720 kWh)
+	HSH-080: G1 (5992 kWh)
+	HSH-081: G3 (311 kWh)
+	HSH-082: HF (1603 kWh)
+	HSH-083: HF (2130 kWh)
+	HSH-084: HF (3386 kWh)
+	HSH-086: G0 (261 kWh)
+	HSH-087: G0 (1108 kWh)
+	HSH-088: G1 (58447 kWh)
+	HSH-089: G4 (2035 kWh)
+	HSH-090: G6 (8534 kWh)
+	HSH-091: G6 (20770 kWh)
+	HSH-093: L0 (18074 kWh)
+	HSH-095: G0 (989 kWh)
+	HSH-096: G0 (18304 kWh)
+	HSH-097: G0 (7835 kWh)
+	HSH-101: L0 (2809 kWh)
+	HSH-103: G0 (4604 kWh)
+	HSH-106: L0 (4358 kWh)
+	HSH-110: G0 (4604 kWh)
+	HSH-111: G1 (1586 kWh)
+	HSH-112: G1 (1023 kWh)
+	HSH-119: L0 (3134 kWh)
+	HSH-120: L0 (18811 kWh)
+	HSH-121: G0 (11531 kWh)
+	HSH-122: L2 (6913 kWh)
+	HSH-123: G0 (49 kWh)
+	HSH-126: L0 (3852 kWh)
+	HSH-129: G6 (4545 kWh)
+	HSH-130: G6 (58257 kWh)
+	HSH-132: L0 (3036 kWh)
+	HSH-133: L0 (26760 kWh)
+	HSH-134: L0 (37977 kWh)
+===========
+Saved "Allocated_Commercial_Profiles - HSH.mat"
+===========
