@@ -226,7 +226,7 @@ function push_cancel_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 if handles.new_data
 	user_response = questdlg('Sollen die Änderungen übernommen werden?',...
 		'Änderungen übernehmen?',...
-		'Ja', 'Abbrechen', 'Abbrechen');
+		'Ja', 'Nein', 'Nein');
 	switch lower(user_response)
 		case 'ja'
 			% aktuelle Erzeugerstruktur in Output schreiben.

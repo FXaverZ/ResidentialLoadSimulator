@@ -1,21 +1,19 @@
 function handles = get_data_solar (handles)
 %GET_DATA_SOLAR    extrahiert und simuliert die Einspeise-Daten der Solaranlagen
 
-% Franz Zeilinger - 04.07.2012
+% Erstellt von:            Franz Zeilinger - 04.07.2012
+% Letzte Änderung durch:   Franz Zeilinger - 16.08.2012
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
 db_fil = settin.Database;  % Datenbankstruktur
-if isfield (handles, 'Result')
-	Result = handles.Result; % Ergebnisstruktur
-end
 max_num_data_set = db_fil.setti.max_num_data_set*6; % Anzahl an Datensätzen in einer
-% Teildatei --> da im Fall von
-% Wetterdaten nur eine Spalte pro
-% Zeitreihe (im Gegensatz zu
-% sechs bei den Haushalten)
-% benötigt wird, die Anzahl
-% entsprechend erhöhen...
+%                                                     Teildatei --> da im Fall von
+%                                                     Wetterdaten nur eine Spalte pro
+%                                                     Zeitreihe (im Gegensatz zu
+%                                                     sechs bei den Haushalten)
+%                                                     benötigt wird, die Anzahl
+%                                                     entsprechend erhöhen...
 sep = db_fil.files.sep;    % Trenner im Dateinamen (' - ')
 
 % die aktuellen Zeitdaten (Jahreszeit, Wochentag) auslesen:
@@ -24,10 +22,10 @@ season = system.seasons{settin.Season,1};
 % zeitliche Auflösung ermitteln:
 time_res = system.time_resolutions{settin.Data_Extract.Time_Resolution,2};
 % Ergebnis-Arrays initialisieren:
-Result.Solar.Data_Sample = [];
-Result.Solar.Data_Mean = [];
-Result.Solar.Data_Min = [];
-Result.Solar.Data_Max = [];
+Solar.Data_Sample = [];
+Solar.Data_Mean = [];
+Solar.Data_Min = [];
+Solar.Data_Max = [];
 
 % Gesamtanzahl der zu simulierenden Anlagen ermitteln:
 plants = fieldnames(handles.Current_Settings.Sola);
@@ -44,7 +42,7 @@ end
 % Überprüfen, ob überhaupt PV-Erzeugungsanlagen verarbeitet werden sollen:
 if number_plants == 0
 	% (leeres) Ergebnis zurückschreiben:
-	handles.Result = Result;
+	handles.Result.Solar = Solar;
 	% Funktion beenden:
 	return;
 end
@@ -177,7 +175,7 @@ for i=1:numel(plants)
 	if settin.Data_Extract.get_Sample_Value
 		data_sample = data_phase(1:time_res:end,:);
 		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-		Result.Solar.Data_Sample = [Result.Solar.Data_Sample,...
+		Solar.Data_Sample = [Solar.Data_Sample,...
 			data_sample];
 	end
 	if settin.Data_Extract.get_Mean_Value || ...
@@ -197,9 +195,9 @@ for i=1:numel(plants)
 		data_min = squeeze(min(data_mean));
 		data_max = squeeze(max(data_mean));
 		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-		Result.Solar.Data_Min = [Result.Solar.Data_Min,...
+		Solar.Data_Min = [Solar.Data_Min,...
 			data_min];
-		Result.Solar.Data_Max = [Result.Solar.Data_Max,...
+		Solar.Data_Max = [Solar.Data_Max,...
 			data_max];
 		% eingelesenen Daten wieder löschen (Speicher freigeben!)
 		clear data_min;
@@ -208,16 +206,14 @@ for i=1:numel(plants)
 	if settin.Data_Extract.get_Mean_Value
 		data_mean = squeeze(mean(data_mean));
 		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-		Result.Solar.Data_Mean = [Result.Solar.Data_Mean,...
+		Solar.Data_Mean = [Solar.Data_Mean,...
 			data_mean];
 		% eingelesenen Daten wieder löschen (Speicher freigeben!)
 		clear data_mean
 	end
 end
 
-% % abschließend Summenleistungen ermitteln:
-% Result.Solar = calculate_additional_data(Result.Solar);
 % Ergebnis zurückschreiben:
-handles.Result = Result;
+handles.Result.Solar = Solar;
 end
 

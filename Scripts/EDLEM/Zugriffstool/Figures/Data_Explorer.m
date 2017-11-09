@@ -1,6 +1,8 @@
 % M-File für GUI nach Auswahl 'Datenexplorer ...'
+
 % Erstellt von:            Franz Zeilinger - 04.08.2011
-% Letzte Änderung durch:   Franz Zeilinger - 05.07.2012
+% Letzte Änderung durch:   Franz Zeilinger - 14.08.2012
+
 % Last Modified by GUIDE v2.5 20-Jul-2011 16:47:33
 
 function varargout = Data_Explorer(varargin)
@@ -124,14 +126,13 @@ end
 if dontOpen
 	disp('---------------------------------------------------------------');
 	disp('Falsche Argumente bei Aufruf. Es muss ein Parameter-Werte-Paar')
-	disp('übergeben werden dessen Name ''Simulation'' und Wert der Handle')
+	disp('übergeben werden dessen Name ''Access_Tool'' und Wert der Handle')
 	disp('auf das GUI von Acces_Tool.m ist! z.B.:');
 	disp('   x = Acces_Tool();');
 	disp('   Data_Explorer(''Access_Tool'', handles.accesstool_main_window);');
 	disp('---------------------------------------------------------------');
 	% Update handles structure
 	guidata(hObject, handles);
-	delete(handles.data_explorer);
 	return;
 end
 
@@ -205,8 +206,11 @@ function varargout = Data_Explorer_OutputFcn(hObject, ~, handles)  %#ok<INUSL>
 % hObject    Link zu Grafik Data_Explorer (siehe GCBO)
 % ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-varargout = {handles.main_handles};
+if isfield(handles,'main_handles');
+	varargout = {handles.main_handles};
+else
+	varargout = [];
+end
 % Schließen des Fensters:
 delete(handles.data_explorer);
 
@@ -428,7 +432,11 @@ end
 
 date_form_str = 'HH:MM';
 % Zeitachseneinteilung (je nach Zoombereich unterschiedlicher Raster):
-if t_points(end)-t_points(1) >= (4/24+1/14410) 
+if t_points(end)-t_points(1) >= (2+1/14410)
+	% Falls dargestellter Zeitbereich > als 2 Tage, Tagesraster verwenden
+	timeticks = t_points(1):1:t_points(end);
+	date_form_str = 'dd.mm.yy';
+elseif t_points(end)-t_points(1) >= (4/24+1/14410) 
 	% Falls dargestellter Zeitbereich > als 4h, Stundenraster verwenden:
 	timeticks = t_points(1):1/24:t_points(end);
 elseif t_points(end)-t_points(1) >= (2/(4*24)+1/14410)

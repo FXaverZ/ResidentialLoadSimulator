@@ -6,7 +6,7 @@ function handles = save_data(handles)
 %    aufbereitet.
 
 % Erstellt von:            Franz Zeilinger - 04.07.2012
-% Letzte Änderung durch:   Franz Zeilinger - 05.07.2012
+% Letzte Änderung durch:   Franz Zeilinger - 16.08.2012
 
 % Auslesen wichtiger Einstellugen und der Results-Struktur:
 file = handles.Current_Settings.Target;
@@ -32,14 +32,20 @@ data_hh_sample = [];
 data_hh_mean = [];
 data_hh_min = [];
 data_hh_max = [];
+data_hh_05q = [];
+data_hh_95q = [];
 data_pv_sample = [];
 data_pv_mean = [];
 data_pv_min = [];
 data_pv_max = [];
+data_pv_05q = [];
+data_pv_95q = [];
 data_wi_sample = [];
 data_wi_mean = [];
 data_wi_min = [];
 data_wi_max = [];
+data_wi_05q = [];
+data_wi_95q = [];
 
 if output.Time_Resolution < extract.Time_Resolution
 	% es wird eine feinere Auflösung verlangt als jene, in der die aktuellen Daten
@@ -94,14 +100,14 @@ if output.Time_Resolution > extract.Time_Resolution
 		data_pv_sample = resu.Solar.Data_Sample(1:time_step:end,:);
 		data_wi_sample = resu.Wind.Data_Sample(1:time_step:end,:);
 	end
-	if output.get_Mean_Value 
+	if output.get_Mean_Value
 		if extract.Time_Resolution > 1
 			% Die Mittelwerte mit der neuen zeitlichen Auflösung aus den vorhandenen
 			% Mittelwerten ermitteln, da bereits eine Mittelwertbildung erfolgt ist.
 			data_hh_mean = resu.Households.Data_Mean;
 			data_pv_mean = resu.Solar.Data_Mean;
 			data_wi_mean = resu.Wind.Data_Mean;
-		else 
+		else
 			% Es liegen nur die Sekunden-Sample-Werte vor, aus diesen muss der
 			% Mittelwert neu berechnet werden!
 			data_hh_mean = resu.Households.Data_Sample;
@@ -176,6 +182,57 @@ if output.Time_Resolution > extract.Time_Resolution
 		data_wi_max = data_max;
 		clear('data_min','data_max');
 	end
+	if output.get_5_95_Quantile_Value
+		% Ermittlung der neuen 5%- und 95%-Quantilwerte aus den vorhandenen Daten.
+		% Vorgangsweiese ist die gleiche wie beim Mittelwert, nur mit der Funktion
+		% QUANTILE:
+		if extract.Time_Resolution > 1
+			data_05q = resu.Households.Data_05P_Quantil;
+			data_95q = resu.Households.Data_95P_Quantil;
+		else
+			data_05q = resu.Households.Data_Sample;
+			data_95q = resu.Households.Data_Sample;
+			data_05q = data_05q(1:end-1,:);
+			data_95q = data_95q(1:end-1,:);
+		end
+		data_05q = reshape(data_05q,time_step,[],size(data_05q,2));
+		data_95q = reshape(data_95q,time_step,[],size(data_95q,2));
+		data_05q = squeeze(quantile(data_05q,0.05));
+		data_95q = squeeze(quantile(data_95q,0.95));
+		data_hh_05q = data_05q;
+		data_hh_95q = data_95q;
+		% 		if extract.Time_Resolution > 1
+		% 			data_05q = resu.Solar.Data_05P_Quantil;
+		% 			data_95q = resu.Solar.Data_95P_Quantil;
+		% 		else
+		% 			data_05q = resu.Solar.Data_Sample;
+		% 			data_95q = resu.Solar.Data_Sample;
+		% 			data_05q = data_05q(1:end-1,:);
+		% 			data_95q = data_95q(1:end-1,:);
+		% 		end
+		% 		data_05q = reshape(data_05q,time_step,[],size(data_05q,2));
+		% 		data_95q = reshape(data_95q,time_step,[],size(data_95q,2));
+		% 		data_05q = squeeze(quantile(data_05q,0.05));
+		% 		data_95q = squeeze(quantile(data_95q,0.95));
+		% 		data_pv_min = data_05q;
+		% 		data_pv_max = data_95q;
+		% 		if extract.Time_Resolution > 1
+		% 			data_05q = resu.Wind.Data_05P_Quantil;
+		% 			data_95q = resu.Wind.Data_95P_Quantil;
+		% 		else
+		% 			data_05q = resu.Wind.Data_Sample;
+		% 			data_95q = resu.Wind.Data_Sample;
+		% 			data_05q = data_05q(1:end-1,:);
+		% 			data_95q = data_95q(1:end-1,:);
+		% 		end
+		% 		data_05q = reshape(data_05q,time_step,[],size(data_05q,2));
+		% 		data_95q = reshape(data_95q,time_step,[],size(data_95q,2));
+		% 		data_05q = squeeze(quantile(data_05q,0.05));
+		% 		data_95q = squeeze(quantile(data_95q,0.95));
+		% 		data_wi_min = data_05q;
+		% 		data_wi_max = data_95q;
+		clear('data_05q','data_95q');
+	end
 else
 	% falls keine Anpassung notwendig, Daten einfach auslesen:
 	time_sample = resu.Time_Sample;
@@ -193,6 +250,9 @@ else
 	data_pv_max = resu.Solar.Data_Max;
 	data_wi_min = resu.Wind.Data_Min;
 	data_wi_max = resu.Wind.Data_Max;
+	data_hh_05q = resu.Households.Data_05P_Quantil;
+	data_hh_95q = resu.Households.Data_95P_Quantil;
+	
 end
 
 % Falls Daten einphasig abgespeichert werden sollen, die Rohdaten entsprechend
@@ -202,14 +262,20 @@ if Current_Settings.Data_Output.Single_Phase
 	data_hh_mean = calculate_single_phase_data (data_hh_mean);
 	data_hh_min = calculate_single_phase_data (data_hh_min);
 	data_hh_max = calculate_single_phase_data (data_hh_max);
+	data_hh_05q = calculate_single_phase_data (data_hh_05q);
+	data_hh_95q = calculate_single_phase_data (data_hh_95q);
 	data_pv_sample = calculate_single_phase_data (data_pv_sample);
 	data_pv_mean = calculate_single_phase_data (data_pv_mean);
 	data_pv_min = calculate_single_phase_data (data_pv_min);
 	data_pv_max = calculate_single_phase_data (data_pv_max);
+	data_pv_05q = calculate_single_phase_data (data_pv_05q);
+	data_pv_95q = calculate_single_phase_data (data_pv_95q);
 	data_wi_sample = calculate_single_phase_data (data_wi_sample);
 	data_wi_mean = calculate_single_phase_data (data_wi_mean);
 	data_wi_min = calculate_single_phase_data (data_wi_min);
 	data_wi_max = calculate_single_phase_data (data_wi_max);
+	data_wi_05q = calculate_single_phase_data (data_wi_05q);
+	data_wi_95q = calculate_single_phase_data (data_wi_95q);
 	
 	% 	Anzahl der Phasen auf eins setzen
 	number_phases = 1; %#ok<*NASGU>
@@ -225,6 +291,8 @@ switch handles.Current_Settings.Data_Output.Datatyp
 			'data_hh_mean',...
 			'data_hh_min',...
 			'data_hh_max',...
+			'data_hh_05q',...
+			'data_hh_95q',...
 			'data_pv_sample',...
 			'data_pv_mean',...
 			'data_pv_min',...
@@ -258,6 +326,17 @@ switch handles.Current_Settings.Data_Output.Datatyp
 				'Minimalwerte', '_Min', ...
 				System, Current_Settings);
 			data_phase = [data_hh_max, data_pv_max, data_wi_max];
+			save_as_csvs(time_mean, data_phase, ...
+				'Maximalwerte', '_Max', ...
+				System, Current_Settings);
+		end
+		if output.get_5_95_Quantile_Value
+			% die zu schreibenden Daten zusammensetzen:
+			data_phase = [data_hh_05q, data_pv_05q, data_wi_05q];
+			save_as_csvs(time_mean, data_phase, ...
+				'Minimalwerte', '_Min', ...
+				System, Current_Settings);
+			data_phase = [data_hh_95q, data_pv_95q, data_wi_95q];
 			save_as_csvs(time_mean, data_phase, ...
 				'Maximalwerte', '_Max', ...
 				System, Current_Settings);
@@ -297,7 +376,7 @@ switch handles.Current_Settings.Data_Output.Datatyp
 				'Zeilen in MS EXCEL! Auflösung reduzieren!']);
 			throw(exception);
 		end
-			
+		
 		% Titelzeilten generieren:
 		[titl_phase, titl_infos] = get_header_text(System, Current_Settings);
 		
@@ -308,7 +387,7 @@ switch handles.Current_Settings.Data_Output.Datatyp
 			size(data_mean,2),...
 			size(data_min,2),...
 			size(data_max,2)]);
-		if max_col > 256 
+		if max_col > 256
 			% Falls zuviele Spalten benötigt werden, diese in extra Files
 			% schreiben:
 			num_files = ceil((max_col-1)/253)+1; % Anzahl Files
@@ -349,7 +428,8 @@ end
 
 % Festhalten, dass die Daten verändert wurden: dazu werden die Ouput mit den
 % Extraktionseinstellungen gleichgesetzt!
-
+Current_Settings.Data_Output.get_Time_Series = Current_Settings.Data_Extract.get_Time_Series;
+Current_Settings.Data_Output.Time_Series = Current_Settings.Data_Extract.Time_Series;
 Current_Settings.Data_Extract = Current_Settings.Data_Output;
 % zugehörige Konfiguration speichern (aus handles.Result):
 save([file.Path,filesep,file.Name,Current_Settings.Config.Exte],...

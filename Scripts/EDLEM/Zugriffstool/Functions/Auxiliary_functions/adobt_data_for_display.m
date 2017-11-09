@@ -8,7 +8,7 @@ function handles = adobt_data_for_display(handles)
 %    'Data_Explorer' zurückgreift.
 
 % Erstellt von:            Franz Zeilinger - 03.07.2012
-% Letzte Änderung durch:   Franz Zeilinger - 12.07.2012
+% Letzte Änderung durch:   Franz Zeilinger - 16.08.2012
 
 Result = handles.Result;
 
@@ -19,13 +19,25 @@ data_typs = {...
 % Zeitskalen erstellen:
 time_res = handles.System.time_resolutions{...
 	handles.Current_Settings.Data_Extract.Time_Resolution,2};
-Result.Time_Sample = 0:time_res/86400:1;
-Result.Time_Sample = Result.Time_Sample' + datenum('00:00:00');
+time_ser_dur = handles.Current_Settings.Data_Extract.Time_Series.Duration;
+date_start = handles.Current_Settings.Data_Extract.Time_Series.Date_Start;
+
+if handles.Current_Settings.Data_Extract.get_Time_Series
+	Result.Time_Sample = 0:time_res/86400:time_ser_dur;
+	Result.Time_Sample = Result.Time_Sample + datenum(date_start,'dd.mm.yyyy');
+else
+	Result.Time_Sample = 0:time_res/86400:1;
+	Result.Time_Sample = Result.Time_Sample' + datenum('00:00:00');
+end
+
 Result.Time_Mean = Result.Time_Sample(2:end);
 Result.Time_Min = Result.Time_Mean;
 
 crv_cnt = 0;
 dspl = [];
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%                                 H A U S H A L T E
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 for i=1:size(data_typs,1)
 	if ~isempty(Result.Households.(['Data_',data_typs{i,1}]))
 		% Anzeigbare Kurven definieren:
@@ -33,6 +45,8 @@ for i=1:size(data_typs,1)
 		crv_nam = ['Curve_',num2str(crv_cnt)];
 		dspl.(crv_nam).Title = ['Gesamtwirkleistungsaufnahme Haushalte (',...
 			data_typs{i,2},')'];
+% 		dspl.(crv_nam).Pop_up_Title = ['P Ges. Haushalte (',...
+% 			data_typs{i,2},')'];
 		dspl.(crv_nam).Data_fun = @get_power_total_kW;
 		dspl.(crv_nam).Data_fun_args = {'Households','P',data_typs{i,1}};
 		dspl.(crv_nam).Unit = 'kW';
@@ -44,6 +58,8 @@ for i=1:size(data_typs,1)
 		crv_nam = ['Curve_',num2str(crv_cnt)];
 		dspl.(crv_nam).Title = ['Gesamtblindleistungsaufnahme Haushalte (',...
 			data_typs{i,2},')'];
+% 		dspl.(crv_nam).Pop_up_Title = ['Q Ges. Haushalte (',...
+% 			data_typs{i,2},')'];
 		dspl.(crv_nam).Data_fun = @get_power_total_kW;
 		dspl.(crv_nam).Data_fun_args = {'Households','Q',data_typs{i,1}};
 		dspl.(crv_nam).Unit = 'kVA';
@@ -55,6 +71,8 @@ for i=1:size(data_typs,1)
 		crv_nam = ['Curve_',num2str(crv_cnt)];
 		dspl.(crv_nam).Title = ['Gesamtwirkleistungsaufnahme pro Phase Haushalte (',...
 			data_typs{i,2},')'];
+% 		dspl.(crv_nam).Pop_up_Title = ['P Ges. pro Phase Haushalte (',...
+% 			data_typs{i,2},')'];
 		dspl.(crv_nam).Data_fun = @get_power_total_kW;
 		dspl.(crv_nam).Data_fun_args = {'Households','P_Phase',data_typs{i,1}};
 		dspl.(crv_nam).Unit = 'kW';
@@ -66,6 +84,8 @@ for i=1:size(data_typs,1)
 		crv_nam = ['Curve_',num2str(crv_cnt)];
 		dspl.(crv_nam).Title = ['Gesamtblindleistungsaufnahme pro Phase Haushalte (',...
 			data_typs{i,2},')'];
+% 		dspl.(crv_nam).Pop_up_Title = ['Q Ges. pro Phase Haushalte (',...
+% 			data_typs{i,2},')'];
 		dspl.(crv_nam).Data_fun = @get_power_total_kW;
 		dspl.(crv_nam).Data_fun_args = {'Households','Q_Phase',data_typs{i,1}};
 		dspl.(crv_nam).Unit = 'kVA';
@@ -220,6 +240,122 @@ if ~isempty(Result.Households.Data_Min)
 	dspl.(crv_nam).Time = 'Time_Min';
 end
 
+if ~isempty(Result.Households.Data_05P_Quantil)
+	% Anzeigbare Kurven definieren:
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtwirkleistungsaufnahme Haushalte (',...
+		'5%- und 95%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_total_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','P','05q_95q'};
+	dspl.(crv_nam).Unit = 'kW';
+	dspl.(crv_nam).Legend = [{'P_{Ges} HH 5% Quantil'},{'P_{Ges} HH 95% Quantil'}];
+	dspl.(crv_nam).Y_Label = 'Wirkleistungsaufnahme [kW]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtblindleistungsaufnahme Haushalte (',...
+		'5%- und 95%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_total_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','Q','05q_95q'};
+	dspl.(crv_nam).Unit = 'kVA';
+	dspl.(crv_nam).Legend = [{'Q_{Ges} HH 5% Quantil'},{'Q_{Ges} HH 95% Quantil'}];
+	dspl.(crv_nam).Y_Label = 'Blindleistungsaufnahme [kVA]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtwirkleistungsaufnahme pro Phase Haushalte (',...
+		'5%- und 95%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_total_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','P_Phase','05q_95q'};
+	dspl.(crv_nam).Unit = 'kW';
+	dspl.(crv_nam).Legend = [{'P_{5% Qu.} - L1'},{'P_{95% Qu.} - L1'},...
+		{'P_{5% Qu.} - L2'},{'P_{95% Qu.} - L2'},{'P_{5% Qu.} - L3'},...
+		{'P_{95% Qu.} - L3'}];
+	dspl.(crv_nam).Y_Label = 'Wirkleistungsaufnahme [kW]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtblindleistungsaufnahme pro Phase Haushalte (',...
+		'5%- und 95%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_total_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','Q_Phase','05q_95q'};
+	dspl.(crv_nam).Unit = 'kVA';
+	dspl.(crv_nam).Legend = [{'Q_{5% Qu.} - L1'},{'Q_{95% Qu.} - L1'},{'Q_{5% Qu.} - L2'},...
+		{'Q_{95% Qu.} - L2'},{'Q_{5% Qu.} - L3'},{'Q_{95% Qu.} - L3'}];
+	dspl.(crv_nam).Y_Label = 'Blindleistungsaufnahme [kVA]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtwirkleistungsaufnahme, Einzelhaushalte (',...
+		'5%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_single_curves_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','P','05q'};
+	dspl.(crv_nam).Unit = 'kW';
+	num_hh = size(Result.Households.Data_Min,2)/6;
+	legend = cell(1,num_hh);
+	for j=1:num_hh
+		legend{j} = ['P_{5% Qu.} - Haushalt ',num2str(j)];
+	end
+	dspl.(crv_nam).Legend = legend;
+	dspl.(crv_nam).Y_Label = 'P_{Aufnahme} [kW]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtblindleistungsaufnahme, Einzelhaushalte (',...
+		'5%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_single_curves_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','Q','05q'};
+	dspl.(crv_nam).Unit = 'kVA';
+	num_hh = size(Result.Households.Data_Min,2)/6;
+	legend = cell(1,num_hh);
+	for j=1:num_hh
+		legend{j} = ['Q_{5% Qu.} - Haushalt ',num2str(j)];
+	end
+	dspl.(crv_nam).Legend = legend;
+	dspl.(crv_nam).Y_Label = 'Q_{Aufnahme} [kVA]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtwirkleistungsaufnahme, Einzelhaushalte (',...
+		'95%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_single_curves_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','P','95q'};
+	dspl.(crv_nam).Unit = 'kW';
+	num_hh = size(Result.Households.Data_Min,2)/6;
+	legend = cell(1,num_hh);
+	for j=1:num_hh
+		legend{j} = ['P_{95% Qu.} - Haushalt ',num2str(j)];
+	end
+	dspl.(crv_nam).Legend = legend;
+	dspl.(crv_nam).Y_Label = 'P_{Aufnahme} [kW]';
+	dspl.(crv_nam).Time = 'Time_Min';
+	
+	crv_cnt = crv_cnt + 1;
+	crv_nam = ['Curve_',num2str(crv_cnt)];
+	dspl.(crv_nam).Title = ['Gesamtblindleistungsaufnahme, Einzelhaushalte (',...
+		'95%-Quantil-Werte',')'];
+	dspl.(crv_nam).Data_fun = @get_power_single_curves_kW;
+	dspl.(crv_nam).Data_fun_args = {'Households','Q','95q'};
+	dspl.(crv_nam).Unit = 'kVA';
+	num_hh = size(Result.Households.Data_Min,2)/6;
+	legend = cell(1,num_hh);
+	for j=1:num_hh
+		legend{j} = ['Q_{95% Qu.} - Haushalt ',num2str(j)];
+	end
+	dspl.(crv_nam).Legend = legend;
+	dspl.(crv_nam).Y_Label = 'Q_{Aufnahme} [kVA]';
+	dspl.(crv_nam).Time = 'Time_Min';
+end
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%                              P V  -  A N L A G E N
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 for i=1:size(data_typs,1)
 	if ~isempty(Result.Solar.(['Data_',data_typs{i,1}]))
 		% Anzeigbare Kurven definieren:
@@ -319,7 +455,9 @@ if ~isempty(Result.Solar.Data_Min)
 	dspl.(crv_nam).Y_Label = 'P_{Einspeisung} [kW]';
 	dspl.(crv_nam).Time = 'Time_Min';
 end
-
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%                      K L E I N W I N D K R A F T A N L A G E N
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 for i=1:size(data_typs,1)
 	if ~isempty(Result.Wind.(['Data_',data_typs{i,1}]))
 		% Anzeigbare Kurven definieren:
@@ -364,7 +502,6 @@ for i=1:size(data_typs,1)
 end
 
 if ~isempty(Result.Wind.Data_Min)
-	% Anzeigbare Kurven definieren:
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
 	dspl.(crv_nam).Title = ['Gesamteinspeisung Windkraft-Anlagen (',...
@@ -375,6 +512,8 @@ if ~isempty(Result.Wind.Data_Min)
 	dspl.(crv_nam).Legend = [{'P_{Ges} PV Min'},{'P_{Ges} PV Max'}];
 	dspl.(crv_nam).Y_Label = 'P_{Einspeisung} [kW]';
 	dspl.(crv_nam).Time = 'Time_Min';
+	dspl.(crv_nam).Time_Resolution = handles.System.time_resolutions(...
+			handles.Current_Settings.Data_Extract.Time_Resolution,:);
 	
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
@@ -387,6 +526,8 @@ if ~isempty(Result.Wind.Data_Min)
 		{'P_{max} - L2'},{'P_{min} - L3'},{'P_{max} - L3'}];
 	dspl.(crv_nam).Y_Label = 'P_{Einspeisung} [kW]';
 	dspl.(crv_nam).Time = 'Time_Min';
+	dspl.(crv_nam).Time_Resolution = handles.System.time_resolutions(...
+			handles.Current_Settings.Data_Extract.Time_Resolution,:);
 	
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
@@ -403,6 +544,8 @@ if ~isempty(Result.Wind.Data_Min)
 	dspl.(crv_nam).Legend = legend;
 	dspl.(crv_nam).Y_Label = 'P_{Einspeisung} [kW]';
 	dspl.(crv_nam).Time = 'Time_Min';
+	dspl.(crv_nam).Time_Resolution = handles.System.time_resolutions(...
+			handles.Current_Settings.Data_Extract.Time_Resolution,:);
 	
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
@@ -419,12 +562,17 @@ if ~isempty(Result.Wind.Data_Min)
 	dspl.(crv_nam).Legend = legend;
 	dspl.(crv_nam).Y_Label = 'P_{Einspeisung} [kW]';
 	dspl.(crv_nam).Time = 'Time_Min';
+	dspl.(crv_nam).Time_Resolution = handles.System.time_resolutions(...
+			handles.Current_Settings.Data_Extract.Time_Resolution,:);
 end
 
 Result.Displayable = dspl;
 handles.Result = Result;
 end
 
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = % 
+%                       H I L F S F U N K T I O N E N                               %
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = % 
 function output_data = get_power_total_kW(res_struct, power_type, data_typ)
 data = [];
 
@@ -436,6 +584,9 @@ switch lower(data_typ)
 	case 'min_max'
 		data_min = res_struct.Data_Min/1000;
 		data_max = res_struct.Data_Max/1000;
+	case '05q_95q'
+		data_min = res_struct.Data_05P_Quantil/1000;
+		data_max = res_struct.Data_95P_Quantil/1000;
 end
 
 switch lower(power_type)
@@ -443,13 +594,13 @@ switch lower(power_type)
 		if ~isempty(data)
 			output_data = sum(data(:,1:2:end),2);
 		else
-			output_data = [sum(data_min(:,1:2:end),2)/1000,sum(data_max(:,1:2:end),2)];
+			output_data = [sum(data_min(:,1:2:end),2),sum(data_max(:,1:2:end),2)];
 		end
 	case 'q'
 		if ~isempty(data)
 			output_data = sum(data(:,2:2:end),2);
 		else
-			output_data = [sum(data_min(:,2:2:end),2)/1000,sum(data_max(:,2:2:end),2)];
+			output_data = [sum(data_min(:,2:2:end),2),sum(data_max(:,2:2:end),2)];
 		end
 	case 'p_phase'
 		if ~isempty(data)
@@ -498,6 +649,10 @@ switch lower(data_typ)
 		data = res_struct.Data_Min/1000;
 	case 'max'
 		data = res_struct.Data_Max/1000;
+	case '05q'
+		data = res_struct.Data_05P_Quantil/1000;
+	case '95q'
+		data = res_struct.Data_95P_Quantil/1000;
 end
 
 num_elements = size(data,2)/6;

@@ -1,8 +1,11 @@
-% Last Modified by GUIDE v2.5 17-Jan-2012 08:39:32
+% Last Modified by GUIDE v2.5 14-Aug-2012 10:39:25
 
-% Franz Zeilinger 02.01.2012
+% Erstellt von:            Franz Zeilinger - 02.01.2012
+% Letzte Änderung durch:   Franz Zeilinger - 17.01.2012
 
 function varargout = Configuration_Wind_Parameters(varargin)
+%CONFIGURATION_WIND_PARAMETERS    Sub-GUI zur Parametriesierung der Windkraftanlagen
+%    genaue Beschreibung fehlt, siehe Source-Code!
 
 % Beginn Initializationscode - NICHT EDITIEREN!
 gui_Singleton = 1;
@@ -29,6 +32,9 @@ function Configuration_Wind_Parameters_OpeningFcn(hObject, ~, handles, varargin)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 % varargin   Übergabevariablen an Access_Tool (see VARARGIN)
+
+%Default Output:
+handles.output = {};
 
 dontOpen = false;
 % Überprüfen, ob dieses GUI vom richtigen GUI aufgerufen wird:     
@@ -61,7 +67,6 @@ if dontOpen
 	disp('----------------------------------------------------------------------');
 	% handles-Struktur aktualisieren:
 	guidata(hObject, handles);
-	delete(handles.data_explorer);
 	return;
 end
 
@@ -75,8 +80,8 @@ handles = refresh_display_wind_configuration (handles);
 % handles-Struktur aktualisieren:
 guidata(hObject, handles);
 
-% UIWAIT makes Configuration_Wind_Parameters wait for user response (see UIRESUME)
-uiwait(handles.gui_configuration_pv_parameters);
+% UIWAIT lässt Configuration_Wind_Parameters auf Userreaktion warten (siehe UIRESUME)
+uiwait(handles.gui_configuration_wind_parameters);
 
 function varargout = Configuration_Wind_Parameters_OutputFcn(hObject, ~, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -234,12 +239,12 @@ handles = refresh_display_wind_configuration (handles);
 % handles-Struktur aktualisieren:
 guidata(hObject, handles);
 
-function gui_configuration_pv_parameters_CloseRequestFcn(hObject, eventdata, handles) %#ok<INUSL>
+function gui_configuration_wind_parameters_CloseRequestFcn(hObject, eventdata, handles) %#ok<INUSL>
 % hObject    Link zur Grafik check_create_several_datasets (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-uiresume(handles.gui_configuration_pv_parameters);
+uiresume(handles.gui_configuration_wind_parameters);
 
 function popup_typ_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik check_create_several_datasets (siehe GCBO)
@@ -275,7 +280,7 @@ function push_cancel_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 if handles.new_data
 	user_response = questdlg('Sollen die Änderungen übernommen werden?',...
 		'Änderungen übernehmen?',...
-		'Ja', 'Abbrechen', 'Abbrechen');
+		'Ja', 'Nein', 'Nein');
 	switch lower(user_response)
 		case 'ja'
 			% aktuelle Erzeugerstruktur in Output schreiben.
@@ -287,7 +292,7 @@ if handles.new_data
 	end
 end
 % Die CloseRequest-Funktion aufrufen, weitere Behandlung erfolgt dort:
-gui_configuration_pv_parameters_CloseRequestFcn(hObject, eventdata, handles)
+gui_configuration_wind_parameters_CloseRequestFcn(hObject, eventdata, handles)
 
 function push_save_settings_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik check_create_several_datasets (siehe GCBO)
@@ -375,7 +380,7 @@ else
 	set(handles.push_save_settings,'Enable','off');
 end
 
-% --- Executes during object creation, after setting all properties.
+% --- create-Funktionen (werden unmittelbar vor Sichtbarmachen des GUIs ausgeführt):
 function edit_efficiency_CreateFcn(hObject, eventdata, handles)%#ok<INUSD,DEFNU>
 % hObject    handle to edit_efficiency (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB

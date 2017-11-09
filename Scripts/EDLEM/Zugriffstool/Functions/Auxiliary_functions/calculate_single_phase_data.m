@@ -4,10 +4,12 @@ function data_single_phase = calculate_single_phase_data(data_phase)
 %    dreiphasigen Daten DATA_PHASE einphasige Daten. Dazu werden die jeweiligen
 %    Spalten aufaddiert.
 
-% Franz Zeilinger 04.07.2012
+% Erstellt von:            Franz Zeilinger - 04.07.2012
+% Letzte Änderung durch:   Franz Zeilinger - 30.10.2012
 
 % Falls leeres Array übergeben wurde, zurückkehren:
 if isempty(data_phase)
+	data_single_phase = [];
 	return;
 end
 

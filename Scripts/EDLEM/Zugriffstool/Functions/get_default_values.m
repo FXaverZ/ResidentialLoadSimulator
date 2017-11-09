@@ -4,12 +4,13 @@ function handles = get_default_values(handles)
 %    hinzu. Mit Hilfe dieser Funktion werden die Haupteinstellungen vordefiniert und
 %    das Startverhalten des Zugriffstools festgelegt.
 
-% Franz Zeilinger - 26.06.2012
+% Erstellt von:            Franz Zeilinger - 26.06.2012
+% Letzte Änderung durch:   Franz Zeilinger - 14.08.2012
 
 % Standardbezeichnungen:
 handles.System.seasons =   {... % Typen der Jahreszeiten
 	'Summer', 'Sommer';... 
-	'Transi', 'Übergangszeit';...
+	'Transi', 'Übergang';...
 	'Winter', 'Winter';...
 	}; 
 handles.System.weekdays =  {... % Typen der Wochentage
@@ -134,8 +135,15 @@ data_settings.get_Sample_Value = 1;   % Sample-Werte ermitteln bzw. speichern.
 data_settings.get_Mean_Value = 0;     % Mittelwerte ermitteln bzw. speichern.
 data_settings.get_Min_Max_Value = 0;  % Minimal- und Maximalwerte ermitteln bzw. 
                                       %     speichern.
+data_settings.get_5_95_Quantile_Value = 0; % Ermitteln des 5- und 95%-Quantils
 % Einstellungen für Datenauslesen:
 handles.Current_Settings.Data_Extract = data_settings;
+% Soll eine Zeitreihe soll erstellt werden?
+handles.Current_Settings.Data_Extract.get_Time_Series = 0;
+% Einstellungen der Zeitreihe
+Time_Series.Date_Start = '27.04.2012'; % Startdatum der Zeitreihe
+Time_Series.Duration = 7;              % Dauer der Zeitreihe in Tagen
+handles.Current_Settings.Data_Extract.Time_Series = Time_Series;
 % Einstellungen für Speicherung:
 handles.Current_Settings.Data_Output = data_settings; 
 % mögliche Dateiausgabetypen:
@@ -144,12 +152,12 @@ handles.System.outputdata_types = {...
 	'*.csv','.csv - Commaseparated Values';...
 	'*.xlsx','.xlsx - EXCEL Spreadsheet';...
 	'*.xls','.xls - EXCEL 97-2003 Spreadsheet';...
+% 	'*.txt','.txt - NEPLAN Lastganglisten (Exper.)';...
 	};
 % Aktuelle Auswahl des Ausgabedatentyps (siehe HANDLES.SYSTEM.OUTPUTDATA_TYPES):
 handles.Current_Settings.Data_Output.Datatyp = 1;
 % Auswahl, ob die Daten als einphasige Daten abgespeichert werden sollen:
 handles.Current_Settings.Data_Output.Single_Phase = 0;
-
 
 % Anzahl der Haushalte Null setzen:
 for i=1:size(handles.System.housholds,1)

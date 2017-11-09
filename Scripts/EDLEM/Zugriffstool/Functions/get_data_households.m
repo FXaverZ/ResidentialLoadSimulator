@@ -1,14 +1,21 @@
 function handles = get_data_households (handles)
 %GET_DATA_HOUSEHOLDS    extrahiert die Daten der Haushalte 
 
-% Franz Zeilinger - 14.02.2012
+% Erstellt von:            Franz Zeilinger - 14.02.2012
+% Letzte Änderung durch:   Franz Zeilinger - 14.08.2012
 
-system = handles.System;   % Systemvariablen
+system = handles.System;           % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
-db_fil = settin.Database;  % Datenbankstruktur
-if isfield (handles, 'Result')
-	Result = handles.Result; % Ergebnisstruktur
-end
+db_fil = settin.Database;          % Datenbankstruktur
+
+% Ergebnis-Arrays initialisieren:
+Households.Data_Sample = [];
+Households.Data_Mean = [];
+Households.Data_Min = [];
+Households.Data_Max = [];
+Households.Data_05P_Quantil = [];
+Households.Data_95P_Quantil = [];
+
 max_num_data_set = db_fil.setti.max_num_data_set; % Anzahl an Datensätzen in einer
                                                   % Teildatei
 sep = db_fil.files.sep;    % Trenner im Dateinamen (' - ')
@@ -18,11 +25,6 @@ season = system.seasons{settin.Season,1};
 weekda = system.weekdays{settin.Weekday,1};
 % zeitliche Auflösung ermitteln:
 time_res = system.time_resolutions{settin.Data_Extract.Time_Resolution,2};
-% Ergebnis-Arrays initialisieren:
-Result.Households.Data_Sample = [];
-Result.Households.Data_Mean = [];
-Result.Households.Data_Min = [];
-Result.Households.Data_Max = [];
 
 % die einzelnen Haushaltsklassen durchgehen:
 for i=1:size(system.housholds,1)
@@ -114,11 +116,12 @@ for i=1:size(system.housholds,1)
 		if settin.Data_Extract.get_Sample_Value
 			data_sample = data_phase(1:time_res:end,idx_part_real);
 			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-			Result.Households.Data_Sample = [Result.Households.Data_Sample,...
+			Households.Data_Sample = [Households.Data_Sample,...
 				data_sample];
 		end
 		if settin.Data_Extract.get_Mean_Value || ...
-				settin.Data_Extract.get_Min_Max_Value
+				settin.Data_Extract.get_Min_Max_Value || ...
+				settin.Data_Extract.get_5_95_Quantile_Value
 			% Das ursprüngliche Datenarray so umformen, dass ein 3D Array mit allen
 			% Werten eines Zeitraumes in der ersten Dimension entsteht. Diese wird
 			% dann durch die nachfolgenden Funktionen (mean, min, max) sofort in die
@@ -134,18 +137,32 @@ for i=1:size(system.housholds,1)
 			data_min = squeeze(min(data_mean));
 			data_max = squeeze(max(data_mean));
 			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-			Result.Households.Data_Min = [Result.Households.Data_Min,...
+			Households.Data_Min = [Households.Data_Min,...
 				data_min];
-			Result.Households.Data_Max = [Result.Households.Data_Max,...
+			Households.Data_Max = [Households.Data_Max,...
 				data_max];
 			% eingelesenen Daten wieder löschen (Speicher freigeben!)
 			clear data_min;
 			clear data_max;
 		end
+		if settin.Data_Extract.get_5_95_Quantile_Value
+			data_05q = squeeze(quantile(data_mean,0.05));
+			data_95q = squeeze(quantile(data_mean,0.95));
+			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+			Households.Data_05P_Quantil = [...
+				Households.Data_05P_Quantil,...
+				data_05q];
+			Households.Data_95P_Quantil = [...
+				Households.Data_95P_Quantil,...
+				data_95q];
+			% eingelesenen Daten wieder löschen (Speicher freigeben!)
+			clear data_05q;
+			clear data_95q;
+		end
 		if settin.Data_Extract.get_Mean_Value
 			data_mean = squeeze(mean(data_mean));
 			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-			Result.Households.Data_Mean = [Result.Households.Data_Mean,...
+			Households.Data_Mean = [Households.Data_Mean,...
 				data_mean];
 			% eingelesenen Daten wieder löschen (Speicher freigeben!)
 			clear data_mean
@@ -153,9 +170,38 @@ for i=1:size(system.housholds,1)
 	end
 end
 
-% % abschließend Summenleistungen ermitteln:
-% Result.Households = calculate_additional_data(Result.Households);
 % Ergebnis zurückschreiben:
-handles.Result = Result;
+if settin.Data_Extract.get_Time_Series
+	% Die aus diesem Durchlauf ermittelten Daten werden zu den bisherigen hinzugefügt
+	% (sofern vorhanden):
+	if ~isfield(handles, 'Result') || ~isfield(handles.Result, 'Households')
+		% Die ermittelten Daten stellen den Beginn der Resultsstruktur dar:
+		handles.Result.Households = Households;
+		return;
+	end
+	% Es sind bereits Daten aus den vorhergehenden Durchläufen vorhanden, diese
+	% werden um die jetzt ermittelten Daten erweitert:
+	handles.Result.Households.Data_Sample = ...
+		[handles.Result.Households.Data_Sample(1:end-1,:);
+		Households.Data_Sample];
+	handles.Result.Households.Data_Mean = ...
+		[handles.Result.Households.Data_Mean;
+		Households.Data_Mean];
+	handles.Result.Households.Data_Min = ...
+		[handles.Result.Households.Data_Min;
+		Households.Data_Min];
+	handles.Result.Households.Data_Max = ...
+		[handles.Result.Households.Data_Max;
+		Households.Data_Max];
+	handles.Result.Households.Data_05P_Quantil = ...
+		[handles.Result.Households.Data_05P_Quantil;
+		Households.Data_05P_Quantil];
+	handles.Result.Households.Data_95P_Quantil = ...
+		[handles.Result.Households.Data_95P_Quantil;
+		Households.Data_95P_Quantil];
+else
+	% Die ermittelten Daten stellen die fertige Results-Struktur dar:
+	handles.Result.Households = Households;
+end
 end
 

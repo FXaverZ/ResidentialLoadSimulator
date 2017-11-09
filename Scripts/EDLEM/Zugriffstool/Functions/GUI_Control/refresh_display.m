@@ -4,7 +4,8 @@ function handles = refresh_display(handles)
 %    Erscheinungsbild des Hauptfensters des GUIs von Access_Tool zu aktualisieren.
 %    Diese Funktion sollte nach jeder Änderung von Parameterwerten aufgerufen werden!
 
-% Franz Zeilinger - 26.06.2012
+% Erstellt von:            Franz Zeilinger - 26.06.2012
+% Letzte Änderung durch:   Franz Zeilinger - 14.08.2012
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %      Siedlungsstruktur
@@ -33,8 +34,23 @@ for i=1:3
 		'Value',handles.Current_Settings.Season(i));
 	set(handles.(['radio_weekday_',num2str(i)]),...
 		'Value',handles.Current_Settings.Weekday(i));
+	% Bei Zeitreihen Eingaben einschränken:
+	if handles.Current_Settings.Data_Extract.get_Time_Series
+		set(handles.(['radio_weekday_',num2str(i)]),...
+			'Enable','Off');
+	else
+		set(handles.(['radio_weekday_',num2str(i)]),...
+			'Enable','On');
+	end
 end
-
+% Einstellungen für Zeitreihen aktivieren:
+if handles.Current_Settings.Data_Extract.get_Time_Series
+	set(handles.push_time_series_settings, 'Enable','On');
+	set(handles.check_get_time_series, 'Value',1);
+else
+	set(handles.push_time_series_settings, 'Enable','Off');
+	set(handles.check_get_time_series, 'Value',0);
+end
 % Befüllen des Pop-Up-Menüs:
 set(handles.popup_time_resolution, 'String', handles.System.time_resolutions(:,1), ...
 	'Value', handles.Current_Settings.Data_Extract.Time_Resolution);
@@ -46,6 +62,8 @@ if handles.Current_Settings.Data_Extract.Time_Resolution == 1
 	handles.Current_Settings.Data_Extract.get_Mean_Value = 0;
 	set(handles.check_extract_min_max_value,'Value',0,'Enable','off');
 	handles.Current_Settings.Data_Extract.get_Min_Max_Value = 0;
+	set(handles.check_extract_5_95_quantile_value,'Value',0,'Enable','off');
+	handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value = 0;
 else
 	set(handles.check_extract_sample_value,...
 		'Value',handles.Current_Settings.Data_Extract.get_Sample_Value,...
@@ -55,6 +73,9 @@ else
 		'Enable','on');
 	set(handles.check_extract_min_max_value,...
 		'Value',handles.Current_Settings.Data_Extract.get_Min_Max_Value,...
+		'Enable','on');
+	set(handles.check_extract_5_95_quantile_value,...
+		'Value',handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value,...
 		'Enable','on');
 end
 
@@ -78,6 +99,8 @@ if handles.Current_Settings.Data_Output.Time_Resolution == 1
 	handles.Current_Settings.Data_Output.get_Mean_Value = 0;
 	set(handles.check_output_min_max_value,'Value',0,'Enable','off');
 	handles.Current_Settings.Data_Output.get_Min_Max_Value = 0;
+	set(handles.check_output_5_95_quantile_value,'Value',0,'Enable','off');
+	handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = 0;
 else
 	set(handles.check_output_sample_value,...
 		'Value',handles.Current_Settings.Data_Output.get_Sample_Value,...
@@ -87,6 +110,9 @@ else
 		'Enable','on');
 	set(handles.check_output_min_max_value,...
 		'Value',handles.Current_Settings.Data_Output.get_Min_Max_Value,...
+		'Enable','on');
+	set(handles.check_output_5_95_quantile_value,...
+		'Value',handles.Current_Settings.Data_Output.get_5_95_Quantile_Value,...
 		'Enable','on');
 end
 
@@ -125,6 +151,15 @@ if isfield(handles,'Result') && ...
 	else
 		set(handles.check_output_min_max_value,'Value',0,'Enable','off');
 		handles.Current_Settings.Data_Output.get_Min_Max_Value = 0;
+	end
+	if (extract.get_5_95_Quantile_Value && ...
+			extract.Time_Resolution <= output.Time_Resolution) || ...
+			extract.Time_Resolution == 1
+		set(handles.check_output_5_95_quantile_value,...
+			'Value',output.get_5_95_Quantile_Value,'Enable','on');
+	else
+		set(handles.check_output_5_95_quantile_value,'Value',0,'Enable','off');
+		handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = 0;
 	end
 end
 
