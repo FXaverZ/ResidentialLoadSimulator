@@ -48,7 +48,6 @@ switch user_response
 			mkdir(file.Path);
 		end
 		save([file.Path,filesep,file.Name,file.Exte],'Current_Settings','System');
-		% Hint: delete(hObject) closes the figure
 		delete(handles.accesstool_main_window);
 end
 
@@ -61,7 +60,7 @@ function Access_Tool_OpeningFcn(hObject, ~, handles, varargin)
 
 % Wo ist "Access_Tool.m" zu finden?
 [~, Source_File] = fileattrib('Access_Tool.m');
-% Ordner, in dem "Simulation.m" sich befindet, enthält Programm:
+% Ordner, in dem "Access_Tool.m" sich befindet, enthält Programm:
 if ischar(Source_File)
 	fprintf([Source_File,' - Current Directory auf Datei setzen, in der sich ',...
 		'''Access_Tool.m'' befindet!\n']);
