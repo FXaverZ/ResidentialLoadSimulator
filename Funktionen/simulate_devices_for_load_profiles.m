@@ -1,9 +1,9 @@
-function Result = simulate_devices_for_load_profiles(hObject, Devices, Households,...
-	Time)
+function Result = simulate_devices_for_load_profiles(hObject, Devices, Time)
 %SIMULATE_DEVICES_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 21.09.2011
+% Erstellt von:            Franz Zeilinger - 19.11.2012
+% Letzte Änderung durch:   Franz Zeilinger - 28.11.2012 
 
 % Erstellen eines Arrays mit den Leistungsdaten:
 % - 1. Dimension: Phasen 1 bis 3
@@ -25,8 +25,8 @@ for i = 1:size(Devices.Elements_Varna,2)
 		% delta_t = 0, da hier nur der erste Zeitpunkt (nicht Zeitraum)
 		% berechnet wird!
 		dev = dev.next_step(time, 0);
-		Power(:,i,j,step) = dev.Power_Input;
-		Power_Reactive(:,i,j,step) = dev.Power_Input_Reactive;
+		Power(:,i,j,step) = dev.Power_Input * dev.Phase_Power_Distribution_Factor;
+		Power_Reactive(:,i,j,step) = dev.Power_Input_Reactive * dev.Phase_Power_Distribution_Factor;
 		Devices.(Devices.Elements_Varna{i})(j) = dev;
 	end
 end
@@ -42,8 +42,8 @@ for step = 2:Time.Number_Steps
 		for j = 1:size(Devices.(Devices.Elements_Varna{i}),2)
 			dev = Devices.(Devices.Elements_Varna{i})(j);
 			dev = dev.next_step(time, Time.Base);
-			Power(:,i,j,step) = dev.Power_Input;
-			Power_Reactive(:,i,j,step) = dev.Power_Input_Reactive;
+			Power(:,i,j,step) = dev.Power_Input * dev.Phase_Power_Distribution_Factor;
+			Power_Reactive(:,i,j,step) = dev.Power_Input_Reactive * dev.Phase_Power_Distribution_Factor;
 			Devices.(Devices.Elements_Varna{i})(j) = dev;
 		end
 	end

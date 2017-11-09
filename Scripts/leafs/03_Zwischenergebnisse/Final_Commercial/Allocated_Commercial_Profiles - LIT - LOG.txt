@@ -1,0 +1,35 @@
+===========
+Following loadprofile typs were found for "LIT": 
+    'G1'
+    'G2'
+    'G3'
+    'H0'
+    'L1'
+
+-----------
+For load profile typs "G1", "G2", "G3" and "L1" a share of 84.4855% of the yearly energy consumption of 251.6275MWh can be realized.
+18 loadpoints of 27 can be supplied with a loadprofile.
+-----------
+Starting allocation of commercial loads.
+----------------------------------------
+	LIT-001: G2 (438.6 kWh)
+	LIT-002: L1 (12371.953 kWh)
+	LIT-003: L1 (4404.4 kWh)
+	LIT-004: L1 (8409.451 kWh)
+	LIT-011: L1 (2384.856 kWh)
+	LIT-012: L1 (7210.2946 kWh)
+	LIT-013: L1 (6860.149 kWh)
+	LIT-014: L1 (12880.449 kWh)
+	LIT-015: L1 (6017 kWh)
+	LIT-016: L1 (1429.399 kWh)
+	LIT-018: L1 (21664.303 kWh)
+	LIT-019: L1 (45325.609 kWh)
+	LIT-020: G1 (7863.5 kWh)
+	LIT-022: G3 (1493.94 kWh)
+	LIT-024: L1 (13219.201 kWh)
+	LIT-025: L1 (26069.968 kWh)
+	LIT-026: L1 (17957.487 kWh)
+	LIT-027: L1 (16588.107 kWh)
+===========
+Saved "Allocated_Commercial_Profiles - LIT.mat"
+===========

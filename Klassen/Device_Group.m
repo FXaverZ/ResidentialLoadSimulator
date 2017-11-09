@@ -2,7 +2,7 @@ classdef Device_Group
 	%DEVICE_GROUP    Klasse der Gerätegruppen
 	%   Detailed explanation goes here
 	
-	% Franz Zeilinger - 11.08.2011
+	% Franz Zeilinger - 31.05.2017
 	
 	properties
 		Name
@@ -20,17 +20,19 @@ classdef Device_Group
 	%            Cell-Array mit den Mitgliedern der Gerätegruppe (Vergleiche mit 
 	%                Model.Devices_Pool:
 	%                { Variablenname, ausgeschriebener Name, ...
-	%                  Handle auf zuständige Klasse}
+	%                  Handle auf zuständige Klasse, Ausstattungsgrad [%]}
 	end
 	
 	methods
 		
-		function obj = Device_Group(var_name, Model)
+		function obj = Device_Group(group_name, Model)
 			%DEVICE_GROUPS    Konstruktor der Geräteklasse DEVICE_GROUPS.
-			%    OBJ = DEVICE (ARG_LIST) durchläuft die Parameterliste ARG_LIST
+			%    OBJ = DEVICE_GROUP (GROUP_NAME, MODEL) durchläuft die Modelldatenstruktur
+			%    MODEL um zum einen die den korrekten Eintrag für Name (basierend auf
+			%    GROUP_NAME) und die Mitglieder Members der Gerätegruppe zu ermitteln.  
 			
 			% Name(n) der Gerätegruppe ermitteln:
-			obj.Name = Model.Device_Groups_Pool(strcmp(var_name, ...
+			obj.Name = Model.Device_Groups_Pool(strcmp(group_name, ...
 				Model.Device_Groups_Pool(:,1)),:);
 			% Die Argumentenlisten für diese Gerätegruppe aus der Model-Struktur
 			% kopieren:
@@ -45,7 +47,8 @@ classdef Device_Group
 			args = obj.Args.dev;
 			idx = find(strcmp('Device_Group_Members', args));
 			memb = args{idx+1}(:,1);
-			obj.Args.add = args{idx+1}(:,2:end);
+			% Speichern der zusätzlichen Parameterwerte:
+			obj.Args.add = args{idx+1}(:,3:end);
 			% Nachdem die die Daten für die Geräte in der Gruppe aus der
 			% Parameterliste entnommen wurden, diesen Eintrag löschen, da er nicht
 			% mehr benötigt wird:
@@ -57,11 +60,23 @@ classdef Device_Group
 			for i=1:numel(memb)
 				devi = memb{i};
 				idx = strcmp(devi, Model.Devices_Pool(:,2));
-				obj.Members(end+1,:) = Model.Devices_Pool(idx,:);
+				obj.Members(end+1,1:size(Model.Devices_Pool,2)) = ...
+					Model.Devices_Pool(idx,:);
+				% Austattungsgrade eintragen:
+				obj.Members{end,size(Model.Devices_Pool,2)+1} = ...
+					obj.Args.add{i,1};
 			end
 		end
 		
 		function Model = update_device_parameter (obj, Model)
+			%UPDATE_DEVICE_PARAMETER    
+			%    MODEL = UPDATE_DEVICE_PARAMETER (OBJ, MODEL) bringt die Geräteparameter
+			%    in der Modelldatenstruktur MODEL für jedes Gerät in der Gruppe mithilfe
+			%    der Gruppenparameter auf den aktuellsten, bzw. einen vollständigen
+			%    Stand. Dazu werden die einzelnen Parameternamen verglichen. Sind gleiche
+			%    Parameter bei der Gruppe und dem Gerät vorhanden, werden die
+			%    Pa-rameterwerte des Gerätes übernommen. Fehlende Parameter werden jeweils
+			%    in der Geräteparameterliste ergänzt.      
 			
 			% Die Geräteparameter für jedes Gerät in der Gruppe mithilfe der
 			% Gruppenparameter auf den aktuellsten, bzw. einen vollständigen Stand
@@ -73,10 +88,6 @@ classdef Device_Group
 					% Wenn ja, Parameter zusammenführen:
 					Model.Args.(dev_name) = ...
 						obj.merge_parameters(Model.Args.(dev_name),	obj.Args.dev);
-					% Parameter gemäß der Gruppenaufteilung anpassen:
-					Model.Args.(dev_name) = ...
-						obj.adapt_parameters(Model.Args.(dev_name), ...
-						obj.Args.add(i,:));	
 				else
 					% Wenn nicht, die Parameterwerte der Gerätegruppe übernehmen:
 					Model.Args.(dev_name) = obj.Args.dev;
@@ -87,7 +98,6 @@ classdef Device_Group
 					Model.Args.([dev_name,'_dsm']) = ...
 						obj.merge_parameters(Model.Args.([dev_name,'_dsm']),...
 						obj.Args.dsm);
-					%
 				elseif ~isempty(obj.Args.dsm)
 					% Wenn nicht, die Parameterwerte der Gerätegruppe übernehmen:
 					Model.Args.([dev_name,'_dsm']) = obj.Args.dsm;
@@ -97,6 +107,11 @@ classdef Device_Group
 		
 		function Model = update_device_assembly(obj, Model)
 			%UPDATE_DEVICE_ASSEMBLY    Updaten der Gerätezusammenstellung
+			%    MODEL = UPDATE_DEVICE_ASSEMBLY(OBJ, MODEL) aktualisiert die
+			%    Gerätezusammenstellung im Simulationsmodel MODEL, so dass alle
+			%    Gruppenmitglieder in der Simulation genauso behandelt werden, wie die
+			%    Gerätegruppe (berücksichtigt oder nicht berücksichtigt bei der
+			%    Simulation)
 			
 			grp_name = obj.Name{1};
 			% Wenn die Gerätegruppe in der Simulation berücksichtigt werden soll,
@@ -110,19 +125,6 @@ classdef Device_Group
 	end
 	
 	methods(Static)
-		
-		function dev_args = adapt_parameters(dev_args, add_group_args)
-			if ~isempty(add_group_args)
-				% ACHTUNG - Funktion noch nicht vollständig fertig implementiert,
-				% befindet sich noch in der Testphase - Es wird angenommen, dass in
-				% der zweiten Spalte von ADD_GROUP_ARGS eine Verteilung der einzelnen
-				% Geräte innerhalb der Gerätegruppe angegebene wurde. Diese
-				% Verteilung wird nun auf die Startwahrscheinlichkeiten
-				% aufgeschlagen:
-				idx = find(strcmpi('Start_Probability', dev_args));
-				dev_args{idx+1} = dev_args{idx+1} * add_group_args{2}/100;
-			end
-		end
 		
 		function dev_args = merge_parameters(dev_args, group_args)
 			%MERGE_PARAMETERS    zusammeführen der Gruppen- und Geräteparameter

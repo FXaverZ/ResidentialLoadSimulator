@@ -2,19 +2,21 @@ function Devices = create_devices_for_loadprofiles(hObject, Model, Households)
 %CREATE_DEVICES_FOR_LOADPROFILES   Kurzbeschreibung fehlt.
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 14.09.2011
+% Erstellt von:            Franz Zeilinger - 14.09.2011
+% Letzte Änderung durch:   Franz Zeilinger - 12.12.2012
 
 % Auslesen der Haushaltskategorie, die berechnet wird:
 typ = Households.Act_Type;
 
-known_devices = Households.Known_Devices_Pool;
-number_user = Households.Number_Per_Tot.(typ);
+known_devices = Households.Devices.Pool_Known;
+number_user = Households.Statistics.(typ).Number_Per_Tot;
 
-%Auflistung der verwendeten Geräte im Modell:
+%Vorbereiten von Auflistungen der verwendeten Geräte im Modell:
 Devices.Elements_Varna = {};  % Variablennamen für automatisches Abarbeiten
 Devices.Elements_Names = {};  % Vollständige Namen der jeweiligen Geräte 
                               %     z.B. für Legendenbeschriftung)
 Devices.Elements_Funha = {};  % Handles auf Klassenfunktionen
+Devices.Elements_Eq_Le = {};  % Ausstattungsgrad mit diesem Gerät (f. Gerätegruppen)
 Devices.Total_Number_Dev = 0; % Gesamtanzahl aller beteiligten Geräte
 Devices.DSM_included = 0;     % Sind DSM-Instanzen vorhanden?
 
@@ -33,16 +35,18 @@ for i=1:size(Model.Devices_Pool,1)
 		Devices.Elements_Varna{end+1} = name;
 		Devices.Elements_Names{end+1} = Model.Devices_Pool{i,2};
 		Devices.Elements_Funha{end+1} = Model.Devices_Pool{i,3};
+		Devices.Elements_Eq_Le{end+1} = 100;
 	end
 end
+
 
 Varna_unkno = Devices.Elements_Varna;
 Devices.Number_Dev = zeros(1,numel(Varna_unkno)); % Anzahl in den einzelnen Gerätegruppen
 Varna_known = {};
 number_devices = [];
 number_devices_hh = [];
-% Erzeugen der Geräteinstanzen. Zuerst die an Anzahl bekannten Geräte (welche über
-% die Haushaltsausstattung definiert worden sind):
+% Erzeugen der Geräteinstanzen. Zuerst die an Anzahl bekannten Geräte (welche
+% über die Haushaltsausstattung definiert worden sind):
 % Feststellen, welche bekannten Geräte simuliert werden:
 for i=1:numel(Varna_unkno)
 	% ist das aktuelle Gerät ein bekanntes Gerät?
@@ -51,20 +55,52 @@ for i=1:numel(Varna_unkno)
 		% bekanntes Gerät gefunden, in Liste speichern:
 		Varna_known(end+1) = known_devices(idx,1); %#ok<AGROW>
 		% die zugehörige Anzahl an Geräten ebenfalls speichern:
-		number_devices(end+1) = Households.Number_Dev_Tot.(typ)(idx); %#ok<AGROW>
-		number_devices_hh(end+1,:) = Households.Number_Devices.(typ)(idx,:); %#ok<AGROW>
+		number_devices(end+1) = Households.Devices.(typ).Number_Known_Tot(idx); %#ok<AGROW>
+		number_devices_hh(end+1,:) = Households.Devices.(typ).Number_Known(idx,:); %#ok<AGROW>
 	end
 end
 % Die bekannten Geräte aus der Liste der unbekannten Geräte streichen:
 for i=1:numel(Varna_known)
 	Varna_unkno(strcmpi(Varna_unkno,Varna_known(i)))=[];
 end
+
 % diese Listen in der DEVICES-Struktur speichern, für spätere Berechungen:
 Devices.Elements_Varna_Known = Varna_known;
 Devices.Number_created_Known = number_devices_hh;
 Devices.Elements_Varna_Unknown = Varna_unkno;
+% Abschätzen der Gesamt-Gerätezahlen
 num_known = sum(number_devices);
 num_total = num_known + numel(Varna_unkno)*number_user;
+
+% Falls Gerätegruppen vorhanden sind, den Austattungsgrad der einzelnen Elemente
+% übernehmen:
+if Model.Device_Groups.Present
+	% über die möglichen Gerätegruppen iterieren:
+	for i=1:size(Model.Device_Groups_Pool,1)
+		% gibt es diese Gerätegruppe überhaupt?
+		if ~isfield(Model.Device_Groups, Model.Device_Groups_Pool{i,1})
+			continue;
+		end
+		% Mitglieder dieser Gruppe auslesen:
+		member = Model.Device_Groups.(Model.Device_Groups_Pool{i,1}).Members;
+		% über die Mitglieder iterieren:
+		for j=1:size(member,1)
+			% Zuordnung des Gerätetyps in den vorhandenen Geräten finden:
+			idx = find(strcmp(Devices.Elements_Varna, member{j,1}));
+			if isempty(idx)
+				continue;
+			end
+			% ist dieses Gerät ein bekanntes Gerät: Austattungsgrad wird daher bei
+			% den Haushaltsdaten angegeben und die Anzahl an zu erstellenden Geräten
+			% ist damit schon bestimmt, Level hier auf 100% belassen:
+			if ~isempty(find(strcmp(Varna_known, member{j,1}),1))
+				continue;
+			end
+			% Austattung entsprechend abspeichern:
+			Devices.Elements_Eq_Le{idx} = member{j,end};
+		end
+	end
+end
 
 % Array mit den Indizes der bekannten aktiven Geräte erstellen:
 dev_idx = zeros(numel(Varna_known), max(number_devices));
@@ -76,8 +112,6 @@ for i=1:numel(Varna_known)
 	idx = strcmpi(Devices.Elements_Varna, Varna_known(i));
 	% wieviele Geräte müssen in dieser Geräteklasse erzeugt werden?
 	num_dev = number_devices(i);
-	% laufenden Index für diese Gerätegruppe:
-	run_idx = 1;
 	% Variablenname der aktuellen Geräteklasse:
 	name = Devices.Elements_Varna{idx};
 	% Funktionen-Handle auf zuständige Klasse auslesen
@@ -94,30 +128,24 @@ for i=1:numel(Varna_known)
 		end
 		% Geräteinstanz erzeugen:
 		dev = dev_handle(Model.Args.(name){:});
-		% Überprüfen, ob Gerät überhaupt im Einsatz, sonst verwerfen:
-		if dev.Activity
-			% aktuellen Geräteindex in Geräteinstanz und Geräteindexarray speichern 
-			% und Zähler erhöhen:
-			dev_idx(i,j)= run_idx;
-			run_idx = run_idx + 1;
-			% Geräteinstanz in jeweiligen Array speichern:
-			Devices.(name)(end+1) = dev;
-			% Anzahl der erzeugten Geräte aktualisieren:
-			Devices.Number_Dev(idx) = Devices.Number_Dev(idx) + 1;
-			Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
-		end
+		% aktuellen Geräteindex in Geräteinstanz und Geräteindexarray speichern
+		% und Zähler erhöhen:
+		dev_idx(i,j)= j;
+		% Geräteinstanz in jeweiligen Array speichern:
+		Devices.(name)(end+1) = dev;
+		% Anzahl der erzeugten Geräte aktualisieren:
+		Devices.Number_Dev(idx) = Devices.Number_Dev(idx) + 1;
+		Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
 	end
 end
 
-% Das Platzierungsarray der bekannten Geräte Speichern:
+% Das Platzierungsarray der bekannten Geräte speichern:
 Devices.Index_created_Known = dev_idx;
 
 % die unbekannten Geräte erzeugen (mit der Anzahl der Personen in den Haushalten):
 for i=1:numel(Varna_unkno)
 	% aktuellen Index in der Devices-Struktur ermitteln:
 	idx = strcmpi(Devices.Elements_Varna, Varna_unkno(i));
-	% laufenden Index für diese Gerätegruppe:
-	run_idx = 1;
 	% Variablenname der aktuellen Geräteklasse:
 	name = Devices.Elements_Varna{idx};
 	% Funktionen-Handle auf zuständige Klasse auslesen
@@ -132,17 +160,24 @@ for i=1:numel(Varna_unkno)
 			% Geräteerzeugung abbrechen:
 			return;
 		end
-		% Geräteinstanz erzeugen:
-		dev = dev_handle(Model.Args.(name){:});
-		% Überprüfen, ob Gerät überhaupt im Einsatz, sonst verwerfen:
-		if dev.Activity
-			% aktuellen Geräteindex in Geräteinstanz speichern und Zähler erhöhen:
-			run_idx = run_idx + 1;
-			% Geräteinstanz in jeweiligen Array speichern:
-			Devices.(name)(end+1) = dev;
-			% Anzahl der erzeugten Geräte aktualisieren:
-			Devices.Number_Dev(idx) = Devices.Number_Dev(idx) + 1;
-			Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
+		% Austattungsgrad:
+		equ_level = Devices.Elements_Eq_Le{idx};
+		% solange der Austattungsgrad positiv, Geräte generieren:
+		while equ_level > 0
+			% Geräteinstanz erzeugen:
+			dev = dev_handle(Model.Args.(name){:});
+			% Überprüfen, ob Gerät überhaupt im Einsatz, sonst verwerfen, dazu
+			% eine Zufallszahl zwischen 0 und 100 erzeugen:
+			fort = rand()*100;
+			if fort <= equ_level
+				% Geräteinstanz in jeweiligen Array speichern:
+				Devices.(name)(end+1) = dev;
+				% Anzahl der erzeugten Geräte aktualisieren:
+				Devices.Number_Dev(idx) = Devices.Number_Dev(idx) + 1;
+				Devices.Total_Number_Dev = Devices.Total_Number_Dev + 1;
+			end
+			% Reduzieren des Ausstattungsgrades:
+			equ_level = equ_level - 100;
 		end
 	end
 end

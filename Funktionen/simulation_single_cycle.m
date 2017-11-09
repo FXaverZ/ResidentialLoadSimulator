@@ -21,7 +21,7 @@ if ~isdir(file.Path)
 	mkdir(file.Path);
 end
 % Simulationslog mitschreiben:
-file.Diary_Name = [datestr(Sim_date,'HHhMM.SS'),...
+file.Diary_Name = [datestr(Sim_date,'HH_MM.SS'),...
 	' - Simulations-Log - ',Model.Sim_Resolution,' - ',...
 	num2str(Model.Number_User),'.txt'];
 diary([file.Path,file.Diary_Name]);
@@ -84,8 +84,7 @@ for i=1:size(Model.Device_Groups_Pool,1)
 end
 
 % Überprüfen, ob eventuell vorhandene Geräteinstanzen verwendet werden:
-% reply = check_existing_devices (Model, Devices);
-reply = 'n';
+reply = check_existing_devices (Model, Devices);
 % Erzeugen der Geräteinstanzen:
 switch lower(reply)
 	case 'j'

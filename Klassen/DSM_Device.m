@@ -330,7 +330,7 @@ classdef DSM_Device
 			frequency(2,:)=freq_fil;
 		end
 		
-		function obj = delay_restore_op(obj, frequency, time, delta_t)
+		function obj = delay_restore_op(obj, ~, time, delta_t)
 			%DELAY_RESTORE_OP    verzögert Rückkehr zum Normalbetrieb
 			%    OBJ = DELAY_RESTORE_OP(OBJ, FREQUENCY, TIME, DELTA_T)
 			%    verzögert, falls es zu einer Leistungsbeeinflussung kam, die
@@ -837,7 +837,7 @@ classdef DSM_Device
 			end
 		end
 		
-		function idx = find_start_idx_simple (obj, start, time, delta_t)
+		function idx = find_start_idx_simple (~, start, time, delta_t)
 			% Ermitteln, ob Startzeiten in betrachteten Zeitraum fallen:
 			% (ACHTUNG: statt (a <= b) wird (a<b | abs(a-b)<1e-8)
 			% verwendet, damit ev. Gleitkommafehler ausgeschlossen
@@ -941,7 +941,7 @@ classdef DSM_Device
 			dev = dev.recalculate_schedule();
 		end
 		
-		function obj = postpone_start (obj, device, time, delta_t, varargin)
+		function obj = postpone_start (obj, ~, time, delta_t, varargin)
 			dev = obj.Controlled_Device;
 			if obj.Output
 				% Anpassen des Einsatzplanes mit Verschiebung:
@@ -956,7 +956,7 @@ classdef DSM_Device
 			obj.Controlled_Device = dev;
 		end
 		
-		function obj = pause_programm (obj, device, time, delta_t, varargin)
+		function obj = pause_programm (obj, ~, time, delta_t, varargin)
 			dev = obj.Controlled_Device;
 			if obj.Output
 				% Anpassen des Einsatzplanes mit Verschiebung:
@@ -965,7 +965,7 @@ classdef DSM_Device
 				% time fällt zwischen Time_Start und Time_Stop):
 				post_max = obj.Time_Postpone_max/1440;
 				if ~isempty(dev.Time_Start(time > dev.Time_Start &...
-						time < dev.Time_Stop)) && (obj.Time_Postpone < post_max);
+						time < dev.Time_Stop)) && (obj.Time_Postpone < post_max)
 					% aktive Lastkurve teilen, neue Startzeiten werden erstellt:
 					dev = dev.split_loadcurve(time,obj.Consider_non_stop_Parts);
 					% Anpassen des Einsatzplanes mit Verschiebung:
@@ -981,7 +981,7 @@ classdef DSM_Device
 			obj.Controlled_Device = dev;
 		end
 		
-		function obj = pause_programm_look_back(obj, device, time, delta_t, varargin)
+		function obj = pause_programm_look_back(obj, ~, time, delta_t, varargin)
 			dev = obj.Controlled_Device;
 			if obj.Output
 				if (obj.Time_Output_Start > time-delta_t/86400) && ...
@@ -998,17 +998,17 @@ classdef DSM_Device
 				post_max = obj.Time_Postpone_max/1440;
 				try
 					if ~isempty(dev.Time_Start(t > dev.Time_Start &...
-							t < dev.Time_Stop)) && (obj.Time_Postpone < post_max);
+							t < dev.Time_Stop)) && (obj.Time_Postpone < post_max)
 						dev = dev.split_loadcurve(t, obj.Consider_non_stop_Parts);
 						% Anpassen des Einsatzplanes mit Verschiebung:
 						[dev, obj] = obj.postpone_schedule(obj, dev, time, delta_t);
 					end
-				catch ME
+				catch 
 					% Eventuell Fehler aufgetreten bei
 					% Einsatzplanerzeugung, wiederholen:
 					dev = dev.recalculate_schedule();
 					if ~isempty(dev.Time_Start(t > dev.Time_Start &...
-							t < dev.Time_Stop)) && (obj.Time_Postpone < post_max);
+							t < dev.Time_Stop)) && (obj.Time_Postpone < post_max)
 						dev = dev.split_loadcurve(t, obj.Consider_non_stop_Parts);
 						% Anpassen des Einsatzplanes mit Verschiebung:
 						[dev, obj] = obj.postpone_schedule(obj, dev, time, delta_t);

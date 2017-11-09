@@ -1,0 +1,41 @@
+===========
+Following loadprofile typs were found for "KOE": 
+    'G0'
+    'G1'
+    'G3'
+    'G4'
+    'G7'
+    'H0'
+    'L1'
+
+-----------
+For load profile typs "G0", "G1", "G3", "G4", "G7" and "L1" a share of 31.3051% of the yearly energy consumption of 594.2169MWh can be realized.
+22 loadpoints of 146 can be supplied with a loadprofile.
+-----------
+Starting allocation of commercial loads.
+----------------------------------------
+	KOE-004: G1 (40603.71 kWh)
+	KOE-007: G1 (1508.72 kWh)
+	KOE-009: G4 (1211.93 kWh)
+	KOE-020: G1 (2886.2126 kWh)
+	KOE-021: G0 (1455.6174 kWh)
+	KOE-052: G1 (422.5166 kWh)
+	KOE-053: G1 (5368.6285 kWh)
+	KOE-054: G3 (2031.3449 kWh)
+	KOE-058: G1 (7655.46 kWh)
+	KOE-063: G1 (682.85 kWh)
+	KOE-066: G1 (6506.89 kWh)
+	KOE-076: G1 (12753.64 kWh)
+	KOE-079: G1 (40663.0554 kWh)
+	KOE-086: G1 (22853.592 kWh)
+	KOE-087: G7 (14928.88 kWh)
+	KOE-096: G1 (1723.09 kWh)
+	KOE-099: G1 (533.81 kWh)
+	KOE-109: L1 (7067.11 kWh)
+	KOE-114: G1 (1315.04 kWh)
+	KOE-122: G4 (2207.9 kWh)
+	KOE-134: G1 (9780.25 kWh)
+	KOE-140: L1 (1859.87 kWh)
+===========
+Saved "Allocated_Commercial_Profiles - KOE.mat"
+===========

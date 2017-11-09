@@ -26,7 +26,7 @@ xlsn = [File_Path,File_Name,'.xls'];
 
 % Infos zur zu ladenden Konfigurationsdatei einholen:
 try
-	[message, sheets]=xlsfinfo(xlsn);
+	[~, sheets]=xlsfinfo(xlsn);
 catch ME
 	error_text(end+1) = {[' - ',ME.message]};
 	errordlg(error_text, error_titl);
@@ -45,7 +45,7 @@ if ~any(strcmpi(wshn_param, sheets))
 end
 
 % Daten einlesen:
-[numeric,text,raw_data] = xlsread(xlsn,wshn_param);
+[~,~,raw_data] = xlsread(xlsn,wshn_param);
 % Finden der einzelnen Haupt-Bereiche für Einstellungen (müssen in der 
 % richtigen Reihenfolge vorliegen!):
 ind = find(strcmpi('Simulation Settings:',raw_data));

@@ -1,9 +1,10 @@
-function Configuration = save_sim_data_for_loadprofiles (Configuration, Model,...
+function Configuration = save_sim_data_for_load_profiles (Configuration, Model,...
 	Households, Devices, Result, counter) %#ok<INUSL>
 %SAV_SIM_DATA_FOR_LOAD_PROFILES   Kurzbeschreibung fehlt!
 %    Ausführliche Beschreibung fehlt!
 
-%    Franz Zeilinger - 21.09.2011
+% Erstellt von:            Franz Zeilinger - 21.09.2011
+% Letzte Änderung durch:   Franz Zeilinger - 10.12.2012
 
 % Auslesen der Haushaltskategorie, die berechnet wurde:
 typ = Households.Act_Type;
@@ -26,7 +27,6 @@ file = Configuration.Save.Data;
 % 		'Households');
 % end
 
-% Erzeugen einer .csv und .xls-Datei mit den Lastprofilen inkl. Zeitstempel:
 time = Result.Time;
 time = time - datenum('30-Dec-1899'); % Zeitformat in Excel-Format bringen
 % Rohdaten der Haushalte auslesen:
@@ -89,7 +89,7 @@ simdate_str_csv = {'Simulationsdaten vom Durchlauf am;',';',';',...
 % Ergebnismatritzen in .mat-File speichern:
 % save([file.Path,file.Data_Name,' - Daten - ', typ,' - ',num2str(counter),...
 % 	'.mat'], 'data_phase', 'data_total');
-save([file.Path,file.Data_Name,'.mat'], 'data_phase');
+save([file.Path,file.Data_Name,'.mat'], 'data_phase', 'Households');
 
 % .csv-Files schreiben:
 if Configuration.Options.savas_csv
