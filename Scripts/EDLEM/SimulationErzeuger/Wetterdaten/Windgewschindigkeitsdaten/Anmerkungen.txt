@@ -1,0 +1,27 @@
+Um die hier enthaltenen Daten handelt es sich um 24h Prognosedaten.
+
+Zeitbereich:
+	01.05.2004 bis 31.05.2008 (Neusiedl)
+	29.04.2004 bis 31.05.2008 (St. Pölten)
+	01.01.2004 bis 31.05.2008 (Wolfsegg)
+
+Auflösung:
+	Stundenmittelwerte
+
+Teilweise hatten Tage keine gültigen Einträge! Die Tage mit diesen Einträgen wurden aus den Daten gelöscht!
+	25.07.2004 
+	10.04.2005
+	17.09.2006
+	01.01.2008
+
+Zeitumstellung ist in den Zeitdaten vorhanden! d.h. kein Bezug auf eine gemeinsame Zeitbasis daher doppelte Werte bei
+	31.10.2004 2:00 bis 2:00(Dauer = 0)
+	30.10.2005 2:00 bis 2:00(Dauer = 0)
+	29.10.2006 2:00 bis 2:00(Dauer = 0)
+	...
+bzw. fehlende Stundenwerte bei (bzw. Sprung von 1:00 auf 3:00)
+	27.03.2005  02:00:00
+	usw.
+	...
+
+Behandlung: Datumseinträge wurden auf GMT+1 umgestellt!
