@@ -16,7 +16,7 @@ if ~isempty(Result.Households.Data)
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
 	dspl.(crv_nam).Title = 'Gesamtwirkleistungsaufnahme Haushalte';
-	dspl.(crv_nam).Data = Result.Households.Acvtive_Power_Total/1000;
+	dspl.(crv_nam).Data = Result.Households.Active_Power_Total/1000;
 	dspl.(crv_nam).Unit = 'kW';
 	dspl.(crv_nam).Legend = 'Gesamtwirkleistung Haushalte';
 	dspl.(crv_nam).Y_Label = 'Wirkleistungsaufnahme [kW]';
@@ -83,7 +83,7 @@ if ~isempty(Result.Solar.Data)
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
 	dspl.(crv_nam).Title = 'Gesamteinspeisung PV-Anlagen';
-	dspl.(crv_nam).Data = Result.Solar.Acvtive_Power_Total/1000;
+	dspl.(crv_nam).Data = Result.Solar.Active_Power_Total/1000;
 	dspl.(crv_nam).Unit = 'kW';
 	dspl.(crv_nam).Legend = 'P - PV-Anlagen';
 	dspl.(crv_nam).Y_Label = 'Wirkleistungseinspeisung [kW]';
@@ -119,7 +119,7 @@ if ~isempty(Result.Wind.Data)
 	crv_cnt = crv_cnt + 1;
 	crv_nam = ['Curve_',num2str(crv_cnt)];
 	dspl.(crv_nam).Title = 'Gesamteinspeisung Windkraft-Anlagen';
-	dspl.(crv_nam).Data = Result.Wind.Acvtive_Power_Total/1000;
+	dspl.(crv_nam).Data = Result.Wind.Active_Power_Total/1000;
 	dspl.(crv_nam).Unit = 'kW';
 	dspl.(crv_nam).Legend = 'P - Windkraft-Anlagen';
 	dspl.(crv_nam).Y_Label = 'Wirkleistungseinspeisung [kW]';

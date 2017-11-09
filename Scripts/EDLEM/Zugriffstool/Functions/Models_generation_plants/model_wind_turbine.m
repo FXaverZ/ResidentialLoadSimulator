@@ -74,7 +74,7 @@ for i=1:plant_parameters.Number
 	% Matlab-Filterfunktion auf die Nyquistfrequenz (= 1/2*Abtastfrequenz; in diesem
 	% Fall 0,5 Hz, da mit 1 Hz abgetastet wird (Sekundenwerte!)) normiert werden
 	% muss:
-	[b,a] = butter(3,(1/t_interia)/(0.5),'low');
+	[b,a] = butter_low(3,(1/t_interia)/(0.5));
 	% Für Filter dummy-Werte einfügen (zum Einschwingen des Filters):
 	v_wind_act = [ones(200,1)*v_wind_act(1); v_wind_act]; %#ok<AGROW>
 	% Filtern:

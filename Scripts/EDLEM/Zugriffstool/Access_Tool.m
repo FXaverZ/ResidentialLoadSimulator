@@ -1,6 +1,6 @@
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
-% Franz Zeilinger - 17.01.2012
-% Last Modified by GUIDE v2.5 16-Jan-2012 13:11:03
+% Franz Zeilinger - 23.01.2012
+% Last Modified by GUIDE v2.5 14-Feb-2012 12:26:18
 
 function varargout = Access_Tool(varargin)
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
@@ -132,17 +132,27 @@ handles = refresh_display(handles);
 % Update handles structure
 guidata(hObject, handles);
 
-function check_create_several_datasets_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik check_create_several_datasets (siehe GCBO)
+function varargout = Access_Tool_OutputFcn(hObject, ~, handles) %#ok<STOUT,INUSD>
+
+function accesstool_main_window_CloseRequestFcn(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik accesstool_main_window (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+% 
+% Diese Funktion wird bei Anforderung um Schließen des Hauptfensters des
+% Zugriffstools ausgeführt und Verweist auf die allgemeine CloseRequestFcn
+% (Userabfrage, Einstellungen speichern, Fenster schließen,...)
+
+Access_Tool_CloseRequestFcn(hObject, eventdata, handles)
+
+function check_data_save_single_phase_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_data_save_single_phase (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Create_Several_Datasets = get(hObject,'Value');
+handles.Current_Settings.Output_Single_Phase = get(hObject, 'Value');
 
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Structure aktualisieren:
+% Update handles structure
 guidata(hObject, handles);
 
 function edit_create_several_datasets_number_Callback(hObject, ~, handles) %#ok<DEFNU>
@@ -249,6 +259,7 @@ catch ME
 end
 
 % Daten nachbearbeiten:
+handles = add_settings(handles);
 handles = adobt_data_for_display(handles);
 
 set(handles.push_close,'Enable','on');
@@ -429,6 +440,16 @@ function popup_time_resolution_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.Current_Settings.Time_Resolution = get(hObject,'Value');
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function popup_time_resolution_output_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik popup_time_resolution_output (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Time_Resolution_Output = get(hObject,'Value');
 
 % handles-Structure aktualisieren:
 guidata(hObject, handles);
@@ -921,6 +942,44 @@ function menu_data_export_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 
 push_export_data_Callback(hObject, eventdata, handles);
 
+function menu_data_load_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_data_load (siehe GCBO)
+% eventdata  nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+% % aktuellen Speicherort für Daten auslesen:
+% file = handles.Current_Settings.Target;
+% % Userabfrage nach Speicherort
+% [file.Name,file.Path] = uigetfile([...
+% 	{'*.mat','*.mat Datenbankauszug'};...
+% 	{'*.*','Alle Dateien'}],...
+% 	'Laden von Daten...',...
+% 	[file.Path,filesep]);
+% % Überprüfen, ob gültiger Speicherort angegeben wurde:
+% if ~isequal(file.Name,0) && ~isequal(file.Path,0)
+% 	% Falls, ja, Entfernen der Dateierweiterung vom Dateinamen:
+% 	[~, file.Name, file.Exte] = fileparts(file.Name);
+% 	% leztes Zeichen ("/") im Pfad entfernen:
+% 	file.Path = file.Path(1:end-1);
+% 	% Daten laden ("data_phase_hh", "data_phase_pv" und "data_phase_wi"):
+% 	load([file.Path,filesep,file.Name,file.Exte]);
+% 	try
+% 		% Konfigurationsstrukturen laden ("Current_Settings" und "System"):
+% 		load('-mat', [file.Path,filesep,file.Name,...
+% 			handles.Current_Settings.Config.Exte]);
+% 		handles.Current_Settings = Current_Settings;
+% 		handles.System = System;
+% 	catch ME
+% 	end
+% 	handles.Current_Settings = Current_Settings; 
+% 	handles.System = System; 
+% 	% aktuellen Speicherort übernehmen:
+% 	handles.Current_Settings.Config = file;
+% end
+% 
+% % handles-Struktur aktualisieren:
+% guidata(hObject, handles);
+
 function menu_data_save_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik menu_data_save (siehe GCBO)
 % eventdata  nicht benötigt (MATLAB spezifisch)
@@ -996,8 +1055,7 @@ handles = refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-% --- create-Funktionen (werden unmittelbar vor sichtbarmachen des GUIs ausgeführt):
-function varargout = Access_Tool_OutputFcn(hObject, ~, handles) %#ok<STOUT,INUSD>
+% --- create-Funktionen (werden unmittelbar vor Sichtbarmachen des GUIs ausgeführt):
 function edit_create_several_datasets_number_CreateFcn(hObject, eventdata, handles)%#ok<INUSD,DEFNU>
 % hObject    handle to edit_create_several_datasets_number (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1250,6 +1308,16 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function popup_file_type_output_CreateFcn(hObject, eventdata, handles)%#ok<DEFNU,INUSD>
 % hObject    handle to popup_file_type_output (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function popup_time_resolution_output_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
+% hObject    handle to popup_time_resolution_output (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

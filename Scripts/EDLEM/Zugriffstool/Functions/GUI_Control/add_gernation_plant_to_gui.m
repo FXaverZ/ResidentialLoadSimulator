@@ -2,7 +2,7 @@ function handles = add_gernation_plant_to_gui(handles, genera_typ)
 %ADD_GERNATION_PLANT_TO_GUI    fügt eine Erzeugungsanlage dem GUI "Access_Tool" hinzu
 %   Detaillierte Beschreibung fehlt!
 
-% Franz Zeilinger - 20.12.2011
+% Franz Zeilinger - 23.01.2012
 
 % Anzahl an Pixel, um die erweitert werden muss:
 d_pos = handles.System.Generation.Input_Field_Height;
@@ -19,6 +19,9 @@ set(handles.uipanel_structure_settlement,'Position', posi);
 posi = get(handles.uipanel_settings,'Position');
 posi(2) = posi(2) + d_pos;
 set(handles.uipanel_settings,'Position', posi);
+posi = get(handles.uipanel_settings_output,'Position');
+posi(2) = posi(2) + d_pos;
+set(handles.uipanel_settings_output,'Position', posi);
 % Das Panel 'Erzeugungsstruktur' vergrößern:
 posi = get(handles.uipanel_genera,'Position');
 posi(4) = posi(4) + d_pos;

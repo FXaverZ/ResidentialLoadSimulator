@@ -4,7 +4,7 @@ function handles = get_default_values(handles)
 %    hinzu. Mit Hilfe dieser Funktion werden die Haupteinstellungen vordefiniert und
 %    das Startverhalten des Zugriffstools festgelegt.
 
-% Franz Zeilinger - 16.01.2012
+% Franz Zeilinger - 23.01.2012
 
 % Standardbezeichnungen:
 handles.System.seasons =   {... % Typen der Jahreszeiten
@@ -50,7 +50,7 @@ handles.Current_Settings.Worstcase_Generation = 1; % Default = 'Kein'
 
 % Anzahl an maximal möglichen verschiedenen Erzeugungsanlagen im GUI (Gesamtanzahl an
 % möglichen Eingabefeldern):
-handles.Current_Settings.Number_Generation_Max = 15;
+handles.System.Number_Generation_Max = 15;
 % Definition der Erzeugungs-Anlagenarten:
 handles.System.Sola.Typs = {...
 	'Keine Anlage ausgewählt';...
@@ -90,6 +90,8 @@ Default_Plant.Orientation = 0;          % Ausrichtung              [°]
 Default_Plant.Inclination = 30;         % Neigung                  [°]
 Default_Plant.Efficiency = 0.17;        % Wirkungsgrad Zelle + WR  [-]
 Default_Plant.Rel_Size_Collector = 6.5; % Rel. Kollektorfläche     [m²/kWp]
+Default_Plant.Size_Collector = ...      % Kollektorfläche          [m²]
+	Default_Plant.Power_Installed * Default_Plant.Rel_Size_Collector;
 Default_Plant.Sigma_delay_time = 15;    % zeitl. Standardabweichung[s] 
 % Zwei Anlagen werden per Default angeboten:
 handles.System.Sola.Default_Plant = Default_Plant;
@@ -127,6 +129,7 @@ handles.System.outputdata_types = {...
 	'*.xls','.xls - EXCEL 97-2003 Spreadsheet';...
 	};
 handles.Current_Settings.Output_Datatyp = 1;
+handles.Current_Settings.Output_Single_Phase = 0;
 
 % mögliche Zeitauflösungen:
 handles.System.time_resolutions = {...
@@ -135,7 +138,8 @@ handles.System.time_resolutions = {...
 	'5mi - 5 Minuten',  300;...
 	'quh - 15 Minuten', 900;...
 	};
-handles.Current_Settings.Time_Resolution = 1;
+handles.Current_Settings.Time_Resolution = 1;        % Auflösung für Datenauslesen
+handles.Current_Settings.Time_Resolution_Output = 1; % Auflösung für Speicherung
 
 % Anzahl der Haushalte Null setzen:
 for i=1:size(handles.System.housholds,1)

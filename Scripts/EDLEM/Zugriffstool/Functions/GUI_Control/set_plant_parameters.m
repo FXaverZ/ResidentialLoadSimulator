@@ -12,6 +12,8 @@ switch lower(parameter_typ)
 		switch plant_typ
 			case 'Sola'
 				plant.Power_Installed = str2double(get(hObject,'String'));
+				plant.Size_Collector = ...
+					plant.Rel_Size_Collector * plant.Power_Installed;
 			case 'Wind'
 				% Änderung der installierten Leistung hat eine entsprechende Änderung
 				% des Rotordurchmessers zur Folge, diese ermitteln:

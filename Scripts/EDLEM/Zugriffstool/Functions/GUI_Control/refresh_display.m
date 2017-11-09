@@ -1,6 +1,6 @@
 function handles = refresh_display(handles)
 
-% Franz Zeilinger - 16.01.2012
+% Franz Zeilinger - 23.01.2012
 
 % Einstellungen der Wochentage und Jahreszeiten anpassen:
 for i=1:3
@@ -72,7 +72,7 @@ if y_pos > screen_size(4)
 	new_gui_size(2) = gui_size(2) - (y_pos - screen_size(4));
 	set(handles.accesstool_main_window,'Position',new_gui_size);
 end
-if Number_Generation >= handles.Current_Settings.Number_Generation_Max
+if Number_Generation >= handles.System.Number_Generation_Max
 	set(handles.(todo{1,2}),'Enable','off');
 	set(handles.(todo{2,2}),'Enable','off');
 end
@@ -82,11 +82,17 @@ set(handles.popup_hh_worstcase, 'String', handles.System.wc_households, ...
 	'Value', handles.Current_Settings.Worstcase_Housholds);
 set(handles.popup_genera_worstcase, 'String', handles.System.wc_generation, ...
 	'Value', handles.Current_Settings.Worstcase_Generation);
-% Die anderen Popup-Menüs befüllen:
+
+% Die anderen Popup-Menüs und Einstellungen befüllen und aktuelle Werte eintragen:
 set(handles.popup_file_type_output, 'String', handles.System.outputdata_types(:,2), ...
 	'Value', handles.Current_Settings.Output_Datatyp);
 set(handles.popup_time_resolution, 'String', handles.System.time_resolutions(:,1), ...
 	'Value', handles.Current_Settings.Time_Resolution);
+set(handles.popup_time_resolution_output, 'String', ...
+	handles.System.time_resolutions(:,1), ...
+	'Value', handles.Current_Settings.Time_Resolution_Output);
+set(handles.check_data_save_single_phase,'Value', ...
+	handles.Current_Settings.Output_Single_Phase);
 
 % Einstellungen der Haushalte anpassen:
 hh = handles.Current_Settings.Households;

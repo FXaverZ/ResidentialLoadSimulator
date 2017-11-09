@@ -1,6 +1,6 @@
 % Last Modified by GUIDE v2.5 17-Jan-2012 08:39:32
 
-% Franz Zeilinger 17.01.2012
+% Franz Zeilinger 02.01.2012
 
 function varargout = Configuration_Wind_Parameters(varargin)
 
@@ -174,8 +174,6 @@ function edit_sigma_delay_time_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.plant.Sigma_delay_time = str2double(get(hObject,'String'));
-
-handles.new_data = true; % neue Daten sind vorhanden!
 % Anzeige aktualisieren:
 handles = refresh_display_wind_configuration (handles);
 % handles-Struktur aktualisieren:
@@ -315,6 +313,7 @@ v_wind_fine = 0:0.5:25;
 c_p_act = interp1(c_p(:,1),c_p(:,2),v_wind_fine);
 
 fig_diagr = figure;
+set(fig_diagr,'NumberTitle','Off','Name','Leistungsbeiwert');
 axe_diagr = axes('Parent',fig_diagr);
 plot(axe_diagr, v_wind_fine, c_p_act);
 set(axe_diagr,'XGrid','on','YGrid','on');
@@ -338,6 +337,7 @@ c_p_act = interp1(c_p(:,1),c_p(:,2),v_wind_fine);
 pow_act = rho/2*(d_rotor^2*pi/4)*(v_wind_fine.^3.*c_p_act);
 
 fig_diagr = figure;
+set(fig_diagr,'NumberTitle','Off','Name','Abgegebene Leistung');
 axe_diagr = axes('Parent',fig_diagr);
 plot(axe_diagr, v_wind_fine, pow_act);
 set(axe_diagr,'XGrid','on','YGrid','on');

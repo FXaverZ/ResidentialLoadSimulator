@@ -153,7 +153,7 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	data_cloud_factor = data_cloud_factor(:,idx_part); 
 end
 
-% nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdaten zur
+% nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdate zur
 % Verfügung. Mit diesen Daten sowie den definierten Anlagenparametern werden nun die
 % Anlagen simuliert:
 for i=1:numel(plants)
@@ -180,7 +180,7 @@ handles.Result = Result;
 end
 
 function structure = calculate_additional_data(structure)
-structure.Acvtive_Power_Total = sum(structure.Data(:,1:2:end),2);
+structure.Active_Power_Total = sum(structure.Data(:,1:2:end),2);
 structure.Reactive_Power_Total = sum(structure.Data(:,2:2:end),2);
 structure.Active_Power_Phase = [...
 	sum(structure.Data(:,1:6:end),2),...

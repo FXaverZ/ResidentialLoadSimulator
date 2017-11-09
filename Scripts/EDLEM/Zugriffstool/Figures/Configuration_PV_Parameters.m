@@ -1,6 +1,6 @@
-% Last Modified by GUIDE v2.5 17-Jan-2012 08:45:21
+% Last Modified by GUIDE v2.5 23-Jan-2012 13:43:13
 
-% Franz Zeilinger 17.01.2012
+% Franz Zeilinger 23.01.2012
 
 function varargout = Configuration_PV_Parameters(varargin)
 
@@ -79,7 +79,7 @@ uiwait(handles.gui_configuration_pv_parameters);
 
 function varargout = Configuration_PV_Parameters_OutputFcn(hObject, ~, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
-% hObject    Link zur Grafik check_create_several_datasets (siehe GCBO)
+% hObject    Link zur Grafik Configuration_PV_Parameters (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
@@ -148,6 +148,8 @@ function edit_power_installed_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.plant.Power_Installed = str2double(get(hObject,'String'));
+handles.plant.Size_Collector = ...
+	handles.plant.Rel_Size_Collector * handles.plant.Power_Installed;
 
 handles.new_data = true; % neue Daten sind vorhanden!
 % Anzeige aktualisieren:
@@ -161,6 +163,8 @@ function edit_rel_size_collector_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.plant.Rel_Size_Collector = str2double(get(hObject,'String'));
+handles.plant.Size_Collector = ...
+	handles.plant.Rel_Size_Collector * handles.plant.Power_Installed;
 
 handles.new_data = true; % neue Daten sind vorhanden!
 % Anzeige aktualisieren:
@@ -174,7 +178,20 @@ function edit_sigma_delay_time_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.plant.Sigma_delay_time = str2double(get(hObject,'String'));
-handles.new_data = true; % neue Daten sind vorhanden!
+% Anzeige aktualisieren:
+handles = refresh_display_pv_configuration (handles);
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
+
+function edit_size_collector_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik edit_size_collector (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.plant.Size_Collector = str2double(get(hObject,'String'));
+handles.plant.Rel_Size_Collector = ...
+	handles.plant.Size_Collector/handles.plant.Power_Installed;
+
 % Anzeige aktualisieren:
 handles = refresh_display_pv_configuration (handles);
 % handles-Struktur aktualisieren:
@@ -266,6 +283,7 @@ set(handles.edit_inclination, 'String', num2str(plant.Inclination));
 set(handles.edit_efficiency, 'String', num2str(plant.Efficiency*100));
 set(handles.edit_rel_size_collector, 'String', num2str(plant.Rel_Size_Collector));
 set(handles.edit_sigma_delay_time, 'String', num2str(plant.Sigma_delay_time));
+set(handles.edit_size_collector,'String', num2str(plant.Size_Collector));
 
 % "Einstellungen übernehmen" Button aktivieren:
 if handles.new_data
@@ -347,6 +365,16 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function edit_sigma_delay_time_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
 % hObject    handle to edit_sigma_delay_time (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function edit_size_collector_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
+% hObject    handle to edit_size_collector (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

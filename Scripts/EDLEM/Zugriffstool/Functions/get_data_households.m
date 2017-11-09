@@ -122,7 +122,7 @@ handles.Result = Result;
 end
 
 function structure = calculate_additional_data(structure)
-structure.Acvtive_Power_Total = sum(structure.Data(:,1:2:end),2);
+structure.Active_Power_Total = sum(structure.Data(:,1:2:end),2);
 structure.Reactive_Power_Total = sum(structure.Data(:,2:2:end),2);
 structure.Active_Power_Phase = [...
 	sum(structure.Data(:,1:6:end),2),...
