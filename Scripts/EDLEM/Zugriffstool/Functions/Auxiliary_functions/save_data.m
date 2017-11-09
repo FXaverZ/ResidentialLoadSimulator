@@ -1,16 +1,16 @@
 function handles = save_data(handles)
 %SAVE_DATA   speichern eines Datenbankauszugs
 
-file = handles.Settings.Target;
+file = handles.Current_Settings.Target;
 resu = handles.Result;
 
 data_phase_hh = resu.Households.Data;
 % data_phase_pv = resu.Solar.Data;
 % data_phase_wi = resu.Wind.Data;
-setting = handles.Settings;
+setting = handles.Current_Settings;
 system = handles.System;
 
-switch handles.Settings.Output_Datatyp
+switch handles.Current_Settings.Output_Datatyp
 	case 1 % .mat - MATLAB Binärdatei
 		% Daten speichern:
 % 		save([file.Path,filesep,file.Name,file.Exte],'data_phase_hh',...

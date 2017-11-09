@@ -78,18 +78,6 @@ push_refresh_display_Callback(hObject, eventdata, handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function check_stay_on_top_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zu Grafik check_stay_on_top (siehe GCBO)
-% ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-% Auslesen des Wertes der Checkbox (aktiviert oder nicht)
-val = get(hObject,'Value');
-% Menüfenster soll je nach Auswahl der Checkbox im Vordergrund bleiben:
-% val = 1 --> Immer im Vordergrund
-% val = 0 --> normales Fensterverhalten
-winontop(handles.data_explorer, val);
-	
 function data_explorer_CloseRequestFcn(hObject, ~, handles)
 % hObject    Link zu Grafik Data_Explorer (siehe GCBO)
 % ~			 reserviert (MATLAB spezifisch, wird in zukünftigen Versionen definiert)
@@ -389,10 +377,17 @@ end
 t_points = t_points(idx_zoom);
 
 % Welche Auswahl wurde getroffen?
-value = field_names{get(hObject,'Value')-1}; 
-if isempty(value)
+value = get(hObject,'Value');
+if value == 1
+	% es wurde keine Auswahl getroffen, aktuelle Anzeige löschen:
+	cla(axe_diagr,'reset');
+	% Funktion beenden:
 	return;
 end
+
+% Auslesen, welche Kurve angezeigt werden soll:
+value = field_names{value-1}; 
+
 data = Result.Displayable.(value).Data;
 legend_entries = Result.Displayable.(value).Legend;
 % Daten an Zeitzoombereich anpassen:

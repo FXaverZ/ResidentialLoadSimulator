@@ -1,6 +1,8 @@
 function handles = add_gernation_plant_to_gui(handles, genera_typ)
-%ADD_GERNATION_PLANT_TO_GUI Summary of this function goes here
-%   Detailed explanation goes here
+%ADD_GERNATION_PLANT_TO_GUI    fügt eine Erzeugungsanlage dem GUI "Access_Tool" hinzu
+%   Detaillierte Beschreibung fehlt!
+
+% Franz Zeilinger - 20.12.2011
 
 % Anzahl an Pixel, um die erweitert werden muss:
 d_pos = handles.System.Generation.Input_Field_Height;
@@ -49,7 +51,7 @@ switch genera_typ
 		panel_handle = handles.uipanel_genera_wind;
 end
 % Die vorherigen Einstellungsbereiche nach oben schieben:
-plants = fieldnames(handles.Settings.(genera_typ));
+plants = fieldnames(handles.Current_Settings.(genera_typ));
 for i=1:size(plants,1)
 	tags = get_plant_gui_tags(handles.System.(genera_typ).Tags, i);
 	for j=1:size(tags,1)
@@ -106,10 +108,11 @@ posi(2) = posi(2) - d_pos;
 handles.(new_tags{4}) = uicontrol(panel_handle,...
 	'Style','pushbutton',...
 	'String',get(handles.(tags{4}),'String'),...
-	'Position',posi);
+	'Position',posi,...
+	'Callback',{'set_plant_parameters',genera_typ,idx_new_ele,'set_parameters'});
 
 % Default-Werte für neue Anlage einstellen:
-handles.Settings.(genera_typ).(['Plant_',num2str(idx_new_ele)]) = ...
+handles.Current_Settings.(genera_typ).(['Plant_',num2str(idx_new_ele)]) = ...
 	handles.System.(genera_typ).Default_Plant;
 
 end

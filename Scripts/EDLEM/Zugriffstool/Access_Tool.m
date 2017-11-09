@@ -1,6 +1,6 @@
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
-% Franz Zeilinger - 27.09.2011
-% Last Modified by GUIDE v2.5 18-Nov-2011 17:03:10
+% Franz Zeilinger - 03.01.2012
+% Last Modified by GUIDE v2.5 03-Jan-2012 09:02:10
 
 function varargout = Access_Tool(varargin)
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
@@ -21,7 +21,7 @@ if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
-% End initialization code - DO NOT EDIT
+% Ende Initializationscode - NICHT EDITIEREN!
 end
 
 function Access_Tool_CloseRequestFcn(hObject, ~, handles)  %#ok<INUSL>
@@ -37,24 +37,24 @@ switch user_response
 		% nichts unternehmen
 	case 'Ja'
 		% Konfiguration speichern:
-		Settings = handles.Settings;
+		Current_Settings = handles.Current_Settings;
 		System = handles.System; %#ok<NASGU>
-		file = Settings.Last_Conf;
+		file = Current_Settings.Last_Conf;
 		% Falls Pfad der Konfigurationsdatei nicht vorhanden ist, Ordner erstellen:
 		if ~isdir(file.Path)
 			mkdir(file.Path);
 		end
-		save([file.Path,filesep,file.Name,file.Exte],'Settings','System');
+		save([file.Path,filesep,file.Name,file.Exte],'Current_Settings','System');
 		% Hint: delete(hObject) closes the figure
 		delete(handles.accesstool_main_window);
 end
 
 function Access_Tool_OpeningFcn(hObject, ~, handles, varargin)
-% Wird vor sichtbarwerden des Hauptfensters ausgeführt: 
+% Funktion wird vor Sichtbarwerden des Hauptfensters ausgeführt: 
 % hObject    Link zur Grafik Access_Tool (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-% varargin   command line arguments to Access_Tool (see VARARGIN)
+% varargin   Übergabevariablen an Access_Tool (see VARARGIN)
 
 % Wo ist "Access_Tool.m" zu finden?
 [~, Source_File] = fileattrib('Access_Tool.m');
@@ -70,45 +70,45 @@ Path = fileparts(Source_File.Name);
 % Subfolder in Search-Path aufnehmen (damit alle Funktionen gefunden werden
 % können)
 addpath(genpath(Path));
-handles.Settings.Main_Path = [Path,'\'];
+handles.Current_Settings.Main_Path = Path;
 
 handles = get_default_values(handles);
 
 try
-	file = handles.Settings.Last_Conf;
+	file = handles.Current_Settings.Last_Conf;
 	load('-mat', [file.Path,filesep,file.Name,file.Exte]);
-	handles.Settings = Settings;
+	handles.Current_Settings = Current_Settings;
 	handles.System = System;
 	% Die Anzeige anpassen (falls bereits mehrere Erzeugungsanlagen angegeben 
 	% wurden):
 	todo = {'Sola','Wind'};
 	for i = 1:2
 		% Wieviele Erzeugungsanlagen sind im Datensatz vorhanden?
-		num_plants = size(fieldnames(handles.Settings.(todo{i})),1);
+		num_plants = size(fieldnames(handles.Current_Settings.(todo{i})),1);
 		if num_plants > 2
 			% Sicherheitskopie der Einstellungen erstellen:
-			plants = handles.Settings.(todo{i});
+			plants = handles.Current_Settings.(todo{i});
 			% Default-Struktur wiederherstellen:
-			handles.Settings.(todo{i}) = [];
-			handles.Settings.(todo{i}).Plant_1 = handles.System.(todo{i}).Default_Plant;
-			handles.Settings.(todo{i}).Plant_2 = handles.System.(todo{i}).Default_Plant;
+			handles.Current_Settings.(todo{i}) = [];
+			handles.Current_Settings.(todo{i}).Plant_1 = handles.System.(todo{i}).Default_Plant;
+			handles.Current_Settings.(todo{i}).Plant_2 = handles.System.(todo{i}).Default_Plant;
 			% Falls mehr als die Defaultmäßig definierten vorhanden sind, zusätzliche
 			% Parameterfelder erzeugen, damit diese dargestellt werden können:
 			for j=1:num_plants-2
 				handles = add_gernation_plant_to_gui(handles,todo{i});
 			end
 			% Einstellungen wiederherstellen:
-			handles.Settings.(todo{i}) = plants;
+			handles.Current_Settings.(todo{i}) = plants;
 		end
 	end
 	
 	% Versuch, die Datenbankeinstellungen zu laden:
-	if isfield(handles.Settings, 'Database')
+	if isfield(handles.Current_Settings, 'Database')
 		try
-			db = handles.Settings.Database;
+			db = handles.Current_Settings.Database;
 			load([db.Path,filesep,db.Name,filesep,db.Name,'.mat']);
-			handles.Settings.Database.setti = setti;
-			handles.Settings.Database.files = files;
+			handles.Current_Settings.Database.setti = setti;
+			handles.Current_Settings.Database.files = files;
 		catch ME
 			disp('Fehler beim Laden der Datenbankeinstellungen:');
 			disp(ME.message);
@@ -137,7 +137,7 @@ function check_create_several_datasets_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Create_Several_Datasets = get(hObject,'Value');
+handles.Current_Settings.Create_Several_Datasets = get(hObject,'Value');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -150,7 +150,7 @@ function edit_create_several_datasets_number_Callback(hObject, ~, handles) %#ok<
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 % Eingabe auslesen:
-handles.Settings.Several_Datasets_Number = ...
+handles.Current_Settings.Several_Datasets_Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -215,7 +215,7 @@ function edit_genera_wind_2_number_Callback(hObject, eventdata, ~) %#ok<DEFNU>
 
 set_plant_parameters(hObject, eventdata,'Wind', 2,'number');
 
-function push_export_data_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+function push_export_data_Callback(hObject, eventdata, handles)
 % hObject    Link zur Grafik push_data_save (siehe GCBO)
 % eventdata  nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
@@ -224,10 +224,29 @@ function push_export_data_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 set(handles.push_close,'Enable','off');
 set(handles.push_data_save,'Enable','off');
 set(handles.push_set_path_database,'Enable','off');
-set(handles.push_export_data,'Enable','off');
+% set(handles.push_export_data,'Enable','off');
 
 drawnow;
-handles = get_data(handles);
+
+try
+	handles = get_data_households(handles);
+	handles = get_data_solar(handles);
+	handles = get_data_wind(handles);
+catch ME
+	error_titl = 'Fehler beim extrahieren der Daten...';
+	error_text={...
+		'Ein Fehler ist aufgetreten:';...
+		'';...
+		ME.message};
+	errordlg(error_text, error_titl);
+	set(handles.push_close,'Enable','on');
+	set(handles.push_set_path_database,'Enable','on');
+	set(handles.push_export_data,'Enable','on');
+	handles = refresh_display(handles);
+	% handles-Struktur aktualisieren:
+	guidata(hObject, handles);
+	return;
+end
 
 % Daten nachbearbeiten:
 handles = adobt_data_for_display(handles);
@@ -255,29 +274,60 @@ end
 % handles-Struktur aktualisieren:
 guidata(hObject, handles);
 
-function push_set_path_database_Callback(hObject, ~, handles) %#ok<DEFNU>
+function push_genera_pv_1_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_pv_1_parameters (siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Sola', 1,'set_parameters');
+
+function push_genera_pv_2_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_pv_1_parameters (siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Sola', 2,'set_parameters');
+
+function push_set_path_database_Callback(hObject, ~, handles) 
 % hObject    Link zur Grafik push_set_path_database (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-Main_Path = uigetdir(handles.Settings.Database.Path,['Auswählen des Hauptordners ',...
-	'einer Datenbank:']);
+% alte Datenbankeinstellungen entfernen:
+if isfield(handles.Current_Settings.Database,'setti')
+	handles.Current_Settings.Database = rmfield(...
+		handles.Current_Settings.Database,'setti');
+end
+if isfield(handles.Current_Settings.Database,'files')
+	handles.Current_Settings.Database = rmfield(...
+		handles.Current_Settings.Database,'files');
+end
+
+% Userabfrage nach neuen Datenbankpfad:
+Main_Path = uigetdir(handles.Current_Settings.Database.Path,...
+	'Auswählen des Hauptordners einer Datenbank:');
 if ischar(Main_Path)
 	[pathstr, name] = fileparts(Main_Path);
-	handles.Settings.Database.Path = pathstr;
-	handles.Settings.Database.Name = name;
+	% Die Einstellungen übernehmen:
+	handles.Current_Settings.Database.Path = pathstr;
+	handles.Current_Settings.Database.Name = name;
 	% Laden der Datenbankeinstellungen:
 	try
 		load([pathstr,filesep,name,filesep,name,'.mat']);
-		handles.Settings.Database.setti = setti;
-		handles.Settings.Database.files = files;
+		handles.Current_Settings.Database.setti = setti;
+		handles.Current_Settings.Database.files = files;
 		helpdlg('Datenbank erfolgreich geladen!', 'Laden der Datenbank...');
-	catch ME
+	catch ME %#ok<NASGU>
+		% Falls keine gültige Datenbank geladen werden konnte, Fehlermeldung an User:
 		errordlg('Am angegebenen Pfad wurde keine gültige Datenbank gefunden!',...
 			'Fehler beim laden der Datenbank...');
+		% Anzeige aktualisieren:
+		handles = refresh_display(handles);
 	end
 end
 
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
 % handles-Structure aktualisieren:
 guidata(hObject, handles);
 
@@ -286,7 +336,7 @@ function radio_season_1_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Season = logical([1 0 0]');
+handles.Current_Settings.Season = logical([1 0 0]');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -299,7 +349,7 @@ function radio_season_2_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Season = logical([0 1 0]');
+handles.Current_Settings.Season = logical([0 1 0]');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -312,7 +362,7 @@ function radio_season_3_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Season = logical([0 0 1]');
+handles.Current_Settings.Season = logical([0 0 1]');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -325,7 +375,7 @@ function radio_weekday_1_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Weekday = logical([1 0 0]');
+handles.Current_Settings.Weekday = logical([1 0 0]');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -338,7 +388,7 @@ function radio_weekday_2_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Weekday = logical([0 1 0]');
+handles.Current_Settings.Weekday = logical([0 1 0]');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -351,7 +401,7 @@ function radio_weekday_3_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Weekday = logical([0 0 1]');
+handles.Current_Settings.Weekday = logical([0 0 1]');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -369,13 +419,13 @@ function popup_file_type_output_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Output_Datatyp = get(hObject,'Value');
+handles.Current_Settings.Output_Datatyp = get(hObject,'Value');
 
 % aktuelle Dateiendung auslesen:
-handles.Settings.Target.Exte = ...
-	handles.System.outputdata_types{handles.Settings.Output_Datatyp,1}(2:end);
+handles.Current_Settings.Target.Exte = ...
+	handles.System.outputdata_types{handles.Current_Settings.Output_Datatyp,1}(2:end);
 
-% handles-Structure aktualisieren:
+% handles-Struktur aktualisieren:
 guidata(hObject, handles);
 
 function popup_time_resolution_Callback(hObject, ~, handles) %#ok<DEFNU>
@@ -383,7 +433,7 @@ function popup_time_resolution_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Time_Resolution = get(hObject,'Value');
+handles.Current_Settings.Time_Resolution = get(hObject,'Value');
 
 % handles-Structure aktualisieren:
 guidata(hObject, handles);
@@ -402,10 +452,10 @@ function push_data_save_Callback(hObject, ~, handles)
 
 % aktuelle Dateierweiterung auslesen:
 
-file = handles.Settings.Target;
+file = handles.Current_Settings.Target;
 
 [file.Name,file.Path] = uiputfile([...
-	handles.System.outputdata_types(handles.Settings.Output_Datatyp,:);...
+	handles.System.outputdata_types(handles.Current_Settings.Output_Datatyp,:);...
 	{'*.*','Alle Dateien'}],...
 	'Speicherort für generiete Daten...',...
 	[file.Path,filesep,file.Name,file.Exte]);
@@ -414,7 +464,7 @@ if ~isequal(file.Name,0) && ~isequal(file.Path,0)
 	[~, file.Name, file.Exte] = fileparts(file.Name);
 	file.Path = file.Path(1:end-1);
 	% Konfiguration übernehmen:
-	handles.Settings.Target = file;
+	handles.Current_Settings.Target = file;
 	% Daten speichern:
 	handles = save_data(handles);
 	% User informieren:
@@ -435,16 +485,6 @@ handles = Data_Explorer('Access_Tool', handles.accesstool_main_window);
 % handles-Structure aktualisieren:
 guidata(hObject, handles);
 
-function push_genera_pv_1_parameters_Callback(hObject, eventdata, handles)
-% hObject    handle to push_genera_pv_1_parameters (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-function push_genera_pv_2_parameters_Callback(hObject, eventdata, handles)
-% hObject    handle to push_genera_pv_2_parameters (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 function push_genera_pv_add_system_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik push_genera_pv_add_system (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
@@ -458,15 +498,19 @@ handles = refresh_display(handles);
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
 
-function push_genera_wind_1_parameters_Callback(hObject, eventdata, handles)
-% hObject    handle to push_genera_wind_1_parameters (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function push_genera_wind_1_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    push_genera_wind_1_parameters(siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
 
-function push_genera_wind_2_parameters_Callback(hObject, eventdata, handles)
-% hObject    handle to push_genera_wind_2_parameters (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+set_plant_parameters(hObject, eventdata,'Wind', 1,'set_parameters');
+
+function push_genera_wind_2_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_wind_2_parameters (siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Wind', 2,'set_parameters');
 
 function push_genera_wind_add_system_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik push_genera_wind_add_system (siehe GCBO)
@@ -571,8 +615,6 @@ typ = 'sing_vt';
 % detaillierte Daten zu den Haushalten darstellen:
 get_houshold_data_for_display(handles, typ);
 
-
-
 function edit_hh_coup_pt_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik edit_hh_coup_pt (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
@@ -580,7 +622,7 @@ function edit_hh_coup_pt_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 4;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -596,7 +638,7 @@ function edit_hh_coup_rt_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 6;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -612,7 +654,7 @@ function edit_hh_coup_vt_Callback (hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 2;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -628,7 +670,7 @@ function edit_hh_fami_1v_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 8;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -644,7 +686,7 @@ function edit_hh_fami_2v_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 7;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -660,7 +702,7 @@ function edit_hh_fami_rt_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 9;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -676,7 +718,7 @@ function edit_hh_sing_pt_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 3;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -692,7 +734,7 @@ function edit_hh_sing_rt_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 5;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -708,7 +750,7 @@ function edit_hh_sing_vt_Callback(hObject, ~, handles) %#ok<DEFNU>
 
 idx_hh = 1;
 % Eingabe auslesen:
-handles.Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
+handles.Current_Settings.Households.(handles.System.housholds{idx_hh,1}).Number = ...
 	round(str2double(get(hObject,'String')));
 
 % Anzeige aktualisieren:
@@ -716,6 +758,182 @@ handles = refresh_display(handles);
 
 % handles-Struktur aktualisieren
 guidata(hObject, handles);
+
+function menu_config_load_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_config_save (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+% aktuellen Speicherort für Konfigurationen auslesen:
+file = handles.Current_Settings.Config;
+% Userabfrage nach Speicherort
+[file.Name,file.Path] = uigetfile([...
+	{'*.cfg','DLE Konfigurationsdateien'};...
+	{'*.*','Alle Dateien'}],...
+	'Laden einer Konfiguration...',...
+	[file.Path,filesep]);
+% Überprüfen, ob gültiger Speicherort angegeben wurde:
+if ~isequal(file.Name,0) && ~isequal(file.Path,0)
+	% Falls, ja, Entfernen der Dateierweiterung vom Dateinamen:
+	[~, file.Name, file.Exte] = fileparts(file.Name);
+	% leztes Zeichen ("/") im Pfad entfernen:
+	file.Path = file.Path(1:end-1);
+	% Konfigurationsstrukturen laden ("Current_Settings" und "System"):
+	load('-mat', [file.Path,filesep,file.Name,file.Exte]);
+	handles.Current_Settings = Current_Settings; 
+	handles.System = System; 
+	% aktuellen Speicherort übernehmen:
+	handles.Current_Settings.Config = file;
+	
+	% Die Anzeige der Erzeugungsanlagen anpassen (falls bereits mehrere
+	% Erzeugungsanlagen angegeben wurden): 
+	todo = {'Sola','Wind'};
+	for i = 1:2
+		% Wieviele Erzeugungsanlagen sind im Datensatz vorhanden?
+		num_plants = size(fieldnames(Current_Settings.(todo{i})),1);
+		% Wieviele GUI-Eingabefelder gibt es gerade?
+		found_last_gui_tag = false;
+		% Zähler für die Felder, Start bei 2, weil mind. 2 Felder vorhanden sind:
+		gui_tag_counter = 2;
+		while ~found_last_gui_tag
+			gui_tag_counter = gui_tag_counter + 1;
+			last_tag = get_plant_gui_tags(System.(todo{i}).Tags, gui_tag_counter);
+			% überprüfen, ob es die akutellen Felder gibt:
+			if ~isfield(handles,last_tag{1})
+				% Wenn nicht, wurde das letze Tagfeld gefunden:
+				found_last_gui_tag = true;
+				% Zähler auf reae Anzahl von Eingabefelder zurücksetzen:
+				gui_tag_counter = gui_tag_counter - 1;
+			end
+		end
+		% Überprüfen, ob noch Eingabefelder fehlen:
+		if num_plants > gui_tag_counter
+			% Sicherheitskopie der Einstellungen erstellen:
+			plants = handles.Current_Settings.(todo{i});
+			% Default-Struktur wiederherstellen:
+			handles.Current_Settings.(todo{i}) = [];
+			handles.Current_Settings.(todo{i}).Plant_1 = ...
+				handles.System.(todo{i}).Default_Plant;
+			handles.Current_Settings.(todo{i}).Plant_2 = ...
+				handles.System.(todo{i}).Default_Plant;
+			% Falls mehr als die Defaultmäßig definierten vorhanden sind, zusätzliche
+			% Parameterfelder erzeugen, damit diese dargestellt werden können:
+			for j=1:num_plants-gui_tag_counter
+				handles = add_gernation_plant_to_gui(handles,todo{i});
+			end
+			% Einstellungen wiederherstellen:
+			handles.Current_Settings.(todo{i}) = plants;
+		elseif gui_tag_counter > num_plants
+			% Es sind mehr Eingabefelder als definierte Anlagen vorhanden, die
+			% überzähligen Anlagen auf Default setzen (deaktivieren):
+			for j=num_plants+1:gui_tag_counter
+				handles.Current_Settings.(todo{i}).(['Plant_',num2str(j)]) = ...
+				handles.System.(todo{i}).Default_Plant;
+			end
+		end
+	end
+	
+	% Versuch, die zugehörige Datenbank zu laden:
+	if isfield(handles.Current_Settings, 'Database')
+		try
+			db = handles.Current_Settings.Database;
+			load([db.Path,filesep,db.Name,filesep,db.Name,'.mat']);
+			handles.Current_Settings.Database.setti = setti;
+			handles.Current_Settings.Database.files = files;
+			
+			% Anzeige aktualisieren:
+			handles = refresh_display(handles);
+			
+			% User informieren:
+			helpdlg('Konfiguration erfolgreich geladen');
+		catch ME
+			% alte Datenbankeinstellungen entfernen:
+			if isfield(handles.Current_Settings.Database,'setti')
+				handles.Current_Settings.Database = rmfield(...
+					handles.Current_Settings.Database,'setti');
+			end
+			if isfield(handles.Current_Settings.Database,'files')
+				handles.Current_Settings.Database = rmfield(...
+					handles.Current_Settings.Database,'files');
+			end
+			% Anzeige aktualisieren:
+			handles = refresh_display(handles);
+			
+			% User informieren:
+			helpdlg({'Konfiguration erfolgreich geladen.',...
+				'Datenbank konnte nicht geladen werden,',...
+				'bitte Datenbankpfad erneut angeben!'});
+			disp('Fehler beim Laden der Datenbankeinstellungen:');
+			disp(ME.message);
+			
+			% handles-Struktur aktualisieren:
+			guidata(hObject, handles);
+		end
+	end
+end
+
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
+
+function menu_config_save_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_config_save (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+% aktuellen Speicherort für Konfigurationen auslesen:
+file = handles.Current_Settings.Config;
+% Userabfrage nach Speicherort
+[file.Name,file.Path] = uiputfile([...
+	{'*.cfg','DLE Konfigurationsdateien'};...
+	{'*.*','Alle Dateien'}],...
+	'Speicherort für aktuelle Konfiguration...',...
+	[file.Path,filesep,file.Name,file.Exte]);
+% Überprüfen, ob gültiger Speicherort angegeben wurde:
+if ~isequal(file.Name,0) && ~isequal(file.Path,0)
+	% Falls, ja, Entfernen der Dateierweiterung vom Dateinamen:
+	[~, file.Name, file.Exte] = fileparts(file.Name);
+	% leztes Zeichen ("/") im Pfad entfernen:
+	file.Path = file.Path(1:end-1);
+	% aktuellen Speicherort übernehmen:
+	handles.Current_Settings.Config = file;
+	% Konfiguration speichern:
+	Current_Settings = handles.Current_Settings; %#ok<NASGU>
+	System = handles.System; %#ok<NASGU>
+	save([file.Path,filesep,file.Name,file.Exte],'Current_Settings','System');
+	% User informieren:
+	helpdlg('Konfiguration erfolgreich gespeichert');
+end
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function menu_data_export_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_data_export (siehe GCBO)
+% eventdata  nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+push_export_data_Callback(hObject, eventdata, handles);
+
+function menu_data_save_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_data_save (siehe GCBO)
+% eventdata  nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+push_data_save_Callback(hObject, eventdata, handles);
+
+function menu_data_show_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_data_show (siehe GCBO)
+% eventdata  nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+push_data_show_Callback(hObject, eventdata, handles);
+
+function menu_database_load_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik menu_database_load (siehe GCBO)
+% eventdata  nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+push_set_path_database_Callback(hObject, eventdata, handles)
 
 function popup_genera_pv_1_typ_Callback(hObject, eventdata, ~) %#ok<DEFNU>
 % hObject    Link zur Grafik edit_genera_pv_1_installed_power (siehe GCBO)
@@ -750,7 +968,7 @@ function popup_genera_worstcase_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Worstcase_Generation = get(hObject,'Value');
+handles.Current_Settings.Worstcase_Generation = get(hObject,'Value');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -763,7 +981,7 @@ function popup_hh_worstcase_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Settings.Worstcase_Housholds = get(hObject,'Value');
+handles.Current_Settings.Worstcase_Housholds = get(hObject,'Value');
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);

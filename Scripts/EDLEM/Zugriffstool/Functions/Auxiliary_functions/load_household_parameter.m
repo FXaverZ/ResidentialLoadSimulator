@@ -1,6 +1,11 @@
 function Households = load_household_parameter() 
-%LOAD_HOUSEHOLD_PARAMETER   Gibt aktuelle Verteilung der Haushaltsgeräte zurück
-%    Ausführliche Beschreibung fehlt!
+%LOAD_HOUSEHOLD_PARAMETER   gibt aktuelle Verteilung der Haushaltsgeräte zurück
+%    LOAD_HOUSEHOLD_PARAMETER ist die Definitionsdatei, innerhalb der die
+%    Haushaltszusammensetzung sowie die Geräteausstattung definiert werden. Die hier
+%    eingetragenen Daten stammen aus dem Projekt ADRES bzw. aus weiteren Umfragen
+%    (detaillierter Aufteilung von "Audio-Video-Geräte" und "Bürogeräte").
+%    
+%    Nähere Informationen gibt der Endbericht des Projekts EDLEM.
 
 % Franz Zeilinger - 30.11.2011
 
@@ -104,7 +109,8 @@ Households.Device_Distribution.fami_rt = {...
 % die oberen Listen anhand der bekannten Aufteilungen um weitere Geräte erweitern.
 % Hier wird insbesondere mit dem Ausstattungsgrad von Fernsehern und Desktop PCs (die
 % in der Statistik als Notebook + PCs angeführt sind) auf die Ausstattung mit den
-% Zusatzgeräten geschlossen. Daten zu der Aufteiling: siehe DA Zeilinger 2010.
+% Zusatzgeräten geschlossen. Daten zu der Aufteiling: siehe DA Zeilinger 2010 bzw.
+% Endbericht EDLEM:
 equ_degr_a_v = {...
 	'Fernseher',           22.27;...
 	'Set-Top-Boxen',       15.97;...
@@ -124,7 +130,7 @@ equ_degr_office = {...
 
 for k = 1:size(Households.Types,1)
 	typ = Households.Types{k,1};
-	% auslesen der bekannten Ausstattungsgrade:
+	% Auslesen der bekannten Ausstattungsgrade:
 	degr_tv_set = Households.Device_Distribution.(typ){6,2};
 	degr_PC_NBs = Households.Device_Distribution.(typ){7,2};
 	% Ausstattungsfaktor anhand der Ausstattung mit Fernsehgeräten bzw. PCs ermitteln:
