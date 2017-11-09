@@ -1,6 +1,6 @@
 *.conf
+*.cfg
 *.xls
 *.xlsx
 *.asv
 *.mat
-*.fig
