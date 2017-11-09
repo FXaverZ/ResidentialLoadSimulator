@@ -1,7 +1,29 @@
 function set_plant_parameters(hObject, eventdata, plant_typ, plant_idx, ...
 	parameter_typ)
-%SET_PLANT_PARAMETERS Summary of this function goes here
-%   Detailed explanation goes here
+%SET_PLANT_PARAMETERS    Einstellungen für Erzeugungsanlagen übernehmen
+%    SET_PLANT_PARAMETERS(HOBJECT, EVENTDATA, PLANT_TYP, PLANT_IDX, PARAMETER_TYP)
+%    ermöglicht das Ändern der Parameter von Erzeugungsanlagen.
+%    Dabei wird direkt auf die handles-Struktur des aufrufenden GUI-Objekts zurück-
+%    gegriffen (siehe GUIDATA). Über die Angabe des Erzeugertyps (PLANT_TYP), Index 
+%    der Anlage in der Datenstruktur (PLANT_IDX) und die Angabe des Parameters, der 
+%    geändert werden soll (PARAMETER_TYP), werden die entsprechenden Einstellungen 
+%    im GUI übernommen.
+%
+%    Die Möglichkeiten sind dabei:
+%        PLANT_TYP = Art der Erzeugungsanlage 
+%            'Sola' ... Solaranlage
+%            'Wind' ... Windkraftanlage
+%        PARAMETER_TYP = Zu ändernder Parameter (wird mit HOBJECT ausgelesen)
+%            'installed_power' ... installierte Leistung 
+%            'number'          ... Anzahl an gleichen Analgen
+%            'typ'             ... Bauart der Anlage (z.B. 'fix' oder 'tracker')
+%            'set_parameters'  ... Aufrufen des Sub-GUIs mit den erweiterten
+%                                  Einstellungen
+%
+%    Der Parameter EVENTDATA wird nicht benötigt, muss aber in der Input-Liste
+%    angeführt werden (MATLAB spezifisch)!
+
+% Franz Zeilinger - 30.05.2012
 
 handles = guidata(hObject);
 

@@ -1,7 +1,14 @@
 function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
 	radiation_data, month, time_resolution)
-%MODEL_PV_FIX 
-%   Detaillierte Beschreibung fehlt!
+%MODEL_PV_FIX    Modell einer fix aufgeständerten PV-Anlage
+%    DATA_PHASE = MODEL_PV_FIX(PLANT, CONTENT, DATA_CLOUD_FACTOR, RADIATION_DATA,...
+%    MONTH, TIME_RESOLUTION) ermittelt aus den übergebenen Einstrahlungsdaten
+%    (RADIATION_DATA mit dem Inhalten definiert in der Struktur CONTENT) und den
+%    Bewölkungsfaktoren DATA_CLOUD_FACTOR für den Monat MONTH (1...12) die
+%    eingespeiste Leistung DATA_PHASE ([t,6]-Matrix für t Zeitpunkte) in der
+%    zeitlichen Auflösung definiert durch TIME_RESOLUTION.
+%    Die Anlagenparameter, nach der diese Berechnung durchgeführt wird, sind in der
+%    Struktur PLANT enthalten.
 
 % Franz Zeilinger - 16.01.2012
 
@@ -24,7 +31,7 @@ inclina = content.inclina;
 time_fine = time(1):1/86400:time(end);
 % Interpolieren der Zeitreihen, zuerst direkte Einstrahlung:
 rad_dir = squeeze(...
-	interp3(x,y,z,data_dir,plant.Inclination,plant.Orientation,time_fine,'cubic'))';
+	interp3(x,y,z,data_dir,plant.Inclination,plant.Orientation,time_fine,'spline'))';
 rad_dir(rad_dir<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
 %                                 Interpolation)
 % dann die diffuse Strahlung:

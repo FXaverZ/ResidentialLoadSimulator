@@ -7,7 +7,7 @@ function out = vary_parameter(mean, sigma, varargin)
 %    der M Parameter die Standardabweichung definiert.
 %    Im Fall eines MEAN-Arrays der Form [N,1] kann Sigma ein Einzelwert sein
 %    (der die Standardverteilung für alle N Einträge darstellt) oder ebenfalls
-%    ein [N,1]-Array, welches verschiedene Standarabweichungen zu den korrespon-
+%    ein [N,1]-Array, welches verschiedene Standardabweichungen zu den korrespon-
 %    dierenden Werten von MEAN angibt.
 %    SIGMA muss in % angegeben werden!
 %

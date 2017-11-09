@@ -1,7 +1,14 @@
 function data_phase = model_pv_tra(plant, data_cloud_factor, ...
 	radiation_data, month, time_resolution)
-%MODEL_PV_TRA Summary 
-%   Detaillierte Beschreibung fehlt!
+%MODEL_PV_TRA    Modell eines PV-Trackers 
+%    DATA_PHASE = MODEL_PV_TRA(PLANT, CONTENT, DATA_CLOUD_FACTOR, RADIATION_DATA,...
+%    MONTH, TIME_RESOLUTION) ermittelt aus den übergebenen Einstrahlungsdaten
+%    (RADIATION_DATA mit dem Inhalten definiert in der Struktur CONTENT) und den
+%    Bewölkungsfaktoren DATA_CLOUD_FACTOR für den Monat MONTH (1...12) die
+%    eingespeiste Leistung DATA_PHASE ([t,6]-Matrix für t Zeitpunkte) in der
+%    zeitlichen Auflösung definiert durch TIME_RESOLUTION.
+%    Die Anlagenparamerter, nach der diese Berechnung durchgeführt wird, sind in der
+%    Struktur PLANT enthalten.
 
 % Franz Zeilinger - 16.01.2012
 

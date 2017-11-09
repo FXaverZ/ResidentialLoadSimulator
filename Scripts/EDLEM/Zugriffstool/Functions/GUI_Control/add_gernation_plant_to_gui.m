@@ -1,6 +1,9 @@
 function handles = add_gernation_plant_to_gui(handles, genera_typ)
 %ADD_GERNATION_PLANT_TO_GUI    fügt eine Erzeugungsanlage dem GUI "Access_Tool" hinzu
-%   Detaillierte Beschreibung fehlt!
+%    HANDLES = ADD_GERNATION_PLANT_TO_GUI(HANDLES, GENERA_TYP) fügt dem GUI
+%    'Access_Tool' eine weitere Erzeugungsanlage hinzu. Über GENERA_TYP wird
+%    definiert, ob eine PV-Anlage ('Sola') oder eine Windkraftanlage ('Wind')
+%    hinzugefügt wird.
 
 % Franz Zeilinger - 23.01.2012
 

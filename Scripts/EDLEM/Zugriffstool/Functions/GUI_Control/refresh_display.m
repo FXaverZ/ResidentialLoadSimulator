@@ -1,4 +1,8 @@
 function handles = refresh_display(handles)
+%REFRESH_DISPLAY    führt eine Aktualisierung des Haupt-GUIs von Access_Tool durch
+%    HANDLES = REFRESH_DISPLAY(HANDLES) führt verschiedene Operationen durch, um das
+%    Erscheinungsbild des Hauptfensters des GUIs von Access_Tool zu aktualisieren.
+%    Diese Funktion sollte nach jeder Änderung von Parameterwerten aufgerufen werden!
 
 % Franz Zeilinger - 23.01.2012
 
@@ -6,6 +10,54 @@ function handles = refresh_display(handles)
 for i=1:3
 	set(handles.(['radio_season_',num2str(i)]),'Value',handles.Current_Settings.Season(i));
 	set(handles.(['radio_weekday_',num2str(i)]),'Value',handles.Current_Settings.Weekday(i));
+end
+
+% Die Anzeige der Erzeugungsanlagen anpassen (falls bereits mehrere
+% Erzeugungsanlagen angegeben wurden):
+todo = {'Sola','Wind'};
+for i = 1:2
+	% Wieviele Erzeugungsanlagen sind im Datensatz vorhanden?
+	num_plants = size(fieldnames(handles.Current_Settings.(todo{i})),1);
+	% Wieviele GUI-Eingabefelder gibt es gerade?
+	found_last_gui_tag = false;
+	% Zähler für die Felder, Start bei 2, weil mind. 2 Felder vorhanden sind:
+	gui_tag_counter = 2;
+	while ~found_last_gui_tag
+		gui_tag_counter = gui_tag_counter + 1;
+		last_tag = get_plant_gui_tags(handles.System.(todo{i}).Tags, gui_tag_counter);
+		% überprüfen, ob es die akutellen Felder gibt:
+		if ~isfield(handles,last_tag{1})
+			% Wenn nicht, wurde das letze Tagfeld gefunden:
+			found_last_gui_tag = true;
+			% Zähler auf reae Anzahl von Eingabefelder zurücksetzen:
+			gui_tag_counter = gui_tag_counter - 1;
+		end
+	end
+	% Überprüfen, ob noch Eingabefelder fehlen:
+	if num_plants > gui_tag_counter
+		% Sicherheitskopie der Einstellungen erstellen:
+		plants = handles.Current_Settings.(todo{i});
+		% Default-Struktur wiederherstellen:
+		handles.Current_Settings.(todo{i}) = [];
+		handles.Current_Settings.(todo{i}).Plant_1 = ...
+			handles.System.(todo{i}).Default_Plant;
+		handles.Current_Settings.(todo{i}).Plant_2 = ...
+			handles.System.(todo{i}).Default_Plant;
+		% Falls mehr als die Defaultmäßig definierten vorhanden sind, zusätzliche
+		% Parameterfelder erzeugen, damit diese dargestellt werden können:
+		for j=1:num_plants-gui_tag_counter
+			handles = add_gernation_plant_to_gui(handles,todo{i});
+		end
+		% Einstellungen wiederherstellen:
+		handles.Current_Settings.(todo{i}) = plants;
+	elseif gui_tag_counter > num_plants
+		% Es sind mehr Eingabefelder als definierte Anlagen vorhanden, die
+		% überzähligen Anlagen auf Default setzen (deaktivieren):
+		for j=num_plants+1:gui_tag_counter
+			handles.Current_Settings.(todo{i}).(['Plant_',num2str(j)]) = ...
+				handles.System.(todo{i}).Default_Plant;
+		end
+	end
 end
 
 % Anlagenparametrierungen zur Anzeige bringen:

@@ -1,8 +1,8 @@
 function handles = save_data(handles)
 %SAVE_DATA   speichern eines Datenbankauszugs
-%    HANDLES = SAVE_DATA(HANDLES) führt die Speicherung des aktuellen Datebankauszugs
-%    gemäß den Einstellungen, die in der HANDLES-Struktur angegeben sind. Je nach
-%    geforderten Datentyp bzw. Datenauflösung werden die Daten zusätzlich noch
+%    HANDLES = SAVE_DATA(HANDLES) führt die Speicherung des aktuellen Datenbankauszugs
+%    gemäß den Einstellungen, die in der HANDLES-Struktur angegeben sind, durch. Je 
+%    nach geforderten Datentyp bzw. Datenauflösung werden die Daten zusätzlich noch
 %    aufbereitet.
 
 % Franz Zeilinger - 23.01.2011
@@ -10,6 +10,8 @@ function handles = save_data(handles)
 % Auslesen wichtiger Einstellugen und der Results-Strukutr:
 file = handles.Current_Settings.Target;
 resu = handles.Result;
+% Anzahl an Phasen (um diese mit den Daten mitzuspeichern):
+number_phases = 3;
 
 % Einstellungen der Daten auslesen:
 Current_Settings = resu.Current_Settings;
@@ -101,6 +103,9 @@ if Current_Settings.Output_Single_Phase
 	% vor):
 	data_phase_wi = data_phase;
 	clear('data_phase');
+	
+	% Anzahl der Phasen auf eins setzen
+	number_phases = 1; %#ok<*NASGU>
 end
 
 % Je nach Einstellung verschiedene Speichermethoden starten:
@@ -109,7 +114,7 @@ switch handles.Current_Settings.Output_Datatyp
 	case 1 % .mat - MATLAB Binärdatei
 		% Daten speichern:
 		save([file.Path,filesep,file.Name,file.Exte],'data_phase_hh',...
-			'data_phase_pv','data_phase_wi');
+			'data_phase_pv','data_phase_wi', 'number_phases');
 	
 	case 2 % .csv - Commaseparated Values
 		% Erzeugen einer .csv-Datei mit den Lastprofilen inkl. Zeitstempel:
@@ -142,7 +147,7 @@ switch handles.Current_Settings.Output_Datatyp
 		% Daten schreiben:
 		dlmwrite(csvn_phase,data_phase,'-append',...
 			'delimiter',';',...
-			'precision','%1.2f');
+			'precision','%1.4f');
 		
 	case 3 % .xlsx - EXCEL Spreadsheet
 		% Erzeugen einer .xls-Datei mit den Lastprofilen inkl. Zeitstempel:

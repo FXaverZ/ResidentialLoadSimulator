@@ -7,7 +7,7 @@ function data_phase = model_wind_turbine(plant_parameters, v_wind)
 %   Blindleistungen darstellen. N entspricht der Anzahl der Zeitpunkte von V_WIND,
 %   welche in Sekundenauflösung übergeben werden müssen!
 %   Die Struktur PLANT_PARAMETERS enthält alle Anlagenparameter der Windturbine
-%   (siehe Funktion GET_WIND_TURBINE_PARAMETERS)
+%   (siehe Funktion GET_WIND_TURBINE_PARAMETERS).
 
 % Franz Zeilinger - 17.01.2012
 

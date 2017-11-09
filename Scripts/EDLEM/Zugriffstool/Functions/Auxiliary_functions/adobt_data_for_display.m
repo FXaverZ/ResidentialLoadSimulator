@@ -1,7 +1,13 @@
 function handles = adobt_data_for_display(handles)
-%ADOBT_DATA_FOR_DISPLAY    aufbereiten der Daten für GUI "Datenexplorer"
+%ADOBT_DATA_FOR_DISPLAY    aufbereiten der Daten für GUI 'Data_Explorer'
+%    HANDLES = ADOBT_DATA_FOR_DISPLAY(HANDLES) fügt der Struktur RESULTS innerhalb
+%    der HANDLES Datenstruktur die Struktur DISPLAYABLE hinzu, welche die
+%    aufbereiteten Daten für die Darstellung im Daten Explorer enthält. So sind
+%    innerhalb dieser Struktur neben den eigentlichen Daten auch die Beschreibung,
+%    Einheit, Legendeneinträge und Achsenbeschriftungen vorhanden, auf die der
+%    'Data_Explorer' zurückgreift.
 
-% Franz Zeilinger - 04.01.2011
+% Franz Zeilinger - 04.01.2012
 
 Result = handles.Result;
 time_points = max(...

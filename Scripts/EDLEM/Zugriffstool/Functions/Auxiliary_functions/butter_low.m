@@ -1,7 +1,8 @@
 function [num, den] = butter_low(n, Wn)
 %BUTTER_LOW    Parameter für Tiefpassfilter n-ter Ordnung 
-%   Erstellt Parameter für einen Tiefpassfilter n-ter Ordnung. In Anlehnung an die
-%   Funktion BUTTER der Signal-Processing-Toolbox.
+%   [NUM, DEN] = BUTTER_LOW(N, WN) Erstellt Parameter [NUM, DEN] für einen 
+%   Tiefpassfilter N-ter Ordnung mit der Grenzfrequenz WN. In Anlehnung an die
+%   Funktion BUTTER der Signal-Processing-Toolbox. 
 
 % Franz Zeilinger - 23.01.2012
 

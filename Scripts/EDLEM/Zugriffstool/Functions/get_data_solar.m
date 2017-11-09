@@ -1,7 +1,7 @@
 function handles = get_data_solar (handles)
 %GET_DATA_SOLAR    extrahiert und simuliert die Einspeise-Daten der Solaranlagen
 
-% Franz Zeilinger - 16.01.2012
+% Franz Zeilinger - 14.02.2012
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
@@ -177,18 +177,5 @@ end
 Result.Solar = calculate_additional_data(Result.Solar);
 % Ergebnis zurückschreiben:
 handles.Result = Result;
-end
-
-function structure = calculate_additional_data(structure)
-structure.Active_Power_Total = sum(structure.Data(:,1:2:end),2);
-structure.Reactive_Power_Total = sum(structure.Data(:,2:2:end),2);
-structure.Active_Power_Phase = [...
-	sum(structure.Data(:,1:6:end),2),...
-	sum(structure.Data(:,3:6:end),2),...
-	sum(structure.Data(:,5:6:end),2)];
-structure.Reactive_Power_Phase = [...
-	sum(structure.Data(:,2:6:end),2),...
-	sum(structure.Data(:,4:6:end),2),...
-	sum(structure.Data(:,6:6:end),2)];
 end
 

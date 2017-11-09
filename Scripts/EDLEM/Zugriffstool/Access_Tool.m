@@ -79,28 +79,6 @@ try
 	load('-mat', [file.Path,filesep,file.Name,file.Exte]);
 	handles.Current_Settings = Current_Settings;
 	handles.System = System;
-	% Die Anzeige anpassen (falls bereits mehrere Erzeugungsanlagen angegeben 
-	% wurden):
-	todo = {'Sola','Wind'};
-	for i = 1:2
-		% Wieviele Erzeugungsanlagen sind im Datensatz vorhanden?
-		num_plants = size(fieldnames(handles.Current_Settings.(todo{i})),1);
-		if num_plants > 2
-			% Sicherheitskopie der Einstellungen erstellen:
-			plants = handles.Current_Settings.(todo{i});
-			% Default-Struktur wiederherstellen:
-			handles.Current_Settings.(todo{i}) = [];
-			handles.Current_Settings.(todo{i}).Plant_1 = handles.System.(todo{i}).Default_Plant;
-			handles.Current_Settings.(todo{i}).Plant_2 = handles.System.(todo{i}).Default_Plant;
-			% Falls mehr als die Defaultmäßig definierten vorhanden sind, zusätzliche
-			% Parameterfelder erzeugen, damit diese dargestellt werden können:
-			for j=1:num_plants-2
-				handles = add_gernation_plant_to_gui(handles,todo{i});
-			end
-			% Einstellungen wiederherstellen:
-			handles.Current_Settings.(todo{i}) = plants;
-		end
-	end
 	
 	% Versuch, die Datenbankeinstellungen zu laden:
 	if isfield(handles.Current_Settings, 'Database')
@@ -339,84 +317,6 @@ end
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function radio_season_1_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_season_1 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Season = logical([1 0 0]');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function radio_season_2_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_season_2 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Season = logical([0 1 0]');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function radio_season_3_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_season_3 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Season = logical([0 0 1]');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function radio_weekday_1_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_weekday_1 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Weekday = logical([1 0 0]');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function radio_weekday_2_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_weekday_2 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Weekday = logical([0 1 0]');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function radio_weekday_3_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_weekday_3 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Weekday = logical([0 0 1]');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
 % handles-Structure aktualisieren:
 guidata(hObject, handles);
 
@@ -808,58 +708,12 @@ if ~isequal(file.Name,0) && ~isequal(file.Path,0)
 	file.Path = file.Path(1:end-1);
 	% Konfigurationsstrukturen laden ("Current_Settings" und "System"):
 	load('-mat', [file.Path,filesep,file.Name,file.Exte]);
-	handles.Current_Settings = Current_Settings; 
-	handles.System = System; 
+	handles.Current_Settings = Current_Settings;
+	handles.System = System;
 	% aktuellen Speicherort übernehmen:
 	handles.Current_Settings.Config = file;
-	
-	% Die Anzeige der Erzeugungsanlagen anpassen (falls bereits mehrere
-	% Erzeugungsanlagen angegeben wurden): 
-	todo = {'Sola','Wind'};
-	for i = 1:2
-		% Wieviele Erzeugungsanlagen sind im Datensatz vorhanden?
-		num_plants = size(fieldnames(Current_Settings.(todo{i})),1);
-		% Wieviele GUI-Eingabefelder gibt es gerade?
-		found_last_gui_tag = false;
-		% Zähler für die Felder, Start bei 2, weil mind. 2 Felder vorhanden sind:
-		gui_tag_counter = 2;
-		while ~found_last_gui_tag
-			gui_tag_counter = gui_tag_counter + 1;
-			last_tag = get_plant_gui_tags(System.(todo{i}).Tags, gui_tag_counter);
-			% überprüfen, ob es die akutellen Felder gibt:
-			if ~isfield(handles,last_tag{1})
-				% Wenn nicht, wurde das letze Tagfeld gefunden:
-				found_last_gui_tag = true;
-				% Zähler auf reae Anzahl von Eingabefelder zurücksetzen:
-				gui_tag_counter = gui_tag_counter - 1;
-			end
-		end
-		% Überprüfen, ob noch Eingabefelder fehlen:
-		if num_plants > gui_tag_counter
-			% Sicherheitskopie der Einstellungen erstellen:
-			plants = handles.Current_Settings.(todo{i});
-			% Default-Struktur wiederherstellen:
-			handles.Current_Settings.(todo{i}) = [];
-			handles.Current_Settings.(todo{i}).Plant_1 = ...
-				handles.System.(todo{i}).Default_Plant;
-			handles.Current_Settings.(todo{i}).Plant_2 = ...
-				handles.System.(todo{i}).Default_Plant;
-			% Falls mehr als die Defaultmäßig definierten vorhanden sind, zusätzliche
-			% Parameterfelder erzeugen, damit diese dargestellt werden können:
-			for j=1:num_plants-gui_tag_counter
-				handles = add_gernation_plant_to_gui(handles,todo{i});
-			end
-			% Einstellungen wiederherstellen:
-			handles.Current_Settings.(todo{i}) = plants;
-		elseif gui_tag_counter > num_plants
-			% Es sind mehr Eingabefelder als definierte Anlagen vorhanden, die
-			% überzähligen Anlagen auf Default setzen (deaktivieren):
-			for j=num_plants+1:gui_tag_counter
-				handles.Current_Settings.(todo{i}).(['Plant_',num2str(j)]) = ...
-				handles.System.(todo{i}).Default_Plant;
-			end
-		end
-	end
+	% Anzeigen aktualisieren:
+	handles = refresh_display(handles);
 	
 	% Versuch, die zugehörige Datenbank zu laden:
 	if isfield(handles.Current_Settings, 'Database')
@@ -942,43 +796,123 @@ function menu_data_export_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 
 push_export_data_Callback(hObject, eventdata, handles);
 
-function menu_data_load_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+function menu_data_load_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik menu_data_load (siehe GCBO)
 % eventdata  nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-% % aktuellen Speicherort für Daten auslesen:
-% file = handles.Current_Settings.Target;
-% % Userabfrage nach Speicherort
-% [file.Name,file.Path] = uigetfile([...
-% 	{'*.mat','*.mat Datenbankauszug'};...
-% 	{'*.*','Alle Dateien'}],...
-% 	'Laden von Daten...',...
-% 	[file.Path,filesep]);
-% % Überprüfen, ob gültiger Speicherort angegeben wurde:
-% if ~isequal(file.Name,0) && ~isequal(file.Path,0)
-% 	% Falls, ja, Entfernen der Dateierweiterung vom Dateinamen:
-% 	[~, file.Name, file.Exte] = fileparts(file.Name);
-% 	% leztes Zeichen ("/") im Pfad entfernen:
-% 	file.Path = file.Path(1:end-1);
-% 	% Daten laden ("data_phase_hh", "data_phase_pv" und "data_phase_wi"):
-% 	load([file.Path,filesep,file.Name,file.Exte]);
-% 	try
-% 		% Konfigurationsstrukturen laden ("Current_Settings" und "System"):
-% 		load('-mat', [file.Path,filesep,file.Name,...
-% 			handles.Current_Settings.Config.Exte]);
-% 		handles.Current_Settings = Current_Settings;
-% 		handles.System = System;
-% 	catch ME
-% 	end
-% 	handles.Current_Settings = Current_Settings; 
-% 	handles.System = System; 
-% 	% aktuellen Speicherort übernehmen:
-% 	handles.Current_Settings.Config = file;
-% end
-% 
-% % handles-Struktur aktualisieren:
-% guidata(hObject, handles);
+% aktuellen Speicherort für Daten auslesen:
+file = handles.Current_Settings.Target;
+% Userabfrage nach Speicherort
+[file.Name,file.Path] = uigetfile([...
+	{'*.mat','*.mat Datenbankauszug'};...
+	{'*.*','Alle Dateien'}],...
+	'Laden von Daten...',...
+	[file.Path,filesep]);
+% Überprüfen, ob gültiger Speicherort angegeben wurde:
+if ~isequal(file.Name,0) && ~isequal(file.Path,0)
+	% Falls, ja, Entfernen der Dateierweiterung vom Dateinamen:
+	[~, file.Name, file.Exte] = fileparts(file.Name);
+	% leztes Zeichen ("/") im Pfad entfernen:
+	file.Path = file.Path(1:end-1);
+	try
+		% Daten laden ("data_phase_hh", "data_phase_pv", "data_phase_wi" und
+		% "number_phases"):
+		load([file.Path,filesep,file.Name,file.Exte]);
+		if number_phases < 3
+			exception = MException('VerifyLoadedData:OutOfBounds', ...
+				['Keine dreiphasigen Daten vorhanden! ',...
+				'Daten können nicht geladen werden!']);
+			throw(exception);
+		end
+		% Versuch, die zugehörige Konfiguration zu laden:
+		try
+			% Konfigurationsstrukturen laden ("Current_Settings" und "System"):
+			load('-mat', [file.Path,filesep,file.Name,...
+				handles.Current_Settings.Config.Exte]);
+			handles.Current_Settings = Current_Settings;
+			handles.System = System;
+			% Anzeigen aktualisieren:
+			handles = refresh_display(handles);
+			% Versuch, die zugehörige Datenbank zu laden:
+			if isfield(handles.Current_Settings, 'Database')
+				try
+					db = handles.Current_Settings.Database;
+					load([db.Path,filesep,db.Name,filesep,db.Name,'.mat']);
+					handles.Current_Settings.Database.setti = setti;
+					handles.Current_Settings.Database.files = files;	
+					% String für User-Info:
+					userstring = {['Daten und zugehörige Konfiguration wurden',...
+						' erfolgreich geladen!']};
+				catch ME
+					% alte Datenbankeinstellungen entfernen:
+					if isfield(handles.Current_Settings.Database,'setti')
+						handles.Current_Settings.Database = rmfield(...
+							handles.Current_Settings.Database,'setti');
+					end
+					if isfield(handles.Current_Settings.Database,'files')
+						handles.Current_Settings.Database = rmfield(...
+							handles.Current_Settings.Database,'files');
+					end
+					% String für User-Info:
+					userstring = {['Daten und Konfiguration wurden erfolgreich',...
+						' geladen.'],...
+						'Datenbank konnte nicht geladen werden,',...
+						'bitte Datenbankpfad erneut angeben!'};
+					disp('Fehler beim Laden der Datenbankeinstellungen:');
+					disp(ME.message);
+					
+					% handles-Struktur aktualisieren:
+					guidata(hObject, handles);
+				end
+			end
+		catch ME
+			% String für User-Info:
+			userstring = {'Daten wurden erfolgreich geladen.',...
+				'Die zugehörige Konfiguration konnte aber nicht geladen werden.',...
+				['ACHTUNG: Aktuelle Einstellungen stimmen nicht mit jenen',...
+				' der Daten überein!']};
+			disp('Fehler beim Laden der Konfigurationsdatei:');
+			disp(ME.message);
+		end
+		
+		% Daten nachbearbeiten um neue Results-Struktur zu erhalten:
+		% bisherige Result-Struktur löschen
+		if isfield(handles, 'Result')
+			handles = rmfield(handles, 'Result');
+		end
+		% Zuerst Rohdaten zurückschreiben:
+		handles.Result.Households.Data = data_phase_hh;
+		handles.Result.Solar.Data = data_phase_pv;
+		handles.Result.Wind.Data = data_phase_wi;
+		% Nachbehandlung der Funtionen get_data_households, get_data_solar und
+		% get_data_wind durchführen:
+		handles.Result.Households = calculate_additional_data(handles.Result.Households);
+		handles.Result.Solar = calculate_additional_data(handles.Result.Solar);
+		handles.Result.Wind = calculate_additional_data(handles.Result.Wind);
+		% Die Daten weiter nachbearbeiten:
+		handles = add_settings(handles);
+		handles = adobt_data_for_display(handles);
+		% Anzeige aktualisieren:
+		handles = refresh_display(handles);
+		% User informieren:
+		helpdlg(userstring,'Laden der Daten...');
+	catch ME
+		error_titl = 'Fehler beim laden der Daten...';
+		error_text={...
+			'Ein Fehler ist aufgetreten:';...
+			'';...
+			ME.message};
+		errordlg(error_text, error_titl);
+		handles = refresh_display(handles);
+		% handles-Struktur aktualisieren:
+		guidata(hObject, handles);
+		return;
+	end
+end
+
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
 
 function menu_data_save_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik menu_data_save (siehe GCBO)
@@ -1053,6 +987,84 @@ handles.Current_Settings.Worstcase_Housholds = get(hObject,'Value');
 handles = refresh_display(handles);
 
 % handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function radio_season_1_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_season_1 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Season = logical([1 0 0]');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function radio_season_2_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_season_2 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Season = logical([0 1 0]');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function radio_season_3_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_season_3 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Season = logical([0 0 1]');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function radio_weekday_1_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_weekday_1 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Weekday = logical([1 0 0]');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function radio_weekday_2_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_weekday_2 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Weekday = logical([0 1 0]');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function radio_weekday_3_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_weekday_3 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Weekday = logical([0 0 1]');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
 guidata(hObject, handles);
 
 % --- create-Funktionen (werden unmittelbar vor Sichtbarmachen des GUIs ausgeführt):

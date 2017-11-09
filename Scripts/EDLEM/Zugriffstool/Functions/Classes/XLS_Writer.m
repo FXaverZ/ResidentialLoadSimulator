@@ -5,7 +5,7 @@ classdef XLS_Writer < handle
 	%    werden auch mehrere Arbeitsblätter unterstützt.
 	%    Mit Hilfe des Befehls WRITE_OUTPUT(XLSN) wird dann das
 	%    Output-Cell-Array als .xls-Datei abgespeichert.
-	%
+	
 	%    Franz Zeilinger - 14.06.2011
 	
 	properties

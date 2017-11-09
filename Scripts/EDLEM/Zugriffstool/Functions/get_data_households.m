@@ -1,7 +1,7 @@
 function handles = get_data_households (handles)
 %GET_DATA_HOUSEHOLDS    extrahiert die Daten der Haushalte 
 
-% Franz Zeilinger - 22.12.2011
+% Franz Zeilinger - 14.02.2012
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
@@ -25,8 +25,8 @@ for i=1:size(system.housholds,1)
 	% Anzahl der Haushalte gem‰ﬂ Einstellungen auslesen:
 	number_hh = settin.Households.(system.housholds{i,1}).Number;
 	if number_hh < 1
-		% Falls f¸r diesen Haushalt keine Daten extrahiert werden sollen (Anzahl =
-		% 0), ¸berspringen:
+		% Falls f¸r diesen Haushalt keine Daten extrahiert werden sollen 
+		% (Anzahl = 0), ¸berspringen:
 		continue;
 	end
 	% Info Datei laden:
@@ -41,7 +41,7 @@ for i=1:size(system.housholds,1)
 	switch settin.Worstcase_Housholds
 		case 1 % Einstellung: Zuf‰llige Auswahl
 			% eine Indexliste erstellen, mit zuf‰llig ausgew‰hlten Datens‰tzen:
-			pool = 1:num_data_sets; % Liste mit Indizes der mˆglichen Datens‰tze
+			pool = 1:num_data_sets;   % Liste mit Indizes der mˆglichen Datens‰tze
 			idx = zeros(number_hh,1); % Liste mit Indizes der ausgew‰hlten Datens‰tze
 			                          % (mit 0 intialisieren)
 			for j = 1:number_hh
@@ -119,18 +119,5 @@ end
 Result.Households = calculate_additional_data(Result.Households);
 % Ergebnis zur¸ckschreiben:
 handles.Result = Result;
-end
-
-function structure = calculate_additional_data(structure)
-structure.Active_Power_Total = sum(structure.Data(:,1:2:end),2);
-structure.Reactive_Power_Total = sum(structure.Data(:,2:2:end),2);
-structure.Active_Power_Phase = [...
-	sum(structure.Data(:,1:6:end),2),...
-	sum(structure.Data(:,3:6:end),2),...
-	sum(structure.Data(:,5:6:end),2)];
-structure.Reactive_Power_Phase = [...
-	sum(structure.Data(:,2:6:end),2),...
-	sum(structure.Data(:,4:6:end),2),...
-	sum(structure.Data(:,6:6:end),2)];
 end
 

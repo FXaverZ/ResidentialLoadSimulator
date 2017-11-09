@@ -1,6 +1,11 @@
 function Output = get_houshold_data_for_display(handles, typ)
 %GET_HOUSHOLD_DATA_FOR_DISPLAY    formatiert Ausgabetext für Haushalte
-%   Detaillierte Beschreibung fehlt!
+%    OUTPUT = GET_HOUSHOLD_DATA_FOR_DISPLAY(HANDLES, TYP) liefert für einen Haushalt 
+%    von der Art TYP (z.B. 'sing_vt') über die Haushaltestruktur HOUSEHOLDS in der
+%    HANDLES Datenstruktur ein Cell-Array OUTPUT mit einzelnen Strings, das über ein
+%    Output-Fenster (siehe HELPDLG) ausgegeben werden kann. Es enthält die
+%    wichtigsten Informationen zu dieser Haushaltsklasse sowie deren mittlere
+%    Geräteausstattung.
 
 % Franz Zeilinger - 30.11.2011
 
