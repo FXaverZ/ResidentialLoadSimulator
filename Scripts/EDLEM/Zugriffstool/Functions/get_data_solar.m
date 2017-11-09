@@ -1,7 +1,7 @@
 function handles = get_data_solar (handles)
 %GET_DATA_SOLAR    extrahiert und simuliert die Einspeise-Daten der Solaranlagen
 
-% Franz Zeilinger - 14.02.2012
+% Franz Zeilinger - 04.07.2012
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
@@ -10,21 +10,24 @@ if isfield (handles, 'Result')
 	Result = handles.Result; % Ergebnisstruktur
 end
 max_num_data_set = db_fil.setti.max_num_data_set*6; % Anzahl an Datensätzen in einer
-                                                    % Teildatei --> da im Fall von
-                                                    % Wetterdaten nur eine Spalte pro
-                                                    % Zeitreihe (im Gegensatz zu
-                                                    % sechs bei den Haushalten)
-                                                    % benötigt wird, die Anzahl
-                                                    % entsprechend erhöhen...
+% Teildatei --> da im Fall von
+% Wetterdaten nur eine Spalte pro
+% Zeitreihe (im Gegensatz zu
+% sechs bei den Haushalten)
+% benötigt wird, die Anzahl
+% entsprechend erhöhen...
 sep = db_fil.files.sep;    % Trenner im Dateinamen (' - ')
 
 % die aktuellen Zeitdaten (Jahreszeit, Wochentag) auslesen:
 season = system.seasons{settin.Season,1};
-% Auslesen der zeitlichen Auflösung in Sekunden:
-time_resolution = system.time_resolutions{settin.Time_Resolution,2};
 
+% zeitliche Auflösung ermitteln:
+time_res = system.time_resolutions{settin.Data_Extract.Time_Resolution,2};
 % Ergebnis-Arrays initialisieren:
-Result.Solar.Data = [];
+Result.Solar.Data_Sample = [];
+Result.Solar.Data_Mean = [];
+Result.Solar.Data_Min = [];
+Result.Solar.Data_Max = [];
 
 % Gesamtanzahl der zu simulierenden Anlagen ermitteln:
 plants = fieldnames(handles.Current_Settings.Sola);
@@ -34,7 +37,7 @@ for i=1:numel(plants)
 	if plant.Typ == 1
 		continue;
 	else
-		number_plants = number_plants + plant.Number;	
+		number_plants = number_plants + plant.Number;
 	end
 end
 
@@ -63,8 +66,8 @@ load([path,filesep,name,'.mat']);
 % Aufbau des Arrays für geneigte Flächen (fix montiert, 'radiation_data_fix'):
 % 1. Dimension: Monat innerhalb einer Jahreszeit (je 4 Monate)
 % 2. Dimension: Orientierung z.B. [-15°, 0°, 15°] (0° = Süd; -90° = Ost)
-% 3. Dimension: Neigung [15°, 30°, 45°, 60°, 90°] (0°  = waagrecht, 
-%                                                        90° = senkrecht, 
+% 3. Dimension: Neigung [15°, 30°, 45°, 60°, 90°] (0°  = waagrecht,
+%                                                        90° = senkrecht,
 %                                                        trac = Tracker)
 % 4. Dimension: Datenart [Zeit, Temperatur, Direkt, Diffus]
 % 5. Dimension: Werte in W/m^2
@@ -93,7 +96,7 @@ switch settin.Worstcase_Generation
 		% Südausrichtung herangezogen:
 		idx_orient = Content.orienta == 0; % Index der Südausrichtung
 		idx_inclin = Content.inclina == min(Content.inclina); % Index der geringsten
-		                                                      % Neigung
+		% Neigung
 		% Anzahl der Datenpunkte jedes Monats ermitteln (d.h. Zeitwert > 0)
 		num_datapoi = sum(squeeze(...
 			radiation_data_fix(:,idx_orient, idx_inclin,1,:)) > 0,2); %#ok<NODEF>
@@ -106,7 +109,7 @@ switch settin.Worstcase_Generation
 		month_tra = find(e_avg_tra == max(e_avg_tra),1); % Monat für Tracker
 		
 		% Datensatz mit der geringsten durchschnittlichen Bewölkung finden:
-		[~, I] = sort(data_info); 
+		[~, I] = sort(data_info);
 		idx = I(1);
 	case 3 % niedrigste Tagesenergieeinspeisung
 		% Monat auswählen mit den geringsten durchnschnittlichen Einstrahlungswerten
@@ -114,7 +117,7 @@ switch settin.Worstcase_Generation
 		% Südausrichtung herangezogen:
 		idx_orient = Content.orienta == 0; % Index der Südausrichtung
 		idx_inclin = Content.inclina == min(Content.inclina); % Index der geringsten
-		                                                      % Neigung
+		% Neigung
 		% Anzahl der Datenpunkte jedes Monats ermitteln (d.h. Zeitwert > 0)
 		num_datapoi = sum(squeeze(...
 			radiation_data_fix(:,idx_orient, idx_inclin,1,:)) > 0,2); %#ok<NODEF>
@@ -127,9 +130,9 @@ switch settin.Worstcase_Generation
 		month_tra = find(e_avg_tra == min(e_avg_tra),1); % Monat für Tracker
 		
 		% Datensatz mit der höchsten durchschnittlichen Bewölkung finden:
-		[~, I] = sort(data_info,'descend'); 
+		[~, I] = sort(data_info,'descend');
 		idx = I(1);
-% 	case 4
+		% 	case 4
 end
 
 % nun den ausgewählten Datensatz aus der richtigen Teildatei laden:
@@ -150,7 +153,7 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	% Daten laden (Variable "data_cloud_factor")
 	load([path,filesep,name,'.mat']);
 	% die relevanten Daten auslesen:
-	data_cloud_factor = data_cloud_factor(:,idx_part); 
+	data_cloud_factor = data_cloud_factor(:,idx_part);
 end
 
 % nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdate zur
@@ -165,16 +168,55 @@ for i=1:numel(plants)
 	switch plant.Typ
 		case 2 % Fix installierte Anlage
 			data_phase = model_pv_fix(plant, Content, data_cloud_factor,...
-				radiation_data_fix, month_fix, time_resolution);
+				radiation_data_fix, month_fix);
 		case 3 % Tracker
 			data_phase = model_pv_tra(plant, data_cloud_factor,...
-				radiation_data_tra, month_tra, time_resolution);
+				radiation_data_tra, month_tra);
 	end
-	Result.Solar.Data = [Result.Solar.Data, data_phase];
+	% je nach Einstellungen, die relevanten Daten auslesen:
+	if settin.Data_Extract.get_Sample_Value
+		data_sample = data_phase(1:time_res:end,:);
+		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+		Result.Solar.Data_Sample = [Result.Solar.Data_Sample,...
+			data_sample];
+	end
+	if settin.Data_Extract.get_Mean_Value || ...
+			settin.Data_Extract.get_Min_Max_Value
+		% Das ursprüngliche Datenarray so umformen, dass ein 3D Array mit allen
+		% Werten eines Zeitraumes in der ersten Dimension entsteht. Diese wird
+		% dann durch die nachfolgenden Funktionen (mean, min, max) sofort in die
+		% entsprechenden Werte umgerechnet. Mit squeeze muss dann nur mehr die
+		% Singleton-Dimension entfernt werden...
+		data_phase = data_phase(1:end-1,:);
+		data_mean = reshape(data_phase,...
+			time_res,[],size(data_phase,2));
+		% eingelesenen Daten wieder löschen (Speicher freigeben!)
+		clear data_phase;
+	end
+	if settin.Data_Extract.get_Min_Max_Value
+		data_min = squeeze(min(data_mean));
+		data_max = squeeze(max(data_mean));
+		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+		Result.Solar.Data_Min = [Result.Solar.Data_Min,...
+			data_min];
+		Result.Solar.Data_Max = [Result.Solar.Data_Max,...
+			data_max];
+		% eingelesenen Daten wieder löschen (Speicher freigeben!)
+		clear data_min;
+		clear data_max;
+	end
+	if settin.Data_Extract.get_Mean_Value
+		data_mean = squeeze(mean(data_mean));
+		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+		Result.Solar.Data_Mean = [Result.Solar.Data_Mean,...
+			data_mean];
+		% eingelesenen Daten wieder löschen (Speicher freigeben!)
+		clear data_mean
+	end
 end
 
-% abschließend Summenleistungen ermitteln:
-Result.Solar = calculate_additional_data(Result.Solar);
+% % abschließend Summenleistungen ermitteln:
+% Result.Solar = calculate_additional_data(Result.Solar);
 % Ergebnis zurückschreiben:
 handles.Result = Result;
 end

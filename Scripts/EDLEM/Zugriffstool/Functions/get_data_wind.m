@@ -1,7 +1,7 @@
 function handles = get_data_wind (handles)
 %GET_DATA_WIND    extrahiert und simuliert die Einspeise-Daten der Windkraftanlagen
 
-% Franz Zeilinger - 14.02.2012
+% Franz Zeilinger - 04.07.2012
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
@@ -20,11 +20,13 @@ sep = db_fil.files.sep;    % Trenner im Dateinamen (' - ')
 
 % die aktuellen Zeitdaten (Jahreszeit, Wochentag) auslesen:
 season = system.seasons{settin.Season,1};
-% Auslesen der zeitlichen Auflösung in Sekunden:
-time_resolution = system.time_resolutions{settin.Time_Resolution,2};
-
+% zeitliche Auflösung ermitteln:
+time_res = system.time_resolutions{settin.Data_Extract.Time_Resolution,2};
 % Ergebnis-Arrays initialisieren:
-Result.Wind.Data = [];
+Result.Wind.Data_Sample = [];
+Result.Wind.Data_Mean = [];
+Result.Wind.Data_Min = [];
+Result.Wind.Data_Max = [];
 
 % Gesamtanzahl der zu simulierenden Anlagen ermitteln:
 plants = fieldnames(handles.Current_Settings.Wind);
@@ -103,13 +105,50 @@ for i=1:numel(plants)
 		continue;
 	end
 	data_phase = model_wind_turbine(plant, data_v_wind);
-	% Daten an zeitliche Auflösung anpassen:
-	data_phase = data_phase(1:time_resolution:end,:);
-	Result.Wind.Data = [Result.Wind.Data, data_phase];
+	% je nach Einstellungen, die relevanten Daten auslesen:
+	if settin.Data_Extract.get_Sample_Value
+		data_sample = data_phase(1:time_res:end,:);
+		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+		Result.Wind.Data_Sample = [Result.Wind.Data_Sample,...
+			data_sample];
+	end
+	if settin.Data_Extract.get_Mean_Value || ...
+			settin.Data_Extract.get_Min_Max_Value
+		% Das ursprüngliche Datenarray so umformen, dass ein 3D Array mit allen
+		% Werten eines Zeitraumes in der ersten Dimension entsteht. Diese wird
+		% dann durch die nachfolgenden Funktionen (mean, min, max) sofort in die
+		% entsprechenden Werte umgerechnet. Mit squeeze muss dann nur mehr die
+		% Singleton-Dimension entfernt werden...
+		data_phase = data_phase(1:end-1,:);
+		data_mean = reshape(data_phase,...
+			time_res,[],size(data_phase,2));
+		% eingelesenen Daten wieder löschen (Speicher freigeben!)
+		clear data_phase;
+	end
+	if settin.Data_Extract.get_Min_Max_Value
+		data_min = squeeze(min(data_mean));
+		data_max = squeeze(max(data_mean));
+		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+		Result.Wind.Data_Min = [Result.Wind.Data_Min,...
+			data_min];
+		Result.Wind.Data_Max = [Result.Wind.Data_Max,...
+			data_max];
+		% eingelesenen Daten wieder löschen (Speicher freigeben!)
+		clear data_min;
+		clear data_max;
+	end
+	if settin.Data_Extract.get_Mean_Value
+		data_mean = squeeze(mean(data_mean));
+		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+		Result.Wind.Data_Mean = [Result.Wind.Data_Mean,...
+			data_mean];
+		% eingelesenen Daten wieder löschen (Speicher freigeben!)
+		clear data_mean
+	end
 end
 
-% abschließend Summenleistungen ermitteln:
-Result.Wind = calculate_additional_data(Result.Wind);
+% % abschließend Summenleistungen ermitteln:
+% Result.Wind = calculate_additional_data(Result.Wind);
 % Ergebnis zurückschreiben:
 handles.Result = Result;
 end

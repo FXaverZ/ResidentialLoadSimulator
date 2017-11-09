@@ -4,14 +4,134 @@ function handles = refresh_display(handles)
 %    Erscheinungsbild des Hauptfensters des GUIs von Access_Tool zu aktualisieren.
 %    Diese Funktion sollte nach jeder Änderung von Parameterwerten aufgerufen werden!
 
-% Franz Zeilinger - 23.01.2012
+% Franz Zeilinger - 26.06.2012
 
-% Einstellungen der Wochentage und Jahreszeiten anpassen:
-for i=1:3
-	set(handles.(['radio_season_',num2str(i)]),'Value',handles.Current_Settings.Season(i));
-	set(handles.(['radio_weekday_',num2str(i)]),'Value',handles.Current_Settings.Weekday(i));
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%      Siedlungsstruktur
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Einstellungen der Haushalte anpassen:
+hh = handles.Current_Settings.Households;
+for i=1:size(handles.System.housholds,1)
+	number = hh.(handles.System.housholds{i,1}).Number;
+	field = ['_hh_',handles.System.housholds{i,1}];
+	% vorhandenen Haushaltsanzahl eintragen:
+	set(handles.(['edit',field]),'String', num2str(number))
+	% Alle Dateilbuttons einblenden:
+	set(handles.(['push',field]),'Enable', 'on');
 end
 
+% Worstcases eintragen:
+set(handles.popup_hh_worstcase, 'String', handles.System.wc_households, ...
+	'Value', handles.Current_Settings.Worstcase_Housholds);
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%      Einstellungen - Auslesen der Daten
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Einstellungen der Wochentage und Jahreszeiten anpassen:
+for i=1:3
+	set(handles.(['radio_season_',num2str(i)]),...
+		'Value',handles.Current_Settings.Season(i));
+	set(handles.(['radio_weekday_',num2str(i)]),...
+		'Value',handles.Current_Settings.Weekday(i));
+end
+
+% Befüllen des Pop-Up-Menüs:
+set(handles.popup_time_resolution, 'String', handles.System.time_resolutions(:,1), ...
+	'Value', handles.Current_Settings.Data_Extract.Time_Resolution);
+% Checkboxen für Behandlung der Daten setzen:
+if handles.Current_Settings.Data_Extract.Time_Resolution == 1
+	set(handles.check_extract_sample_value,'Value',1,'Enable','off');
+	handles.Current_Settings.Data_Extract.get_Sample_Value = 1;
+	set(handles.check_extract_mean_value,'Value',0,'Enable','off');
+	handles.Current_Settings.Data_Extract.get_Mean_Value = 0;
+	set(handles.check_extract_min_max_value,'Value',0,'Enable','off');
+	handles.Current_Settings.Data_Extract.get_Min_Max_Value = 0;
+else
+	set(handles.check_extract_sample_value,...
+		'Value',handles.Current_Settings.Data_Extract.get_Sample_Value,...
+		'Enable','on');
+	set(handles.check_extract_mean_value,...
+		'Value',handles.Current_Settings.Data_Extract.get_Mean_Value,...
+		'Enable','on');
+	set(handles.check_extract_min_max_value,...
+		'Value',handles.Current_Settings.Data_Extract.get_Min_Max_Value,...
+		'Enable','on');
+end
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%      Einstellungen - Speichern der Daten
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Die Popup-Menüs und Einstellungen befüllen und aktuelle Werte eintragen:
+set(handles.popup_file_type_output, 'String', handles.System.outputdata_types(:,2),...
+	'Value', handles.Current_Settings.Data_Output.Datatyp);
+set(handles.popup_time_resolution_output, 'String', ...
+	handles.System.time_resolutions(:,1), ...
+	'Value', handles.Current_Settings.Data_Output.Time_Resolution);
+set(handles.check_data_save_single_phase,'Value', ...
+	handles.Current_Settings.Data_Output.Single_Phase);
+
+% Checkboxen für Behandlung der Daten setzen:
+if handles.Current_Settings.Data_Output.Time_Resolution == 1
+	set(handles.check_output_sample_value,'Value',1,'Enable','off');
+	handles.Current_Settings.Data_Output.get_Sample_Value = 1;
+	set(handles.check_output_mean_value,'Value',0,'Enable','off');
+	handles.Current_Settings.Data_Output.get_Mean_Value = 0;
+	set(handles.check_output_min_max_value,'Value',0,'Enable','off');
+	handles.Current_Settings.Data_Output.get_Min_Max_Value = 0;
+else
+	set(handles.check_output_sample_value,...
+		'Value',handles.Current_Settings.Data_Output.get_Sample_Value,...
+		'Enable','on');
+	set(handles.check_output_mean_value,...
+		'Value',handles.Current_Settings.Data_Output.get_Mean_Value,...
+		'Enable','on');
+	set(handles.check_output_min_max_value,...
+		'Value',handles.Current_Settings.Data_Output.get_Min_Max_Value,...
+		'Enable','on');
+end
+
+if isfield(handles,'Result') && ...
+		handles.Current_Settings.Data_Output.Time_Resolution ~= 1
+	% Falls schon Daten geladen wurden, die Auswahlmöglichkeiten einschränken.
+	extract = handles.Result.Current_Settings.Data_Extract;
+	output = handles.Current_Settings.Data_Output;
+	if (extract.get_Sample_Value && ...
+			extract.Time_Resolution <= output.Time_Resolution) || ...
+			extract.Time_Resolution == 1
+		set(handles.check_output_sample_value,...
+			'Value',output.get_Sample_Value,'Enable','on');
+	else
+		set(handles.check_output_sample_value,'Value',0,'Enable','off');
+		handles.Current_Settings.Data_Output.get_Sample_Value = 0;
+	end
+	if output.Time_Resolution == 1 && extract.Time_Resolution > 1
+		set(handles.check_output_sample_value,'Value',0,'Enable','off');
+		handles.Current_Settings.Data_Output.get_Sample_Value = 0;
+	end		
+	if (extract.get_Mean_Value && ...
+			extract.Time_Resolution <= output.Time_Resolution) || ...
+			extract.Time_Resolution == 1
+		set(handles.check_output_mean_value,...
+			'Value',output.get_Mean_Value,'Enable','on');
+	else
+		set(handles.check_output_mean_value,'Value',0,'Enable','off');
+		handles.Current_Settings.Data_Output.get_Mean_Value = 0;
+	end
+	if (extract.get_Min_Max_Value && ...
+			extract.Time_Resolution <= output.Time_Resolution) || ...
+			extract.Time_Resolution == 1
+		set(handles.check_output_min_max_value,...
+			'Value',output.get_Min_Max_Value,'Enable','on');
+	else
+		set(handles.check_output_min_max_value,'Value',0,'Enable','off');
+		handles.Current_Settings.Data_Output.get_Min_Max_Value = 0;
+	end
+end
+
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%      Erzeugungsstruktur
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Die Anzeige der Erzeugungsanlagen anpassen (falls bereits mehrere
 % Erzeugungsanlagen angegeben wurden):
 todo = {'Sola','Wind'};
@@ -128,37 +248,14 @@ if Number_Generation >= handles.System.Number_Generation_Max
 	set(handles.(todo{1,2}),'Enable','off');
 	set(handles.(todo{2,2}),'Enable','off');
 end
-	
+
 % Worstcases eintragen:
-set(handles.popup_hh_worstcase, 'String', handles.System.wc_households, ...
-	'Value', handles.Current_Settings.Worstcase_Housholds);
 set(handles.popup_genera_worstcase, 'String', handles.System.wc_generation, ...
 	'Value', handles.Current_Settings.Worstcase_Generation);
 
-% Die anderen Popup-Menüs und Einstellungen befüllen und aktuelle Werte eintragen:
-set(handles.popup_file_type_output, 'String', handles.System.outputdata_types(:,2), ...
-	'Value', handles.Current_Settings.Output_Datatyp);
-set(handles.popup_time_resolution, 'String', handles.System.time_resolutions(:,1), ...
-	'Value', handles.Current_Settings.Time_Resolution);
-set(handles.popup_time_resolution_output, 'String', ...
-	handles.System.time_resolutions(:,1), ...
-	'Value', handles.Current_Settings.Time_Resolution_Output);
-set(handles.check_data_save_single_phase,'Value', ...
-	handles.Current_Settings.Output_Single_Phase);
-
-% Einstellungen der Haushalte anpassen:
-hh = handles.Current_Settings.Households;
-for i=1:size(handles.System.housholds,1)
-	number = hh.(handles.System.housholds{i,1}).Number;
-	field = ['_hh_',handles.System.housholds{i,1}];
-	set(handles.(['edit',field]),'String', num2str(number))
-	if number == 0;
-		set(handles.(['push',field]),'Enable', 'off');
-	else
-		set(handles.(['push',field]),'Enable', 'on');
-	end
-end
-
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%      Allgemeine Bereiche des GUIs
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Wenn Daten vorhanden, die Schaltflächen "Daten anzeigen" und "Daten speichern"
 % aktivieren:
 if isfield(handles,'Result')
@@ -176,6 +273,6 @@ if isfield(handles.Current_Settings.Database,'setti')
 else
 	set(handles.push_export_data, 'Enable','off');
 end
-
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 drawnow;
 

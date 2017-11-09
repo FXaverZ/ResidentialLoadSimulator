@@ -1,6 +1,7 @@
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
-% Franz Zeilinger - 23.01.2012
-% Last Modified by GUIDE v2.5 14-Feb-2012 12:26:18
+% Erstellt von:            Franz Zeilinger - 04.07.2012
+% Letzte Änderung durch:   Franz Zeilinger - 04.07.2012
+% Last Modified by GUIDE v2.5 26-Jun-2012 14:44:59
 
 function varargout = Access_Tool(varargin)
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
@@ -107,6 +108,12 @@ end
 
 handles = refresh_display(handles);
 
+% ESEA-Logo anzeigen: 
+logo=imread('Figures\institutslogo.jpg','jpg');   % Einlesen der Grafik 
+image(logo,'Parent',handles.axes_logo);           % Darstellen des Logos
+axis image;                                       % Grafik entzerren
+axis off;                                         % Achsenbezeichnung ausschalten
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -128,7 +135,85 @@ function check_data_save_single_phase_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Output_Single_Phase = get(hObject, 'Value');
+handles.Current_Settings.Data_Output.Single_Phase = get(hObject, 'Value');
+
+% Update handles structure
+guidata(hObject, handles);
+
+function check_extract_mean_value_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_extract_mean_value (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Extract.get_Mean_Value = get(hObject, 'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+function check_extract_min_max_value_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_extract_min_max_value (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Extract.get_Min_Max_Value = get(hObject, 'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+function check_extract_sample_value_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_extract_sample_value (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Extract.get_Sample_Value = get(hObject, 'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+function check_output_mean_value_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_output_mean_value (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Output.get_Mean_Value = get(hObject, 'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+function check_output_min_max_value_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_output_min_max_value (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Output.get_Min_Max_Value = get(hObject, 'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+function check_output_sample_value_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik check_output_sample_value (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Output.get_Sample_Value = get(hObject, 'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -202,346 +287,6 @@ function edit_genera_wind_2_number_Callback(hObject, eventdata, ~) %#ok<DEFNU>
 % ~          nicht benötigt (MATLAB spezifisch)
 
 set_plant_parameters(hObject, eventdata,'Wind', 2,'number');
-
-function push_export_data_Callback(hObject, eventdata, handles)
-% hObject    Link zur Grafik push_data_save (siehe GCBO)
-% eventdata  nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-% andere Schaltflächen deaktivieren:
-set(handles.push_close,'Enable','off');
-set(handles.push_data_save,'Enable','off');
-set(handles.push_set_path_database,'Enable','off');
-% set(handles.push_export_data,'Enable','off');
-
-drawnow;
-
-try
-	handles = get_data_households(handles);
-	handles = get_data_solar(handles);
-	handles = get_data_wind(handles);
-catch ME
-	error_titl = 'Fehler beim extrahieren der Daten...';
-	error_text={...
-		'Ein Fehler ist aufgetreten:';...
-		'';...
-		ME.message};
-	errordlg(error_text, error_titl);
-	set(handles.push_close,'Enable','on');
-	set(handles.push_set_path_database,'Enable','on');
-	set(handles.push_export_data,'Enable','on');
-	handles = refresh_display(handles);
-	% handles-Struktur aktualisieren:
-	guidata(hObject, handles);
-	return;
-end
-
-% Daten nachbearbeiten:
-handles = add_settings(handles);
-handles = adobt_data_for_display(handles);
-
-set(handles.push_close,'Enable','on');
-set(handles.push_data_save,'Enable','on');
-set(handles.push_set_path_database,'Enable','on');
-set(handles.push_export_data,'Enable','on');
-handles = refresh_display(handles);
-% handles-Struktur aktualisieren:
-guidata(hObject, handles);
-
-% User informieren:
-user_response = questdlg({'Daten erfolgreich extrahiert!';'';
-	'Bitte nächsten Schritt auswählen...'},...
-	'Datenextraktion erfolgreich',...
-	'Zurück', 'Daten anzeigen', 'Daten speichern', 'Daten anzeigen');
-switch user_response
-	case 'Daten anzeigen'
-		push_data_show_Callback(hObject, eventdata, handles)
-	case 'Daten speichern'
-		push_data_save_Callback(hObject, eventdata, handles)
-end
-
-% handles-Struktur aktualisieren:
-guidata(hObject, handles);
-
-function push_genera_pv_1_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
-% hObject    Link zur Grafik push_genera_pv_1_parameters (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
-% ~          nicht benötigt (MATLAB spezifisch)
-
-set_plant_parameters(hObject, eventdata,'Sola', 1,'set_parameters');
-
-function push_genera_pv_2_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
-% hObject    Link zur Grafik push_genera_pv_1_parameters (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
-% ~          nicht benötigt (MATLAB spezifisch)
-
-set_plant_parameters(hObject, eventdata,'Sola', 2,'set_parameters');
-
-function push_set_path_database_Callback(hObject, ~, handles) 
-% hObject    Link zur Grafik push_set_path_database (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-% alte Datenbankeinstellungen entfernen:
-if isfield(handles.Current_Settings.Database,'setti')
-	handles.Current_Settings.Database = rmfield(...
-		handles.Current_Settings.Database,'setti');
-end
-if isfield(handles.Current_Settings.Database,'files')
-	handles.Current_Settings.Database = rmfield(...
-		handles.Current_Settings.Database,'files');
-end
-
-% Userabfrage nach neuen Datenbankpfad:
-Main_Path = uigetdir(handles.Current_Settings.Database.Path,...
-	'Auswählen des Hauptordners einer Datenbank:');
-if ischar(Main_Path)
-	[pathstr, name] = fileparts(Main_Path);
-	% Die Einstellungen übernehmen:
-	handles.Current_Settings.Database.Path = pathstr;
-	handles.Current_Settings.Database.Name = name;
-	% Laden der Datenbankeinstellungen:
-	try
-		load([pathstr,filesep,name,filesep,name,'.mat']);
-		handles.Current_Settings.Database.setti = setti;
-		handles.Current_Settings.Database.files = files;
-		helpdlg('Datenbank erfolgreich geladen!', 'Laden der Datenbank...');
-	catch ME %#ok<NASGU>
-		% Falls keine gültige Datenbank geladen werden konnte, Fehlermeldung an User:
-		errordlg('Am angegebenen Pfad wurde keine gültige Datenbank gefunden!',...
-			'Fehler beim laden der Datenbank...');
-		% Anzeige aktualisieren:
-		handles = refresh_display(handles);
-	end
-end
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function popup_file_type_output_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik radio_weekday_3 (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Output_Datatyp = get(hObject,'Value');
-
-% aktuelle Dateiendung auslesen:
-handles.Current_Settings.Target.Exte = ...
-	handles.System.outputdata_types{handles.Current_Settings.Output_Datatyp,1}(2:end);
-
-% handles-Struktur aktualisieren:
-guidata(hObject, handles);
-
-function popup_time_resolution_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik popup_time_resolution (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Time_Resolution = get(hObject,'Value');
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function popup_time_resolution_output_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik popup_time_resolution_output (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles.Current_Settings.Time_Resolution_Output = get(hObject,'Value');
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function push_close_Callback(hObject, eventdata, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik push_close (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-Access_Tool_CloseRequestFcn(hObject, eventdata, handles);
-
-function push_data_save_Callback(hObject, ~, handles) 
-% hObject    Link zur Grafik push_data_save (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-% aktuelle Dateierweiterung auslesen:
-
-file = handles.Current_Settings.Target;
-try
-	[file.Name,file.Path] = uiputfile([...
-		handles.System.outputdata_types(handles.Current_Settings.Output_Datatyp,:);...
-		{'*.*','Alle Dateien'}],...
-		'Speicherort für generiete Daten...',...
-		[file.Path,filesep,file.Name,file.Exte]);
-	if ~isequal(file.Name,0) && ~isequal(file.Path,0)
-		% Entfernen der Dateierweiterung:
-		[~, file.Name, file.Exte] = fileparts(file.Name);
-		file.Path = file.Path(1:end-1);
-		% Konfiguration übernehmen:
-		handles.Current_Settings.Target = file;
-		% Daten speichern:
-		handles = save_data(handles);
-		% User informieren:
-		helpdlg('Daten erfolgreich gespeichert');
-	end
-catch ME
-	error_titl = 'Fehler beim speichern der Daten...';
-	error_text={...
-		'Ein Fehler ist aufgetreten:';...
-		'';...
-		ME.message};
-	errordlg(error_text, error_titl);
-	handles = refresh_display(handles);
-	% handles-Struktur aktualisieren:
-	guidata(hObject, handles);
-	return;
-end
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function push_data_show_Callback(hObject, ~, handles)
-% hObject    Link zur Grafik push_data_show (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-% Daten-Explorer-GUI aufrufen:
-handles = Data_Explorer('Access_Tool', handles.accesstool_main_window);
-
-% handles-Structure aktualisieren:
-guidata(hObject, handles);
-
-function push_genera_pv_add_system_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik push_genera_pv_add_system (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles = add_gernation_plant_to_gui(handles,'Sola');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Struktur aktualisieren
-guidata(hObject, handles);
-
-function push_genera_wind_1_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
-% hObject    push_genera_wind_1_parameters(siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
-% ~          nicht benötigt (MATLAB spezifisch)
-
-set_plant_parameters(hObject, eventdata,'Wind', 1,'set_parameters');
-
-function push_genera_wind_2_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
-% hObject    Link zur Grafik push_genera_wind_2_parameters (siehe GCBO)
-% eventdata	 nicht benötigt (MATLAB spezifisch)
-% ~          nicht benötigt (MATLAB spezifisch)
-
-set_plant_parameters(hObject, eventdata,'Wind', 2,'set_parameters');
-
-function push_genera_wind_add_system_Callback(hObject, ~, handles) %#ok<DEFNU>
-% hObject    Link zur Grafik push_genera_wind_add_system (siehe GCBO)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-handles = add_gernation_plant_to_gui(handles,'Wind');
-
-% Anzeige aktualisieren:
-handles = refresh_display(handles);
-
-% handles-Struktur aktualisieren
-guidata(hObject, handles);
-
-function push_hh_coup_pt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'coup_pt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_coup_rt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'coup_rt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_coup_vt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'coup_vt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_fami_1v_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'fami_1v';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_fami_2v_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'fami_2v';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_fami_rt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'fami_rt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_sing_pt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'sing_pt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_sing_rt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'sing_rt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
-
-function push_hh_sing_vt_Callback(~, ~, handles) %#ok<DEFNU>
-% ~			 nicht benötigt (MATLAB spezifisch)
-% ~			 nicht benötigt (MATLAB spezifisch)
-% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
-
-typ = 'sing_vt';
-
-% detaillierte Daten zu den Haushalten darstellen:
-get_houshold_data_for_display(handles, typ);
 
 function edit_hh_coup_pt_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik edit_hh_coup_pt (siehe GCBO)
@@ -816,8 +561,8 @@ if ~isequal(file.Name,0) && ~isequal(file.Path,0)
 	% leztes Zeichen ("/") im Pfad entfernen:
 	file.Path = file.Path(1:end-1);
 	try
-		% Daten laden ("data_phase_hh", "data_phase_pv", "data_phase_wi" und
-		% "number_phases"):
+		% Daten laden ("data_hh", "data_pv", "data_wi" jeweils "_sample", "_mean",
+		% "_min" und "_max" sowie "number_phases"):
 		load([file.Path,filesep,file.Name,file.Exte]);
 		if number_phases < 3
 			exception = MException('VerifyLoadedData:OutOfBounds', ...
@@ -882,14 +627,19 @@ if ~isequal(file.Name,0) && ~isequal(file.Path,0)
 			handles = rmfield(handles, 'Result');
 		end
 		% Zuerst Rohdaten zurückschreiben:
-		handles.Result.Households.Data = data_phase_hh;
-		handles.Result.Solar.Data = data_phase_pv;
-		handles.Result.Wind.Data = data_phase_wi;
-		% Nachbehandlung der Funtionen get_data_households, get_data_solar und
-		% get_data_wind durchführen:
-		handles.Result.Households = calculate_additional_data(handles.Result.Households);
-		handles.Result.Solar = calculate_additional_data(handles.Result.Solar);
-		handles.Result.Wind = calculate_additional_data(handles.Result.Wind);
+		handles.Result.Households.Data_Sample = data_hh_sample;
+		handles.Result.Households.Data_Mean = data_hh_mean;
+		handles.Result.Households.Data_Min = data_hh_min;
+		handles.Result.Households.Data_Max = data_hh_max;
+		handles.Result.Solar.Data_Sample = data_pv_sample;
+		handles.Result.Solar.Data_Mean = data_pv_mean;
+		handles.Result.Solar.Data_Min = data_pv_min;
+		handles.Result.Solar.Data_Max = data_pv_max;
+		handles.Result.Wind.Data_Sample = data_wi_sample;
+		handles.Result.Wind.Data_Mean = data_wi_mean;
+		handles.Result.Wind.Data_Min = data_wi_min;
+		handles.Result.Wind.Data_Max = data_wi_max;
+
 		% Die Daten weiter nachbearbeiten:
 		handles = add_settings(handles);
 		handles = adobt_data_for_display(handles);
@@ -934,6 +684,21 @@ function menu_database_load_Callback(hObject, eventdata, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 push_set_path_database_Callback(hObject, eventdata, handles)
+
+function popup_file_type_output_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik radio_weekday_3 (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Output.Datatyp = get(hObject,'Value');
+
+% aktuelle Dateiendung auslesen:
+handles.Current_Settings.Target.Exte = ...
+	handles.System.outputdata_types{...
+	handles.Current_Settings.Data_Output.Datatyp,1}(2:end);
+
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
 
 function popup_genera_pv_1_typ_Callback(hObject, eventdata, ~) %#ok<DEFNU>
 % hObject    Link zur Grafik edit_genera_pv_1_installed_power (siehe GCBO)
@@ -987,6 +752,350 @@ handles.Current_Settings.Worstcase_Housholds = get(hObject,'Value');
 handles = refresh_display(handles);
 
 % handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function popup_time_resolution_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik popup_time_resolution (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Extract.Time_Resolution = get(hObject,'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function popup_time_resolution_output_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik popup_time_resolution_output (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.Current_Settings.Data_Output.Time_Resolution = get(hObject,'Value');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function push_close_Callback(hObject, eventdata, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik push_close (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+Access_Tool_CloseRequestFcn(hObject, eventdata, handles);
+
+function push_data_save_Callback(hObject, ~, handles) 
+% hObject    Link zur Grafik push_data_save (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+% aktuelle Dateierweiterung auslesen:
+
+file = handles.Current_Settings.Target;
+try
+	[file.Name,file.Path] = uiputfile([...
+		handles.System.outputdata_types(...
+		handles.Current_Settings.Data_Output.Datatyp,:);...
+		{'*.*','Alle Dateien'}],...
+		'Speicherort für generiete Daten...',...
+		[file.Path,filesep,file.Name,file.Exte]);
+	if ~isequal(file.Name,0) && ~isequal(file.Path,0)
+		% Entfernen der Dateierweiterung:
+		[~, file.Name, file.Exte] = fileparts(file.Name);
+		file.Path = file.Path(1:end-1);
+		% Konfiguration übernehmen:
+		handles.Current_Settings.Target = file;
+		% Daten speichern:
+		handles = save_data(handles);
+		% User informieren:
+		helpdlg('Daten erfolgreich gespeichert');
+	end
+catch ME
+	error_titl = 'Fehler beim speichern der Daten...';
+	error_text={...
+		'Ein Fehler ist aufgetreten:';...
+		'';...
+		ME.message};
+	errordlg(error_text, error_titl);
+	handles = refresh_display(handles);
+	% handles-Struktur aktualisieren:
+	guidata(hObject, handles);
+% 	rethrow(ME);
+	return;
+end
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function push_data_show_Callback(hObject, ~, handles)
+% hObject    Link zur Grafik push_data_show (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+try
+	% Daten-Explorer-GUI aufrufen:
+	handles = Data_Explorer('Access_Tool', handles.accesstool_main_window);
+catch ME
+	error_titl = 'Anzeigen der Daten...';
+	error_text={...
+		'Anzeige der Daten ist nicht möglich:';...
+		'';...
+		ME.message};
+	helpdlg(error_text, error_titl);
+% 	rethrow(ME);
+end
+
+% handles-Structure aktualisieren:
+guidata(hObject, handles);
+
+function push_export_data_Callback(hObject, eventdata, handles)
+% hObject    Link zur Grafik push_data_save (siehe GCBO)
+% eventdata  nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+% andere Schaltflächen deaktivieren:
+set(handles.push_close,'Enable','off');
+set(handles.push_data_save,'Enable','off');
+set(handles.push_set_path_database,'Enable','off');
+% set(handles.push_export_data,'Enable','off');
+
+drawnow;
+
+try
+	handles = get_data_households(handles);
+	handles = get_data_solar(handles);
+	handles = get_data_wind(handles);
+catch ME
+	error_titl = 'Fehler beim extrahieren der Daten...';
+	error_text={...
+		'Ein Fehler ist aufgetreten:';...
+		'';...
+		ME.message};
+	errordlg(error_text, error_titl);
+	set(handles.push_close,'Enable','on');
+	set(handles.push_set_path_database,'Enable','on');
+	set(handles.push_export_data,'Enable','on');
+	handles = refresh_display(handles);
+	% handles-Struktur aktualisieren:
+	guidata(hObject, handles);
+% 	rethrow(ME);
+end
+
+% Daten nachbearbeiten:
+handles = add_settings(handles);
+handles = adobt_data_for_display(handles);
+
+set(handles.push_close,'Enable','on');
+set(handles.push_data_save,'Enable','on');
+set(handles.push_set_path_database,'Enable','on');
+set(handles.push_export_data,'Enable','on');
+handles = refresh_display(handles);
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
+
+% User informieren:
+user_response = questdlg({'Daten erfolgreich extrahiert!';'';
+	'Bitte nächsten Schritt auswählen...'},...
+	'Datenextraktion erfolgreich',...
+	'Zurück', 'Daten anzeigen', 'Daten speichern', 'Daten anzeigen');
+switch user_response
+	case 'Daten anzeigen'
+		push_data_show_Callback(hObject, eventdata, handles)
+	case 'Daten speichern'
+		push_data_save_Callback(hObject, eventdata, handles)
+end
+
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
+
+function push_genera_pv_1_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_pv_1_parameters (siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Sola', 1,'set_parameters');
+
+function push_genera_pv_2_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_pv_1_parameters (siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Sola', 2,'set_parameters');
+
+function push_genera_pv_add_system_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_pv_add_system (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles = add_gernation_plant_to_gui(handles,'Sola');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function push_genera_wind_1_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    push_genera_wind_1_parameters(siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Wind', 1,'set_parameters');
+
+function push_genera_wind_2_parameters_Callback(hObject, eventdata, ~) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_wind_2_parameters (siehe GCBO)
+% eventdata	 nicht benötigt (MATLAB spezifisch)
+% ~          nicht benötigt (MATLAB spezifisch)
+
+set_plant_parameters(hObject, eventdata,'Wind', 2,'set_parameters');
+
+function push_genera_wind_add_system_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik push_genera_wind_add_system (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles = add_gernation_plant_to_gui(handles,'Wind');
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+
+% handles-Struktur aktualisieren
+guidata(hObject, handles);
+
+function push_hh_coup_pt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'coup_pt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_coup_rt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'coup_rt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_coup_vt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'coup_vt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_fami_1v_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'fami_1v';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_fami_2v_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'fami_2v';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_fami_rt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'fami_rt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_sing_pt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'sing_pt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_sing_rt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'sing_rt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_hh_sing_vt_Callback(~, ~, handles) %#ok<DEFNU>
+% ~			 nicht benötigt (MATLAB spezifisch)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+typ = 'sing_vt';
+
+% detaillierte Daten zu den Haushalten darstellen:
+get_houshold_data_for_display(handles, typ);
+
+function push_set_path_database_Callback(hObject, ~, handles) 
+% hObject    Link zur Grafik push_set_path_database (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+% alte Datenbankeinstellungen entfernen:
+if isfield(handles.Current_Settings.Database,'setti')
+	handles.Current_Settings.Database = rmfield(...
+		handles.Current_Settings.Database,'setti');
+end
+if isfield(handles.Current_Settings.Database,'files')
+	handles.Current_Settings.Database = rmfield(...
+		handles.Current_Settings.Database,'files');
+end
+
+% Userabfrage nach neuen Datenbankpfad:
+Main_Path = uigetdir(handles.Current_Settings.Database.Path,...
+	'Auswählen des Hauptordners einer Datenbank:');
+if ischar(Main_Path)
+	[pathstr, name] = fileparts(Main_Path);
+	% Die Einstellungen übernehmen:
+	handles.Current_Settings.Database.Path = pathstr;
+	handles.Current_Settings.Database.Name = name;
+	% Laden der Datenbankeinstellungen:
+	try
+		load([pathstr,filesep,name,filesep,name,'.mat']);
+		handles.Current_Settings.Database.setti = setti;
+		handles.Current_Settings.Database.files = files;
+		helpdlg('Datenbank erfolgreich geladen!', 'Laden der Datenbank...');
+	catch ME %#ok<NASGU>
+		% Falls keine gültige Datenbank geladen werden konnte, Fehlermeldung an User:
+		errordlg('Am angegebenen Pfad wurde keine gültige Datenbank gefunden!',...
+			'Fehler beim laden der Datenbank...');
+		% Anzeige aktualisieren:
+		handles = refresh_display(handles);
+	end
+end
+
+% Anzeige aktualisieren:
+handles = refresh_display(handles);
+% handles-Structure aktualisieren:
 guidata(hObject, handles);
 
 function radio_season_1_Callback(hObject, ~, handles) %#ok<DEFNU>

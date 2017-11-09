@@ -16,11 +16,15 @@ sep = db_fil.files.sep;    % Trenner im Dateinamen (' - ')
 % die aktuellen Zeitdaten (Jahreszeit, Wochentag) auslesen:
 season = system.seasons{settin.Season,1};
 weekda = system.weekdays{settin.Weekday,1};
-% Auslesen der zeitlichen Auflösung in Sekunden:
-time_resolution = system.time_resolutions{settin.Time_Resolution,2};
+% zeitliche Auflösung ermitteln:
+time_res = system.time_resolutions{settin.Data_Extract.Time_Resolution,2};
+% Ergebnis-Arrays initialisieren:
+Result.Households.Data_Sample = [];
+Result.Households.Data_Mean = [];
+Result.Households.Data_Min = [];
+Result.Households.Data_Max = [];
 
 % die einzelnen Haushaltsklassen durchgehen:
-Result.Households.Data = [];
 for i=1:size(system.housholds,1)
 	% Anzahl der Haushalte gemäß Einstellungen auslesen:
 	number_hh = settin.Households.(system.housholds{i,1}).Number;
@@ -106,17 +110,51 @@ for i=1:size(system.housholds,1)
 			num2str(j,'%03.0f')];
 		% Daten laden (Variable "data_phase")
 		load([path,filesep,name,'.mat']);
-		% die relevanten Daten auslesen:
-		data_sel = data_phase(1:time_resolution:end,idx_part_real);   %#ok<COLND>
-		% eingelesenen Daten wieder löschen (Speicher freigeben!)
-		clear data_phase;
-		% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
-		Result.Households.Data = [Result.Households.Data, data_sel];
+		% je nach Einstellungen, die relevanten Daten auslesen:
+		if settin.Data_Extract.get_Sample_Value
+			data_sample = data_phase(1:time_res:end,idx_part_real);
+			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+			Result.Households.Data_Sample = [Result.Households.Data_Sample,...
+				data_sample];
+		end
+		if settin.Data_Extract.get_Mean_Value || ...
+				settin.Data_Extract.get_Min_Max_Value
+			% Das ursprüngliche Datenarray so umformen, dass ein 3D Array mit allen
+			% Werten eines Zeitraumes in der ersten Dimension entsteht. Diese wird
+			% dann durch die nachfolgenden Funktionen (mean, min, max) sofort in die
+			% entsprechenden Werte umgerechnet. Mit squeeze muss dann nur mehr die
+			% Singleton-Dimension entfernt werden...
+			data_phase = data_phase(1:end-1,idx_part_real);
+			data_mean = reshape(data_phase,...
+				time_res,[],size(data_phase,2));
+			% eingelesenen Daten wieder löschen (Speicher freigeben!)
+			clear data_phase;
+		end
+		if settin.Data_Extract.get_Min_Max_Value
+			data_min = squeeze(min(data_mean));
+			data_max = squeeze(max(data_mean));
+			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+			Result.Households.Data_Min = [Result.Households.Data_Min,...
+				data_min];
+			Result.Households.Data_Max = [Result.Households.Data_Max,...
+				data_max];
+			% eingelesenen Daten wieder löschen (Speicher freigeben!)
+			clear data_min;
+			clear data_max;
+		end
+		if settin.Data_Extract.get_Mean_Value
+			data_mean = squeeze(mean(data_mean));
+			% die ausgelesenen Daten zum bisherigen Ergebnis hinzufügen:
+			Result.Households.Data_Mean = [Result.Households.Data_Mean,...
+				data_mean];
+			% eingelesenen Daten wieder löschen (Speicher freigeben!)
+			clear data_mean
+		end
 	end
 end
 
-% abschließend Summenleistungen ermitteln:
-Result.Households = calculate_additional_data(Result.Households);
+% % abschließend Summenleistungen ermitteln:
+% Result.Households = calculate_additional_data(Result.Households);
 % Ergebnis zurückschreiben:
 handles.Result = Result;
 end

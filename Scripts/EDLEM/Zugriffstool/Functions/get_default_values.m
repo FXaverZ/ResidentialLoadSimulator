@@ -4,7 +4,7 @@ function handles = get_default_values(handles)
 %    hinzu. Mit Hilfe dieser Funktion werden die Haupteinstellungen vordefiniert und
 %    das Startverhalten des Zugriffstools festgelegt.
 
-% Franz Zeilinger - 23.01.2012
+% Franz Zeilinger - 26.06.2012
 
 % Standardbezeichnungen:
 handles.System.seasons =   {... % Typen der Jahreszeiten
@@ -121,16 +121,6 @@ handles.System.Wind.Default_Plant = Default_Plant;
 handles.Current_Settings.Wind.Plant_1 = Default_Plant;
 handles.Current_Settings.Wind.Plant_2 = Default_Plant;
 
-% mögliche Dateiausgabetypen:
-handles.System.outputdata_types = {...
-	'*.mat','.mat - MATLAB Binärdatei';...
-	'*.csv','.csv - Commaseparated Values';...
-	'*.xlsx','.xlsx - EXCEL Spreadsheet';...
-	'*.xls','.xls - EXCEL 97-2003 Spreadsheet';...
-	};
-handles.Current_Settings.Output_Datatyp = 1;
-handles.Current_Settings.Output_Single_Phase = 0;
-
 % mögliche Zeitauflösungen:
 handles.System.time_resolutions = {...
 	'sec - Sekunden',     1;...
@@ -138,8 +128,28 @@ handles.System.time_resolutions = {...
 	'5mi - 5 Minuten',  300;...
 	'quh - 15 Minuten', 900;...
 	};
-handles.Current_Settings.Time_Resolution = 1;        % Auflösung für Datenauslesen
-handles.Current_Settings.Time_Resolution_Output = 1; % Auflösung für Speicherung
+% Defaultwerte der Datenbehandlungseinstellungen (Auslesen & Speichern):
+data_settings.Time_Resolution = 1;    % zeitliche Auflösung
+data_settings.get_Sample_Value = 1;   % Sample-Werte ermitteln bzw. speichern.
+data_settings.get_Mean_Value = 0;     % Mittelwerte ermitteln bzw. speichern.
+data_settings.get_Min_Max_Value = 0;  % Minimal- und Maximalwerte ermitteln bzw. 
+                                      %     speichern.
+% Einstellungen für Datenauslesen:
+handles.Current_Settings.Data_Extract = data_settings;
+% Einstellungen für Speicherung:
+handles.Current_Settings.Data_Output = data_settings; 
+% mögliche Dateiausgabetypen:
+handles.System.outputdata_types = {...
+	'*.mat','.mat - MATLAB Binärdatei';...
+	'*.csv','.csv - Commaseparated Values';...
+	'*.xlsx','.xlsx - EXCEL Spreadsheet';...
+	'*.xls','.xls - EXCEL 97-2003 Spreadsheet';...
+	};
+% Aktuelle Auswahl des Ausgabedatentyps (siehe HANDLES.SYSTEM.OUTPUTDATA_TYPES):
+handles.Current_Settings.Data_Output.Datatyp = 1;
+% Auswahl, ob die Daten als einphasige Daten abgespeichert werden sollen:
+handles.Current_Settings.Data_Output.Single_Phase = 0;
+
 
 % Anzahl der Haushalte Null setzen:
 for i=1:size(handles.System.housholds,1)

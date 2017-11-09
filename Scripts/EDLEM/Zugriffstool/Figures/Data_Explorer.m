@@ -1,5 +1,6 @@
 % M-File für GUI nach Auswahl 'Datenexplorer ...'
-% Franz Zeilinger - 04.08.2011
+% Erstellt von:            Franz Zeilinger - 04.08.2011
+% Letzte Änderung durch:   Franz Zeilinger - 05.07.2012
 % Last Modified by GUIDE v2.5 20-Jul-2011 16:47:33
 
 function varargout = Data_Explorer(varargin)
@@ -132,6 +133,17 @@ if dontOpen
 	guidata(hObject, handles);
 	delete(handles.data_explorer);
 	return;
+end
+
+% Überprüfen, ob Daten für die Anzeige vorhanden sind:
+if isempty(handles.main_handles.Result.Displayable)
+	% keine Daten zur Anzeige vorhanden!
+	exception = MException('DataExplorerVerifyInput:NoInputAvaiable', ...
+		'Keine Daten zur Anzeige vorhanden!');
+		% Update handles structure
+	guidata(hObject, handles);
+	delete(handles.data_explorer);
+	throw(exception);
 end
 
 % Diagrammfenster öffnen:
@@ -363,19 +375,6 @@ end
 fig_diagr = handles.Diagramm.fig_diagr; %#ok<NASGU>
 axe_diagr = handles.Diagramm.axe_diagr;
 
-% Auswahl der Zeitpunkte:
-t_points = Result.Time;
-if handles.Options.automatic_zoom
-	idx_zoom = ones(1,numel(t_points)) == 1;
-else
-	m_z = handles.Options.manual_zoom;
-	% statt (x <= y) wird (x < y | abs(x-y) < eps) verwendet (Gleitkommafehler!)
-	% eps = 1e-7 --> entspricht Genauigkeit von ca. 10 ms!
-	idx_zoom = (t_points < m_z.date_end | abs(t_points - m_z.date_end) < 1e-7) &...
-		(t_points > m_z.date_start | abs(t_points - m_z.date_start)<1e-7);
-end
-t_points = t_points(idx_zoom);
-
 % Welche Auswahl wurde getroffen?
 value = get(hObject,'Value');
 if value == 1
@@ -387,9 +386,28 @@ end
 
 % Auslesen, welche Kurve angezeigt werden soll:
 value = field_names{value-1}; 
+disp = Result.Displayable.(value);
+args = disp.Data_fun_args;
 
-data = Result.Displayable.(value).Data;
+% Daten berechnen:
+data = disp.Data_fun(Result.(args{1}),args{2},args{3});
+% Legendeneinträge:
 legend_entries = Result.Displayable.(value).Legend;
+% Auswahl der Zeitpunkte:
+t_points = Result.(Result.Displayable.(value).Time);
+
+% Zoombereich ermitteln:
+if handles.Options.automatic_zoom
+	idx_zoom = ones(1,numel(t_points)) == 1;
+else
+	m_z = handles.Options.manual_zoom;
+	% statt (x <= y) wird (x < y | abs(x-y) < eps) verwendet (Gleitkommafehler!)
+	% eps = 1e-7 --> entspricht Genauigkeit von ca. 10 ms!
+	idx_zoom = (t_points < m_z.date_end | abs(t_points - m_z.date_end) < 1e-7) &...
+		(t_points > m_z.date_start | abs(t_points - m_z.date_start)<1e-7);
+end
+t_points = t_points(idx_zoom);
+
 % Daten an Zeitzoombereich anpassen:
 data = data(idx_zoom,:);
 
@@ -397,7 +415,8 @@ data = data(idx_zoom,:);
 lin_diagr_1 = plot(axe_diagr, t_points, data);
 % Legende für einfache Daten:
 leg_diagr = legend(axe_diagr, lin_diagr_1, legend_entries);
-
+% Titel anzeigen:
+title(axe_diagr,Result.Displayable.(value).Title,'FontWeight','bold','FontSize',12);
 % Legende formatieren:
 legend(axe_diagr,'show');
 % set(leg_diagr,'Location','Best','String',legend_entries);

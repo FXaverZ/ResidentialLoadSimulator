@@ -23,7 +23,7 @@ function set_plant_parameters(hObject, eventdata, plant_typ, plant_idx, ...
 %    Der Parameter EVENTDATA wird nicht benötigt, muss aber in der Input-Liste
 %    angeführt werden (MATLAB spezifisch)!
 
-% Franz Zeilinger - 30.05.2012
+% Franz Zeilinger - 04.07.2012
 
 handles = guidata(hObject);
 
@@ -52,11 +52,14 @@ switch lower(parameter_typ)
 		plant.Number = round(str2double(get(hObject,'String')));
 	case 'typ'
 		plant.Typ = get(hObject,'Value');
+		if plant.Typ == 1
+			plant.Number = 0;
+		end
 		switch plant_typ
 			case 'Wind'
+				% Im Fall einer Windenergieanlage die Werte der ausgewählten
+				% Anlage übernehmen:
 				if plant.Typ > 1
-					% Im Fall einer Windenergieanlage die Werte der ausgewählten 
-					% Anlage übernehmen:
 					parameters = get_wind_turbine_parameters(plant.Typ-1);
 					plant.Power_Installed = parameters{4};
 					plant.v_nominal = parameters{5};
