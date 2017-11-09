@@ -1,9 +1,9 @@
-function data_phase = model_pv_tra(plant, content, data_cloud_factor, ...
+function data_phase = model_pv_tra(plant, data_cloud_factor, ...
 	radiation_data, month, time_resolution)
 %MODEL_PV_TRA Summary 
 %   Detaillierte Beschreibung fehlt!
 
-% Franz Zeilinger - 22.12.2011
+% Franz Zeilinger - 16.01.2012
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
 % daher wird diese nur vom ersten Element ausgelesen):
@@ -19,64 +19,62 @@ time = time(time > 0); % Zeitpunkte = 0 --> keine Daten sind vorhanden
 % neue Zeit mit Sekundenauflösung:
 time_fine = time(1):1/86400:time(end);
 % Interpolieren der Zeitreihen, zuerst direkte Einstrahlung:
-rad_dev_dir = interp1(time,data_dir,time_fine,'cubic');
-rad_dev_dir(rad_dev_dir<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
+rad_dir = interp1(time,data_dir,time_fine,'cubic');
+rad_dir(rad_dir<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
 %                                 Interpolation)
 % dann die diffuse Strahlung:
-rad_dev_dif = interp1(time,data_dif,time_fine,'cubic');
-rad_dev_dif(rad_dev_dif<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
+rad_dif = interp1(time,data_dif,time_fine,'cubic');
+rad_dif(rad_dif<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
 %                                 Interpolation)
 
 % Zeitpunkte vor Sonnenauf- und Untergang hinzufügen (Strahlung = 0):
 time_add_fine = 0:1/86400:time(1);
 time_add_fine = time_add_fine(1:end-1); % letzter Zeitpunkt ist bereits vorhanden.
 rad_add_fine = zeros(size(time_add_fine));
-rad_dev_dir = [rad_add_fine, rad_dev_dir];
-rad_dev_dif = [rad_add_fine, rad_dev_dif];
+rad_dir = [rad_add_fine, rad_dir];
+rad_dif = [rad_add_fine, rad_dif];
 time_add_fine = time(end):1/86400:1;
 time_add_fine = time_add_fine(2:end); % erster Zeitpunkt ist bereits vorhanden.
 rad_add_fine = zeros(size(time_add_fine));
-rad_dev_dir = [rad_dev_dir, rad_add_fine];
-rad_dev_dif = [rad_dev_dif, rad_add_fine];
+rad_dir = [rad_dir, rad_add_fine];
+rad_dif = [rad_dif, rad_add_fine];
 
 % Nun liegen die Strahlungswerte in Sekundenauflösung für 24h vor interpoliert auf
 % die Neigung und Orientierung der betrachteten Solaranlagen. Mit diesen Daten werden
 % nun die PV-Anlagen simuliert:
-data_phase = zeros(size(data_cloud_factor,1),6*plant.Number);
+data_phase = zeros(size(rad_dir(1:time_resolution:end),2),6*plant.Number);
 for i=1:plant.Number
 	% Anschluss der Anlage an eine Phase ermitteln:
 	phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
-	% Die Strahlungsdaten innerhalb einer gewissen Zeitspanne verschieben, weil nicht
-	% alle Anlagen am gleichen Ort installiert sind. Dadurch, dass in den
+	% Die Wolkeneinflussdaten innerhalb einer gewissen Zeitspanne verschieben, weil 
+	% nicht alle Anlagen am gleichen Ort installiert sind. Dadurch, dass in den
 	% Nachststunden keine Strahlung vorhanden ist, können die fehlenden Werte einfach
 	% mit Null ersetzt werden:
-	delay = round((0.5-rand())*20*60); % Gaussche Verteilung mit 10min Standardabweichung
+	% Gaussche Verteilung angegebener Standardabweichung:
+	delay = round((0.5-rand())*plant.Sigma_delay_time);
 	if delay < 0
-		rad_dev_dir_dev = rad_dev_dir(abs(delay):end);
-		rad_dev_dir_dev(end+1:86401) = 0;
-		rad_dev_dif_dev = rad_dev_dif(abs(delay):end);
-		rad_dev_dif_dev(end+1:86401) = 0;
+		data_cloud_factor_dev = data_cloud_factor(abs(delay):end);
+		data_cloud_factor_dev(end+1:86401) = 0;
 	else
-		rad_dev_dir_dev = rad_dev_dir(1:end-delay);
-		rad_dev_dir_dev = [zeros(1,delay),rad_dev_dir_dev]; %#ok<AGROW>
-		rad_dev_dif_dev = rad_dev_dif(1:end-delay);
-		rad_dev_dif_dev = [zeros(1,delay),rad_dev_dif_dev]; %#ok<AGROW>
+		data_cloud_factor_dev = data_cloud_factor(1:end-delay);
+		data_cloud_factor_dev = [zeros(delay,1);data_cloud_factor_dev]; %#ok<AGROW>
 	end
-	% Die Einstrahlungsdaten an die zeitliche Auflösung anpassen:
-	rad_dev_dir_dev = rad_dev_dir_dev(1:time_resolution:end);
-	rad_dev_dif_dev = rad_dev_dif_dev(1:time_resolution:end);
+	% Die Einstrahlungsdaten kopieren und an die zeitliche Auflösung anpassen:
+	rad_dev_dir = rad_dir(1:time_resolution:end);
+	rad_dev_dif = rad_dif(1:time_resolution:end);
+	data_cloud_factor_dev = data_cloud_factor_dev(1:time_resolution:end);
 	
 	% Gesamte Einstrahlung ermitteln (setzt sich aus globaler und giffuser Strahlung
 	% zusammen):
 	% zuerst direkte Einstrahlung (abgeschwächt durch Wolkeneinfluss):
-	rad_dev_dir_dev = rad_dev_dir_dev .* (1-data_cloud_factor');
+	rad_dev_dir = rad_dev_dir .* (1-data_cloud_factor_dev');
 	% diffuse Einstrahlung:
-	rad_dev_dif_dev = rad_dev_dif_dev .* data_cloud_factor';
+	rad_dev_dif = rad_dev_dif .* data_cloud_factor_dev';
 	% Gesamte Einstrahlung:
-	rad_dev_total = rad_dev_dir_dev + rad_dev_dif_dev;
+	rad_dev_total = rad_dev_dir + rad_dev_dif;
 	
 	% Leistungsarrays initialisieren:
-	power_active = zeros(size(rad_dev_dir_dev,2),3);
+	power_active = zeros(size(rad_dev_total,2),3);
 	power_reacti = power_active;
 	% Leistungseinspeisung berechnen:
 	power_active(:,phase_idx) = rad_dev_total*...

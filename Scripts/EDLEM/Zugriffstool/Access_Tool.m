@@ -1,6 +1,6 @@
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
-% Franz Zeilinger - 03.01.2012
-% Last Modified by GUIDE v2.5 03-Jan-2012 09:02:10
+% Franz Zeilinger - 17.01.2012
+% Last Modified by GUIDE v2.5 16-Jan-2012 13:11:03
 
 function varargout = Access_Tool(varargin)
 % ACCESS_TOOL    Zugriffstool auf die Daten von EDLEM
@@ -409,11 +409,6 @@ handles = refresh_display(handles);
 % handles-Structure aktualisieren:
 guidata(hObject, handles);
 
-function push_more_days_Callback(hObject, eventdata, handles)
-% hObject    handle to push_more_days (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 function popup_file_type_output_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik radio_weekday_3 (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
@@ -453,22 +448,34 @@ function push_data_save_Callback(hObject, ~, handles)
 % aktuelle Dateierweiterung auslesen:
 
 file = handles.Current_Settings.Target;
-
-[file.Name,file.Path] = uiputfile([...
-	handles.System.outputdata_types(handles.Current_Settings.Output_Datatyp,:);...
-	{'*.*','Alle Dateien'}],...
-	'Speicherort für generiete Daten...',...
-	[file.Path,filesep,file.Name,file.Exte]);
-if ~isequal(file.Name,0) && ~isequal(file.Path,0)
-	% Entfernen der Dateierweiterung:
-	[~, file.Name, file.Exte] = fileparts(file.Name);
-	file.Path = file.Path(1:end-1);
-	% Konfiguration übernehmen:
-	handles.Current_Settings.Target = file;
-	% Daten speichern:
-	handles = save_data(handles);
-	% User informieren:
-	helpdlg('Daten erfolgreich gespeichert');
+try
+	[file.Name,file.Path] = uiputfile([...
+		handles.System.outputdata_types(handles.Current_Settings.Output_Datatyp,:);...
+		{'*.*','Alle Dateien'}],...
+		'Speicherort für generiete Daten...',...
+		[file.Path,filesep,file.Name,file.Exte]);
+	if ~isequal(file.Name,0) && ~isequal(file.Path,0)
+		% Entfernen der Dateierweiterung:
+		[~, file.Name, file.Exte] = fileparts(file.Name);
+		file.Path = file.Path(1:end-1);
+		% Konfiguration übernehmen:
+		handles.Current_Settings.Target = file;
+		% Daten speichern:
+		handles = save_data(handles);
+		% User informieren:
+		helpdlg('Daten erfolgreich gespeichert');
+	end
+catch ME
+	error_titl = 'Fehler beim speichern der Daten...';
+	error_text={...
+		'Ein Fehler ist aufgetreten:';...
+		'';...
+		ME.message};
+	errordlg(error_text, error_titl);
+	handles = refresh_display(handles);
+	% handles-Struktur aktualisieren:
+	guidata(hObject, handles);
+	return;
 end
 
 % handles-Structure aktualisieren:

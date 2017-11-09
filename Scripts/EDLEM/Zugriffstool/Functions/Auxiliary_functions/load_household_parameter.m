@@ -1,6 +1,8 @@
 function Households = load_household_parameter() 
-%LOAD_HOUSEHOLD_PARAMETER   gibt aktuelle Verteilung der Haushaltsgeräte zurück
-%    LOAD_HOUSEHOLD_PARAMETER ist die Definitionsdatei, innerhalb der die
+%LOAD_HOUSEHOLD_PARAMETER   generiert Haushaltsparameter 
+%    HOUSEHOLDS = LOAD_HOUSEHOLD_PARAMETER erzeugt eine Struktur HOUSEHOLDS in der
+%    sämtliche Parameter, betreffend die Haushalte, zusammengefasst sind. Diese
+%    Funktion entspricht einer Definitionsdatei, innerhalb der die
 %    Haushaltszusammensetzung sowie die Geräteausstattung definiert werden. Die hier
 %    eingetragenen Daten stammen aus dem Projekt ADRES bzw. aus weiteren Umfragen
 %    (detaillierter Aufteilung von "Audio-Video-Geräte" und "Bürogeräte").
@@ -9,6 +11,7 @@ function Households = load_household_parameter()
 
 % Franz Zeilinger - 30.11.2011
 
+% Definition der Haushalte sowie deren Personenanzahl
 % { Variablenname, minimale Anzahl Personen, maximale Anzahl Personen, Genaue
 % Bezeichnung };
 Households.Types = {...

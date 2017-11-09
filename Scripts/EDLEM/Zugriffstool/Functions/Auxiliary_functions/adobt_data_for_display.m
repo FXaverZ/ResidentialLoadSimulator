@@ -1,6 +1,8 @@
 function handles = adobt_data_for_display(handles)
 %ADOBT_DATA_FOR_DISPLAY    aufbereiten der Daten für GUI "Datenexplorer"
 
+% Franz Zeilinger - 04.01.2011
+
 Result = handles.Result;
 time_points = max(...
 	[size(Result.Households.Data,1)-1, ...
@@ -98,12 +100,14 @@ if ~isempty(Result.Solar.Data)
 	crv_nam = ['Curve_',num2str(crv_cnt)];
 	dspl.(crv_nam).Title = 'Einspeisung PV-Anlagen, Einzelanlagen';
 	num_plants = size(Result.Solar.Data,2)/6;
+	data = zeros(size(Result.Solar.Data,1),num_plants);
+	legend = cell(1,num_plants);
 	for i=1:num_plants
 		data(:,i) = ...
 			Result.Solar.Data(:,(i-1)*6+1) + ...
 			Result.Solar.Data(:,(i-1)*6+3) + ...
 			Result.Solar.Data(:,(i-1)*6+5,:);
-		legend{i} = ['P - PV ',num2str(i)];
+		legend{i} = ['P - PV ',num2str(i)]; 
 	end
 	dspl.(crv_nam).Data = data/1000;
 	dspl.(crv_nam).Unit = 'kW';
@@ -132,6 +136,8 @@ if ~isempty(Result.Wind.Data)
 	crv_nam = ['Curve_',num2str(crv_cnt)];
 	dspl.(crv_nam).Title = 'Einspeisung Windkraft-Anlagen, Einzelanlagen';
 	num_plants = size(Result.Wind.Data,2)/6;
+	data = zeros(size(Result.Wind.Data,1),num_plants);
+	legend = cell(1,num_plants);
 	for i=1:num_plants
 		data(:,i) = ...
 			Result.Wind.Data(:,(i-1)*6+1) + ...

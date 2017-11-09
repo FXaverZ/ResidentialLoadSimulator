@@ -1,22 +1,11 @@
 function handles = refresh_display(handles)
 
-% Franz Zeilinger - 27.09.2011
+% Franz Zeilinger - 16.01.2012
 
 % Einstellungen der Wochentage und Jahreszeiten anpassen:
 for i=1:3
 	set(handles.(['radio_season_',num2str(i)]),'Value',handles.Current_Settings.Season(i));
 	set(handles.(['radio_weekday_',num2str(i)]),'Value',handles.Current_Settings.Weekday(i));
-end
-
-% Weitere Einstellungen:
-set(handles.edit_create_several_datasets_number,'String', ...
-	num2str(handles.Current_Settings.Several_Datasets_Number));
-set(handles.check_create_several_datasets,...
-	'Value',handles.Current_Settings.Create_Several_Datasets);
-if handles.Current_Settings.Create_Several_Datasets
-	set(handles.edit_create_several_datasets_number,'Enable','on');
-else
-	set(handles.edit_create_several_datasets_number,'Enable','off');
 end
 
 % Anlagenparametrierungen zur Anzeige bringen:

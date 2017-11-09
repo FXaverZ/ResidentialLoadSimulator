@@ -1,7 +1,7 @@
 function handles = get_data_solar (handles)
 %GET_DATA_SOLAR    extrahiert und simuliert die Einspeise-Daten der Solaranlagen
 
-% Franz Zeilinger - 22.12.2011
+% Franz Zeilinger - 16.01.2012
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
@@ -132,7 +132,7 @@ switch settin.Worstcase_Generation
 % 	case 4
 end
 
-% nun den ausgewählten Datensatz aus der richtigen Teildateie laden:
+% nun den ausgewählten Datensatz aus der richtigen Teildatei laden:
 for j=1:ceil(num_data_sets/max_num_data_set)
 	% jene Indizes ermitteln, die in aktueller Teil-Datei enthalten sind
 	idx_part = idx(idx > (j-1)*max_num_data_set & idx <= j*max_num_data_set);
@@ -150,10 +150,10 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	% Daten laden (Variable "data_cloud_factor")
 	load([path,filesep,name,'.mat']);
 	% die relevanten Daten auslesen:
-	data_cloud_factor = data_cloud_factor(1:time_resolution:end,idx_part); 
+	data_cloud_factor = data_cloud_factor(:,idx_part); 
 end
 
-% nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdate zur
+% nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdaten zur
 % Verfügung. Mit diesen Daten sowie den definierten Anlagenparametern werden nun die
 % Anlagen simuliert:
 for i=1:numel(plants)
@@ -167,7 +167,7 @@ for i=1:numel(plants)
 			data_phase = model_pv_fix(plant, Content, data_cloud_factor,...
 				radiation_data_fix, month_fix, time_resolution);
 		case 3 % Tracker
-			data_phase = model_pv_tra(plant, Content, data_cloud_factor,...
+			data_phase = model_pv_tra(plant, data_cloud_factor,...
 				radiation_data_tra, month_tra, time_resolution);
 	end
 	Result.Solar.Data = [Result.Solar.Data, data_phase];

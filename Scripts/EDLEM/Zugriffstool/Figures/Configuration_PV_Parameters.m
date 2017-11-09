@@ -1,6 +1,6 @@
-% Last Modified by GUIDE v2.5 22-Dec-2011 10:40:03
+% Last Modified by GUIDE v2.5 17-Jan-2012 08:45:21
 
-% Franz Zeilinger 21.12.2011
+% Franz Zeilinger 17.01.2012
 
 function varargout = Configuration_PV_Parameters(varargin)
 
@@ -168,6 +168,18 @@ handles = refresh_display_pv_configuration (handles);
 % handles-Struktur aktualisieren:
 guidata(hObject, handles);
 
+function edit_sigma_delay_time_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik edit_sigma_delay_time (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.plant.Sigma_delay_time = str2double(get(hObject,'String'));
+handles.new_data = true; % neue Daten sind vorhanden!
+% Anzeige aktualisieren:
+handles = refresh_display_pv_configuration (handles);
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
+
 function gui_configuration_pv_parameters_CloseRequestFcn(hObject, eventdata, handles) %#ok<INUSL>
 % hObject    Link zur Grafik check_create_several_datasets (siehe GCBO)
 % ~			 nicht benötigt (MATLAB spezifisch)
@@ -253,6 +265,7 @@ set(handles.edit_orientation, 'String', num2str(plant.Orientation));
 set(handles.edit_inclination, 'String', num2str(plant.Inclination));
 set(handles.edit_efficiency, 'String', num2str(plant.Efficiency*100));
 set(handles.edit_rel_size_collector, 'String', num2str(plant.Rel_Size_Collector));
+set(handles.edit_sigma_delay_time, 'String', num2str(plant.Sigma_delay_time));
 
 % "Einstellungen übernehmen" Button aktivieren:
 if handles.new_data
@@ -324,6 +337,16 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function edit_rel_size_collector_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
 % hObject    handle to edit_rel_size_collector (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function edit_sigma_delay_time_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
+% hObject    handle to edit_sigma_delay_time (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

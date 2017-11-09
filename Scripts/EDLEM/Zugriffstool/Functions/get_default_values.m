@@ -4,7 +4,7 @@ function handles = get_default_values(handles)
 %    hinzu. Mit Hilfe dieser Funktion werden die Haupteinstellungen vordefiniert und
 %    das Startverhalten des Zugriffstools festgelegt.
 
-% Franz Zeilinger - 03.01.2012
+% Franz Zeilinger - 16.01.2012
 
 % Standardbezeichnungen:
 handles.System.seasons =   {... % Typen der Jahreszeiten
@@ -47,10 +47,10 @@ handles.System.wc_generation = {...
 % 	'Höchste Leistung';...
 	};
 handles.Current_Settings.Worstcase_Generation = 1; % Default = 'Kein'
+
 % Anzahl an maximal möglichen verschiedenen Erzeugungsanlagen im GUI (Gesamtanzahl an
 % möglichen Eingabefeldern):
 handles.Current_Settings.Number_Generation_Max = 15;
-
 % Definition der Erzeugungs-Anlagenarten:
 handles.System.Sola.Typs = {...
 	'Keine Anlage ausgewählt';...
@@ -78,7 +78,7 @@ handles.System.Wind.Tags = {...
 	'push_genera_wind_','_parameters';...
 	'text_genera_wind_','_unit';...
 	};
-% Angabe der Höhe eines Eingabefeldes in Pixel:
+% Angabe der Höhe eines Eingabefeldes für Erzeugungsanlagen in Pixel:
 handles.System.Generation.Input_Field_Height = 27;
 
 % Default Werte einstellen (alle Anlagen aus, Standardwerte), zuerst PV-Anlagen:
@@ -90,6 +90,7 @@ Default_Plant.Orientation = 0;          % Ausrichtung              [°]
 Default_Plant.Inclination = 30;         % Neigung                  [°]
 Default_Plant.Efficiency = 0.17;        % Wirkungsgrad Zelle + WR  [-]
 Default_Plant.Rel_Size_Collector = 6.5; % Rel. Kollektorfläche     [m²/kWp]
+Default_Plant.Sigma_delay_time = 15;    % zeitl. Standardabweichung[s] 
 % Zwei Anlagen werden per Default angeboten:
 handles.System.Sola.Default_Plant = Default_Plant;
 handles.Current_Settings.Sola.Plant_1 = Default_Plant;
@@ -98,21 +99,22 @@ clear('Default_Plant');
 
 % Windkraftanlagen:
 Default_Plant.Typ =             1;      % Anlagen-Typ, 1 = "keine Anlage"
-Default_Plant.Number =          0;      % Anzahl der Anlagen
-Default_Plant.Power_Installed = 0;      % Nennleistung der Anlage [W]
-Default_Plant.Rho =         1.225;      % Luftdichte [kg/m³]
+Default_Plant.Number =          0;      % Anzahl der Anlagen               [-]
+Default_Plant.Power_Installed = 0;      % Nennleistung der Anlage          [W]
+Default_Plant.Rho =         1.225;      % Luftdichte                       [kg/m³]
 Default_Plant.v_nominal =      11;      % Windgeschwindigkeit bei der Nennleistung
-%                                             verfügbar ist [m/s]
+%                                             verfügbar ist                [m/s]
 Default_Plant.Efficiency =   0.98;      % Wirkungsgrad des Wechselrichters [-]
-Default_Plant.v_start =       0.8;      % Anlaufwindgeschwindigkeit [m/s]
-Default_Plant.v_cut_off =      15;      % Abschaltwindgeschwindigkeit [m/s]
-Default_Plant.Size_Rotor =    2.5;      % Rotordurchmesser [m]
+Default_Plant.v_start =       0.8;      % Anlaufwindgeschwindigkeit        [m/s]
+Default_Plant.v_cut_off =      15;      % Abschaltwindgeschwindigkeit      [m/s]
+Default_Plant.Size_Rotor =    2.5;      % Rotordurchmesser                 [m]
 Default_Plant.Typ_Rotor =  'n.d.';      % Art des Rotors
-Default_Plant.Inertia =      20.0;      % Trägheit des Windrads [s]
+Default_Plant.Inertia =      20.0;      % Trägheit des Windrads            [s]
 Default_Plant.c_p =            [];      % Tabelle mit Leistungsbeiwerten bei
 %                                             bestimmten Windgeschwindigkeiten (kommt 
 %                                             aus Anlagenparameterdatei
 %                                             "get_wind_trubine_parameters").
+Default_Plant.Sigma_delay_time = 15;    % zeitl. Standardabweichung        [s] 
 handles.System.Wind.Default_Plant = Default_Plant;
 handles.Current_Settings.Wind.Plant_1 = Default_Plant;
 handles.Current_Settings.Wind.Plant_2 = Default_Plant;
@@ -122,6 +124,7 @@ handles.System.outputdata_types = {...
 	'*.mat','.mat - MATLAB Binärdatei';...
 	'*.csv','.csv - Commaseparated Values';...
 	'*.xlsx','.xlsx - EXCEL Spreadsheet';...
+	'*.xls','.xls - EXCEL 97-2003 Spreadsheet';...
 	};
 handles.Current_Settings.Output_Datatyp = 1;
 
@@ -133,10 +136,6 @@ handles.System.time_resolutions = {...
 	'quh - 15 Minuten', 900;...
 	};
 handles.Current_Settings.Time_Resolution = 1;
-
-% Anzahl an verschiedenen Datensätzen, die erzeugt werden sollen:
-handles.Current_Settings.Several_Datasets_Number = 1;
-handles.Current_Settings.Create_Several_Datasets = 0;
 
 % Anzahl der Haushalte Null setzen:
 for i=1:size(handles.System.housholds,1)

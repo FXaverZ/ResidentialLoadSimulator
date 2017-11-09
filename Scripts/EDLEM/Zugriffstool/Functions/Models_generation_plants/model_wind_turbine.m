@@ -1,8 +1,15 @@
 function data_phase = model_wind_turbine(plant_parameters, v_wind)
-%MODEL_WIND_TURBINE    
-%   Detailierte Beschreibung fehlt!
+%MODEL_WIND_TURBINE    Rechenmodell einer Kleinwindkraftanlage
+%   DATA_PHASE = MODEL_WIND_TURBINE(PLANT_PARAMETERS, V_WIND) ermittelt aus dem
+%   Windgeschwindigkeits-Array WIND die Einspeiseleistung. Diese wird in Form eines
+%   [N,6]-Arrays DATA_PHASE zurückgegeben, wobei die ungeradzahligen Spalten die
+%   Wirkleistungen der Phasen 1-3, die geradzahligen Spalten die jeweiligen
+%   Blindleistungen darstellen. N entspricht der Anzahl der Zeitpunkte von V_WIND,
+%   welche in Sekundenauflösung übergeben werden müssen!
+%   Die Struktur PLANT_PARAMETERS enthält alle Anlagenparameter der Windturbine
+%   (siehe Funktion GET_WIND_TURBINE_PARAMETERS)
 
-% Franz Zeilinger - 02.01.2012
+% Franz Zeilinger - 17.01.2012
 
 rho = plant_parameters.Rho;              % Dichte der Luft [kg/m³]
 c_p = plant_parameters.c_p;              % Leistungsbeiwerttabelle dieses Windrades 
@@ -21,7 +28,8 @@ for i=1:plant_parameters.Number
 	% nicht alle Anlagen am gleichen Ort installiert sind. Die fehlenden Werte gemäß
 	% dem für die Windaten verwendeten Algorithmus ersetzen (siehe Funktion
 	% "Simulation_Wind_Velocity.m")
-	delay = round((0.5-rand())*20*60); % Gaussche Verteilung mit 20min Standardabweichung
+	% Gauß'sche Verteilung mit angegebener Standardabweichung:
+	delay = round((0.5-rand())*plant_parameters.Sigma_delay_time); 
 	if delay < 0
 		% Array mit zu generierenden Windgeschwindigkeiten initialisieren:
 		v_wind_add = zeros(abs(delay),1);

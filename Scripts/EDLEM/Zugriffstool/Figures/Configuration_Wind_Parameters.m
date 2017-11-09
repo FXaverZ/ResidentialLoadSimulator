@@ -1,6 +1,6 @@
-% Last Modified by GUIDE v2.5 23-Dec-2011 12:37:30
+% Last Modified by GUIDE v2.5 17-Jan-2012 08:39:32
 
-% Franz Zeilinger 02.01.2012
+% Franz Zeilinger 17.01.2012
 
 function varargout = Configuration_Wind_Parameters(varargin)
 
@@ -167,6 +167,19 @@ function edit_rotor_typ_Callback(~, ~, handles) %#ok<DEFNU>
 
 % Anzeige aktualisieren:
 refresh_display_wind_configuration (handles);
+
+function edit_sigma_delay_time_Callback(hObject, ~, handles) %#ok<DEFNU>
+% hObject    Link zur Grafik edit_sigma_delay_time (siehe GCBO)
+% ~			 nicht benötigt (MATLAB spezifisch)
+% handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
+
+handles.plant.Sigma_delay_time = str2double(get(hObject,'String'));
+
+handles.new_data = true; % neue Daten sind vorhanden!
+% Anzeige aktualisieren:
+handles = refresh_display_wind_configuration (handles);
+% handles-Struktur aktualisieren:
+guidata(hObject, handles);
 
 function edit_size_rotor_Callback(hObject, ~, handles) %#ok<DEFNU>
 % hObject    Link zur Grafik edit_size_rotor (siehe GCBO)
@@ -354,6 +367,7 @@ set(handles.edit_rotor_typ, 'String', plant.Typ_Rotor);
 set(handles.edit_v_nominal, 'String', num2str(plant.v_nominal));
 set(handles.edit_inertia, 'String', num2str(plant.Inertia));
 set(handles.edit_rho, 'String', num2str(plant.Rho));
+set(handles.edit_sigma_delay_time, 'String', num2str(plant.Sigma_delay_time));
 % "Einstellungen übernehmen" Button aktivieren:
 if handles.new_data
 	set(handles.push_save_settings,'Enable','on');
@@ -468,6 +482,16 @@ function popup_typ_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function edit_sigma_delay_time_CreateFcn(hObject, eventdata, handles) %#ok<INUSD,DEFNU>
+% hObject    handle to edit_sigma_delay_time (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');

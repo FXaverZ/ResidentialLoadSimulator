@@ -1,6 +1,30 @@
 function wind_turbine_parameters = get_wind_turbine_parameters(idx_typ)
-%GET_WIND_TURBINE_PARAMETERS Summary of this function goes here
-%   Detailed explanation goes here
+%GET_WIND_TURBINE_PARAMETERS    Auslesen der Parameter der Windturbinen
+%    GET_WIND_TURBINE_PARAMETERS ist die Definitionsdatei für verschiedene
+%    Windturbinen und kann deren Parameter zurückgeben:
+%
+%    WIND_TURBINE_PARAMETERS = GET_WIND_TURBINE_PARAMETERS('typs') gibt alle
+%    Anlagennamen als [N,1]-Cell-Array zurück. Mit Hilfe dieser Namen kann der Index
+%    IDX_TYP ermittelt werden, um damit Parameterarrays einzelner Anlagen zu
+%    erhalten.
+%
+%    WIND_TURBINE_PARAMETERS = GET_WIND_TURBINE_PARAMETERS(IDX_TYP) gibt von der
+%    Anlage Nr. IDX_TYP die Parameter als [1,8]-Cell-Array zurück. Das Cell-Array
+%    enthält folgende Parameter:
+%        {name, rotor_typ, rotor_size, nom_power, v_nom, v_start, v_cut_off, c_p}
+%             name        ... Name der Anlage
+%             rotor_typ   ... Rotoraufbau
+%             rotor_size  ... Rotordurchmesser
+%             nom_power   ... Nennleistung
+%             v_nom       ... Windgeschwindigkeit für Nennleistung
+%             v_start     ... Anlaufwindgeschwindigkeit
+%             v_cut_off   ... Abschaltwindgeschwindigkeit
+%             c_p         ... c_p-Werte als [N,2]-Array:
+%                                 1.Spalte: Windgeschwindigkeit [m/s]
+%                                 2.Spalte: c_p = f(v_wind)
+% 
+%    WIND_TURBINE_PARAMETERS = GET_WIND_TURBINE_PARAMETERS('all') gibt sämtliche
+%    Parameter aller Anlagen als [N,8]-Cell-Array zurück.
 
 % Franz Zeilinger - 02.01.2012
 
@@ -14,8 +38,8 @@ rotor_typ =    '3-Blatt';    % Rotoraufbau
 rotor_size =         1.6;    % Rotordurchmesser [m]
 nom_power =          600;    % Nennleistung [W]
 v_nom =               11;    % Windgeschw. für Nennleistung [m/s]
-v_start =            0.8;    % Anlaufgeschwindigkeit [m/s]
-v_cut_off =         18.5;    % Abschaltgeschwindigkeit [m/s]
+v_start =            0.8;    % Anlaufwindgeschwindigkeit [m/s]
+v_cut_off =         18.5;    % Abschaltwindgeschwindigkeit [m/s]
 % Array mit Windgeschwindigkeits/Leistungsdaten:
 P_f_v = [...
 	 0,   0.0;...

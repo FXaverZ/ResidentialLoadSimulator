@@ -30,16 +30,18 @@ switch lower(parameter_typ)
 		plant.Typ = get(hObject,'Value');
 		switch plant_typ
 			case 'Wind'
-				% Im Fall einer Windenergieanlage die Werte der ausgewählten Anlage
-				% übernehmen:
-				parameters = get_wind_turbine_parameters(plant.Typ-1);
-				plant.Power_Installed = parameters{4};
-				plant.v_nominal = parameters{5};
-				plant.v_start = parameters{6};
-				plant.v_cut_off = parameters{7};
-				plant.Typ_Rotor = parameters{2};
-				plant.Size_Rotor = parameters{3};
-				plant.c_p =  parameters{8};
+				if plant.Typ > 1
+					% Im Fall einer Windenergieanlage die Werte der ausgewählten 
+					% Anlage übernehmen:
+					parameters = get_wind_turbine_parameters(plant.Typ-1);
+					plant.Power_Installed = parameters{4};
+					plant.v_nominal = parameters{5};
+					plant.v_start = parameters{6};
+					plant.v_cut_off = parameters{7};
+					plant.Typ_Rotor = parameters{2};
+					plant.Size_Rotor = parameters{3};
+					plant.c_p =  parameters{8};
+				end
 		end
 	case 'set_parameters'
 		switch plant_typ
