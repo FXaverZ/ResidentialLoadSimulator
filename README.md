@@ -1,5 +1,7 @@
 # ResidentialLoadSimulator
 Programm zur Simulation von Haushaltslasten in MATLAB.
+## Program Structure
+This picture show the structure of the NAT, on which die GAT ist based on. For more information see [https://github.com/FXaverZ/NetworkAnalysisTool](NetwiorkAnalysisTool).
 ## Versions
 * V3.12 - Abgabeversion Diplomarbeit
 * V3.12.01 - kleine Anpassungen - Version vor Beginn EDLEM
