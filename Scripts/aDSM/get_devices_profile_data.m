@@ -74,8 +74,9 @@ diary([pwd,filesep,datestr(now,'yyyy-mm-dd_HH-MM-SS'),' - Log.txt']);
 % Vektor mit allen Tagen erstellen (Neuer Beginn: 31.12.2012!):
 days = datenum(sim_year,1,1)-1:1:datenum(sim_year+1,1,1)-1;
 % Geräteklassen und Hilfsfunktionen in den Matlab-Suchpfad aufnehmen:
-addpath([pwd,filesep,'Klassen']);
-addpath([pwd,filesep,'Hilfsfunktionen']);
+upupFolder = fileparts(fileparts(pwd));
+addpath([upupFolder,filesep,'Klassen']);
+addpath([upupFolder,filesep,'Funktionen',filesep,'Hilfsfunktionen']);
 
 fprintf('\n============================');
 fprintf('\nBeginne mit Datenextraktion:');

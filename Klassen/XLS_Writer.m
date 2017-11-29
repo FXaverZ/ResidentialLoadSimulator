@@ -1,12 +1,13 @@
 classdef XLS_Writer < handle
 	%XLS_WRITER    Klasse zur Erstellung von und Navigation in .xls - Files
 	%    Mit Hilfe der verschiedenen Funktionen kann ein Output-Cell-Array
-	%    bearbeitet werden, welches die fertige .xls-Datei repräsentiert. Es 
+	%    bearbeitet werden, welches die fertige .xls-Datei repräsentiert. Es
 	%    werden auch mehrere Arbeitsblätter unterstützt.
 	%    Mit Hilfe des Befehls WRITE_OUTPUT(XLSN) wird dann das
 	%    Output-Cell-Array als .xls-Datei abgespeichert.
 	%
-	%    Franz Zeilinger - 14.06.2011
+	%    Erstellt: Franz Zeilinger - 14.06.2011
+	%    Letzte Änderung: Franz Zeilinger - 27.11.2017
 	
 	properties
 		row_count  %Aktuelle Zeile
@@ -22,7 +23,7 @@ classdef XLS_Writer < handle
 	methods
 		function obj = XLS_Writer()
 			%XLS_WRITER     Konstruktor der Klasse XLS-Writer
-			%    Setzen verschiedner Parameter und des Default-Worksheets (in das 
+			%    Setzen verschiedner Parameter und des Default-Worksheets (in das
 			%    die ersten Daten geschrieben werden).
 			
 			obj.wsheets = {};
@@ -35,15 +36,15 @@ classdef XLS_Writer < handle
 		
 		function write_output(obj, xlsn, varargin)
 			%WRITE_OUTPUT    Erzeugt ein .XLS-File aus den bisherigen Daten
-			%    WRITE_OUTPUT(XLSN) erzeugt das .xls-File mit dem Namen xlsn mit
+			%    WRITE_OUTPUT(XLSN) erzeugt das .xls-File mit dem Namen XLSN mit
 			%    den vorher definierten Arbeitsblättern. Wurde kein Arbeitsblatt
 			%    definiert,werden die Daten in das erste Arbeitsblatt eingefügt
 			%
-			%    WRITE_OUTPUT(XLSN, WSHN) schreibt die Daten in das neue 
+			%    WRITE_OUTPUT(XLSN, WSHN) schreibt die Daten in das neue
 			%    Arbeitsblatt 'WSHN' sofern kein anderes definiert wurde.
 			%
-			%    WRITE_OUTPUT(XLSN, WSHN, START_CELL) schreibt die Daten 
-			%    beginnend mit der Zelle, die in START_CELL definiert wurde 
+			%    WRITE_OUTPUT(XLSN, WSHN, START_CELL) schreibt die Daten
+			%    beginnend mit der Zelle, die in START_CELL definiert wurde
 			%    (gem. MS Excel Anforderungnen)
 			
 			% Warnungen für neue Tabelle ignorieren (uninteressant):
@@ -59,9 +60,30 @@ classdef XLS_Writer < handle
 					xlswrite(xlsn, out, varargin{1}, varargin{2});
 				end
 			else
+				wsheets_short = obj.wsheets;
 				for i=1:numel(obj.wsheets)
 					outp = obj.output.(['WSH',num2str(i)]);
-					wshn = obj.wsheets{i};
+					wshn = wsheets_short{i};
+					
+					% get sure, that the worksheet name is not too long!
+					if length(wshn) > 31
+						wshn = wshn(1:31);
+						ind2 = find(strcmpi(wshn, wsheets_short));
+						counter = 1;
+						while ~isempty(ind2)
+							if counter < 10
+								wshn = [wshn(1:end-2),'_',num2str(counter)];
+							elseif counter < 100
+								wshn = [wshn(1:end-3),'_',num2str(counter)];
+							elseif counter < 1000
+								wshn = [wshn(1:end-4),'_',num2str(counter)];
+							end
+							counter = counter + 1;
+							ind2 = find(strcmpi(wshn, wsheets_short));
+						end
+						wsheets_short{i} = wshn;
+					end
+					
 					xlswrite(xlsn, outp, wshn, 'A1');
 				end
 			end
@@ -107,7 +129,7 @@ classdef XLS_Writer < handle
 					input_cell = input;
 				end
 				% Daten in OUTPUT schreiben:
-                obj.output.(['WSH',num2str(obj.wsh_count)])...
+				obj.output.(['WSH',num2str(obj.wsh_count)])...
 					(row_c:row_c+rows-1, col_c:col_c+cols-1)= input_cell;
 				% Aktuelle Position ermitteln (nach Eintrag der Daten):
 				obj.row_count.(['WSH',num2str(obj.wsh_count)]) = ...
@@ -131,9 +153,9 @@ classdef XLS_Writer < handle
 			%NEXT_ROW    springen in die nächste Zeile
 			%    NEXT_ROW() sorgt für den Beginn einer neuen Zeile. Die
 			%    Beginn-Spalte zurückgesetzt (auf die aktuelle Ebene)
-			%    
-			%    NEXT_ROW(NUM_ROWS) fügt NUM_ROWS leere Zeilen ein. NUM_ROWS 
-			%    kann auch negativ sein, so kann um NUM_ROWS zurückgesprungen 
+			%
+			%    NEXT_ROW(NUM_ROWS) fügt NUM_ROWS leere Zeilen ein. NUM_ROWS
+			%    kann auch negativ sein, so kann um NUM_ROWS zurückgesprungen
 			%    werden.
 			
 			row = obj.row_count.(['WSH',num2str(obj.wsh_count)]);
@@ -152,11 +174,11 @@ classdef XLS_Writer < handle
 		
 		function next_col(obj, varargin)
 			%NEXT_COL    springen in die nächste Spalte
-			%    NEXT_COL() sorgt für den Beginn einer neuen Spalte in der 
+			%    NEXT_COL() sorgt für den Beginn einer neuen Spalte in der
 			%    aktuellen Zeile.
-			%    
+			%
 			%    NEXT_COL(NUM_COLS) fügt NUM_COLS leere Spalten in der aktuellen
-			%    Zeilen ein. NUM_COLS kann auch negativ sein, so kann um  
+			%    Zeilen ein. NUM_COLS kann auch negativ sein, so kann um
 			%    NUM_COLS zurückgesprungen werden.
 			
 			col = obj.col_count.(['WSH',num2str(obj.wsh_count)]);
