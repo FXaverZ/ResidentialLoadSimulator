@@ -1,6 +1,5 @@
 function v_wind = load_wind_data(path, name)
 %LOAD_WIND_DATA Laden und Aufbereiten von Windgeschwindigkeitsmessungen
-%   Beschreibung fehlt!
 
 % Franz Zeilinger - 20.12.2011
 

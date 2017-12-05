@@ -29,6 +29,7 @@ clear;
 
 % Pfad festlegen:
 path = [pwd,filesep,'Wetterdaten',filesep,'Einstrahlungsdaten'];
+save_path = [pwd,filesep,'Simulationsergebnisse'];
 
 % definieren der Inhaltsstruktur:
 Content.seasons = {'Summer'; 'Winter'; 'Transi'};
@@ -198,7 +199,10 @@ for i=1:numel(Content.seasons)
 end
 
 % Daten speichern:
-save([path,filesep,'Weatherdata_Sola_Radiation.mat'],'Radiation_Tracker',...
+if ~isdir(save_path)
+	mkdir(save_path);
+end
+save([save_path,filesep,'Weatherdata_Sola_Radiation.mat'],'Radiation_Tracker',...
 	'Radiation_fixed_Plane', 'Content');
 
 % % Daten weiterverarbeiten: (Test)
