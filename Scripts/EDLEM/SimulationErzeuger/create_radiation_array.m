@@ -81,6 +81,7 @@ for i=1:numel(Content.seasons)
 	season = Content.seasons{i};
 	for j=1:numel(Content.allo_mo.(season))
 		month = Content.allo_mo.(season)(j);
+		missing = false;
 		if isdir([path,filesep,num2str(month,'%02.0f')])
 			% get the start of the filename of all data files
 			if isempty(file_name_start)
@@ -95,6 +96,7 @@ for i=1:numel(Content.seasons)
 		else
 			fprintf(['MISSING: No data for Month ',num2str(month,'%02.0f'),...
 				' found!\n'])
+			missing = true;
 			continue;
 		end
 		for k=1:numel(Content.orienta)
@@ -111,11 +113,13 @@ for i=1:numel(Content.seasons)
 					fprintf(['MISSING: No data for Inclination ',...
 						num2str(inclina),'° and Orientation ',...
 						num2str(orienta),'° within Month ',...
-						num2str(month,'%02.0f'),' found!\n'])
+						num2str(month,'%02.0f'),' found!\n']);
+					missing = true;
 					continue;
 				end
 				% laden des Files:
 				data = textscan(fileID,reading_format_string);
+				fclose(fileID);
 				raw_data = cell(numel(data{1,1}),Content.num_columns_Datainputfiles);
 				for m=1:Content.num_columns_Datainputfiles
 					raw_data(1:numel(data{1,m}),m) = deal(data{1,m});
@@ -195,6 +199,9 @@ for i=1:numel(Content.seasons)
 				end
 			end
 		end
+		if ~missing
+			fprintf(['\tMonth ',num2str(month,'%02.0f'),' complete!\n']);
+		end
 	end
 end
 
@@ -204,6 +211,7 @@ if ~isdir(save_path)
 end
 save([save_path,filesep,'Weatherdata_Sola_Radiation.mat'],'Radiation_Tracker',...
 	'Radiation_fixed_Plane', 'Content');
+fprintf('---\n');
 
 % % Daten weiterverarbeiten: (Test)
 % % Eingangsparameter:
