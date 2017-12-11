@@ -32,12 +32,12 @@ time_fine = time(1):1/86400:time(end);
 % Interpolieren der Zeitreihen, zuerst direkte Einstrahlung:
 rad_dir = squeeze(...
 	interp3(x,y,z,data_dir,X,Y,Z,'spline'))';
-rad_dir(rad_dir<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
+% rad_dir(rad_dir<0) = 0; % negative Werte zu Null setzen (Überschwingen der
 %                                 Interpolation)
 % dann die diffuse Strahlung:
 rad_dif = squeeze(...
 	interp3(x,y,z,data_dif,X,Y,Z,'spline'))';
-rad_dif(rad_dif<0) = 0; % negative Werte zu Null setzen (Überschwingen der 
+% rad_dif(rad_dif<0) = 0; % negative Werte zu Null setzen (Überschwingen der
 %                                 Interpolation)
 
 % Zeitpunkte vor Sonnenauf- und Untergang hinzufügen (Strahlung = 0):
@@ -52,19 +52,49 @@ rad_add_fine = zeros(size(time_add_fine));
 rad_dir = [rad_dir, rad_add_fine];
 rad_dif = [rad_dif, rad_add_fine];
 
+% Abschneiden des Schwingens, das durch die Interpolation erzeugt wurde:
+idx_sunrise = find(data_dir(1,1,:)>0,1);
+idx_zero_front = find(rad_dir(time_fine<time(idx_sunrise+1))<0,1,'last');
+rad_dir(1:idx_zero_front) = 0;
+idx_zero_back = find(rad_dir<0,1);
+rad_dir(idx_zero_back:end) = 0;
+
+idx_zero_front = find(rad_dif(time_fine<time(idx_sunrise+1))<0,1,'last');
+rad_dif(1:idx_zero_front) = 0;
+idx_zero_back = find(rad_dif<0,1);
+rad_dif(idx_zero_back:end) = 0;
+
 % Nun liegen die Strahlungswerte in Sekundenauflösung für 24h vor interpoliert auf
 % die Neigung und Orientierung der betrachteten Solaranlagen. Mit diesen Daten werden
 % nun die PV-Anlagen simuliert:
 data_phase = zeros(size(rad_dir,2),6*plant.Number);
 for i=1:plant.Number
 	% Anschluss der Anlage an eine Phase ermitteln:
-	phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
-	% Die Wolkeneinflussdaten innerhalb einer gewissen Zeitspanne verschieben, weil 
+	if strcmpi(plant.Phase_Allocation_Mode,'auto')
+		if plant.Power_Installed < plant.Max_Power_4_Single_Phase
+			% Einphasig:
+			phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
+			powr_factor = 1;
+		else
+			% Dreiphasig:
+			phase_idx = [1,2,3];
+			powr_factor = 3;
+		end
+	elseif strcmpi(plant.Phase_Allocation_Mode,'1pha')
+		% Einphasig:
+		phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
+		powr_factor = 1;
+	elseif strcmpi(plant.Phase_Allocation_Mode,'3pha')
+		% Dreiphasig:
+		phase_idx = [1,2,3];
+		powr_factor = 3;
+	end
+	% Die Wolkeneinflussdaten innerhalb einer gewissen Zeitspanne verschieben, weil
 	% nicht alle Anlagen am gleichen Ort installiert sind. Dadurch, dass in den
 	% Nachststunden keine Strahlung vorhanden ist, können die fehlenden Werte einfach
 	% mit Null ersetzt werden:
 	% Gaussche Verteilung angegebener Standardabweichung:
-	delay = round((0.5-rand())*plant.Sigma_delay_time); 
+	delay = round((0.5-rand())*plant.Sigma_delay_time);
 	if delay < 0
 		data_cloud_factor_dev = data_cloud_factor(abs(delay):end);
 		data_cloud_factor_dev(end+1:86401) = 0;
@@ -86,9 +116,9 @@ for i=1:plant.Number
 	power_active = zeros(size(rad_total,2),3);
 	power_reacti = power_active;
 	% Leistungseinspeisung berechnen:
-	power_active(:,phase_idx) = rad_total*...
+	power_active(:,phase_idx) = repmat((rad_total*...
 		plant.Power_Installed*plant.Rel_Size_Collector*...
-		plant.Efficiency;
+		plant.Efficiency) / powr_factor, powr_factor,1)';
 	% die Daten speichern, [P_L1, Q_L1, P_L2, ...]:
 	data_phase(:,(1:2:6)+6*(i-1)) = power_active;
 	data_phase(:,(2:2:6)+6*(i-1)) = power_reacti;

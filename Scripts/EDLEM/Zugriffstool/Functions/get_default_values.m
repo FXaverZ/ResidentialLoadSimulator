@@ -59,6 +59,11 @@ handles.System.Sola.Typs = {...
 	'Tracker';...
 	};
 
+handles.System.Phase_Modes_Generation = {...
+	'auto', 'Zuordnung nach Anschlussleistung';...
+	'1pha', 'Einphasiger Anschluss';...
+	'3pha', 'Dreiphasiger Anschluss'...
+	};
 % Name der verfügbaren Windkraft-Anlagen auslesen:
 handles.System.Wind.Typs = get_wind_turbine_parameters('typs');
 handles.System.Wind.Typs = ['Keine Anlage ausgewählt'; handles.System.Wind.Typs];
@@ -94,6 +99,10 @@ Default_Plant.Rel_Size_Collector = 6.5; % Rel. Kollektorfläche     [m²/kWp]
 Default_Plant.Size_Collector = ...      % Kollektorfläche          [m²]
 	Default_Plant.Power_Installed * Default_Plant.Rel_Size_Collector;
 Default_Plant.Sigma_delay_time = 15;    % zeitl. Standardabweichung[s] 
+Default_Plant.Phase_Allocation_Mode = 'auto';  % Modus zur Phasenzuordnung der Anlage [-]
+                                               % siehe handles.System.Phase_Modes_Generation
+Default_Plant.Max_Power_4_Single_Phase = 4.601;% Max. Leistung für einphasigen Anschluss [kW]
+
 % Zwei Anlagen werden per Default angeboten:
 handles.System.Sola.Default_Plant = Default_Plant;
 handles.Current_Settings.Sola.Plant_1 = Default_Plant;
