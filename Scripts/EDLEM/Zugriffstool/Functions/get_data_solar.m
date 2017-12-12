@@ -88,6 +88,10 @@ switch settin.Worstcase_Generation
 		% Erzeugen einer Zufallszahl im Bereich [1, Anz._verf._Datensätze]
 		fortu = round(rand()*(numel(pool)-1))+1;
 		idx = pool(fortu); % Dieser Index bezeichnet den ausgewählten Datensatz!
+% % ---  FOR DEBUG OUTPUTS  ---
+% % Use always the same cloud factor index (for debug):
+% 		idx = 74;
+% % --- --- --- --- --- --- ---
 	case 2 % höchste Tagesenergieeinspeisung
 		% Monat auswählen mit den höchsten durchnschnittlichen Einstrahlungswerten
 		% bei der direkten Einstrahlung. Exemplarisch wird die geringste Neigung und
@@ -152,6 +156,12 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	load([path,filesep,name,'.mat']);
 	% die relevanten Daten auslesen:
 	data_cloud_factor = data_cloud_factor(:,idx_part);
+% % ---  FOR DEBUG OUTPUTS  ---
+	figure; plot(data_cloud_factor)
+	xls = XLS_Writer();
+	xls.set_worksheet('Cloud_Factor');
+	xls.write_values(data_cloud_factor);
+% % --- --- --- --- --- --- ---
 end
 
 % nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdate zur
@@ -165,11 +175,19 @@ for i=1:numel(plants)
 	end
 	switch plant.Typ
 		case 2 % Fix installierte Anlage
+% 			data_phase = model_pv_fix(plant, Content, data_cloud_factor,...
+% 				radiation_data_fix, month_fix);
+% % ---  FOR DEBUG OUTPUTS  ---
 			data_phase = model_pv_fix(plant, Content, data_cloud_factor,...
-				radiation_data_fix, month_fix);
+				radiation_data_fix, month_fix, xls);
+% % --- --- --- --- --- --- ---
 		case 3 % Tracker
+% 			data_phase = model_pv_tra(plant, data_cloud_factor,...
+% 				radiation_data_tra, month_tra, xls);
+% % ---  FOR DEBUG OUTPUTS  ---
 			data_phase = model_pv_tra(plant, data_cloud_factor,...
-				radiation_data_tra, month_tra);
+				radiation_data_tra, month_tra, xls);
+% % --- --- --- --- --- --- ---
 	end
 	% je nach Einstellungen, die relevanten Daten auslesen:
 	if settin.Data_Extract.get_Sample_Value
@@ -212,6 +230,9 @@ for i=1:numel(plants)
 		clear data_mean
 	end
 end
+% % ---  FOR DEBUG OUTPUTS  ---
+xls.write_output([num2str(idx),'-Input.xlsx']);
+% % --- --- --- --- --- --- ---
 
 % Ergebnis zurückschreiben:
 handles.Result.Solar = Solar;

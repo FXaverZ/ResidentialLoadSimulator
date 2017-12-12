@@ -1,5 +1,5 @@
-function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
-	radiation_data, month)
+% function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
+% 	radiation_data, month)
 %MODEL_PV_FIX    Modell einer fix aufgeständerten PV-Anlage
 %    DATA_PHASE = MODEL_PV_FIX(PLANT, CONTENT, DATA_CLOUD_FACTOR, RADIATION_DATA,...
 %    MONTH) ermittelt aus den übergebenen Einstrahlungsdaten (RADIATION_DATA
@@ -10,6 +10,11 @@ function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
 %    Struktur PLANT enthalten.
 
 % Franz Zeilinger - 28.06.2012
+
+% % ---  FOR DEBUG OUTPUTS  ---
+function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
+	radiation_data, month, xls)
+% % --- --- --- --- --- --- ---
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
 % daher wird diese nur vom ersten Element ausgelesen):
@@ -31,24 +36,23 @@ time_fine = time(1):1/86400:time(end);
 % neue Zeit mit Sekundenauflösung:
 % Interpolieren der Zeitreihen, zuerst direkte Einstrahlung:
 rad_dir = squeeze(...
-	interp3(x,y,z,data_dir,X,Y,Z,'spline'))';
-% rad_dir(rad_dir<0) = 0; % negative Werte zu Null setzen (Überschwingen der
-%                                 Interpolation)
+	interp3(x,y,z,data_dir,X,Y,Z,'spline',0))';
 % dann die diffuse Strahlung:
 rad_dif = squeeze(...
-	interp3(x,y,z,data_dif,X,Y,Z,'spline'))';
-% rad_dif(rad_dif<0) = 0; % negative Werte zu Null setzen (Überschwingen der
-%                                 Interpolation)
+	interp3(x,y,z,data_dif,X,Y,Z,'spline',0))';
 
 % Zeitpunkte vor Sonnenauf- und Untergang hinzufügen (Strahlung = 0):
-time_add_fine = 0:1/86400:time(1);
+time_add_fine = -1/86400:1/86400:time(1);
 time_add_fine = time_add_fine(1:end-1); % letzter Zeitpunkt ist bereits vorhanden.
 rad_add_fine = zeros(size(time_add_fine));
+time_fine = [time_add_fine, time_fine];
 rad_dir = [rad_add_fine, rad_dir];
 rad_dif = [rad_add_fine, rad_dif];
-time_add_fine = time(end):1/86400:1;
+
+time_add_fine = time(end):1/86400:(1+1/86400);
 time_add_fine = time_add_fine(2:end); % erster Zeitpunkt ist bereits vorhanden.
 rad_add_fine = zeros(size(time_add_fine));
+time_fine = [time_fine, time_add_fine];
 rad_dir = [rad_dir, rad_add_fine];
 rad_dif = [rad_dif, rad_add_fine];
 
@@ -63,6 +67,17 @@ idx_zero_front = find(rad_dif(time_fine<time(idx_sunrise+1))<0,1,'last');
 rad_dif(1:idx_zero_front) = 0;
 idx_zero_back = find(rad_dif<0,1);
 rad_dif(idx_zero_back:end) = 0;
+
+% % ---  FOR DEBUG OUTPUTS  ---
+rad_dir_d = rad_dir';
+rad_dif_d = rad_dif';
+xls.set_worksheet('rad_dir');
+xls.write_values(rad_dir_d);
+xls.reset_row;
+xls.set_worksheet('rad_dif');
+xls.write_values(rad_dif_d);
+xls.reset_row;
+% % --- --- --- --- --- --- ---
 
 % Nun liegen die Strahlungswerte in Sekundenauflösung für 24h vor interpoliert auf
 % die Neigung und Orientierung der betrachteten Solaranlagen. Mit diesen Daten werden
