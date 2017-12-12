@@ -7,7 +7,7 @@ classdef XLS_Writer < handle
 	%    Output-Cell-Array als .xls-Datei abgespeichert.
 	%
 	%    Erstellt: Franz Zeilinger - 14.06.2011
-	%    Letzte Änderung: Franz Zeilinger - 27.11.2017
+	%    Letzte Änderung: Franz Zeilinger - 12.12.2017
 	
 	properties
 		row_count  %Aktuelle Zeile
@@ -245,6 +245,11 @@ classdef XLS_Writer < handle
 			%RESET_LAYER setzt die aktuelle Datenebene auf die erste Ebene.
 			
 			obj.layer.(['WSH',num2str(obj.wsh_count)]) = 1;
+		end
+		
+		function reset_row(obj)
+			%RESET_ROW setzt den akutellen Zeilenzähler auf die erste Zeile
+			obj.row_count.(['WSH',num2str(obj.wsh_count)]) = 1;
 		end
 		
 		function set_worksheet(obj, wshn)
