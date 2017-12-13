@@ -1,5 +1,5 @@
-% function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
-% 	radiation_data, month)
+function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
+	radiation_data, month)
 %MODEL_PV_FIX    Modell einer fix aufgeständerten PV-Anlage
 %    DATA_PHASE = MODEL_PV_FIX(PLANT, CONTENT, DATA_CLOUD_FACTOR, RADIATION_DATA,...
 %    MONTH) ermittelt aus den übergebenen Einstrahlungsdaten (RADIATION_DATA
@@ -12,8 +12,8 @@
 % Franz Zeilinger - 28.06.2012
 
 % % ---  FOR DEBUG OUTPUTS  ---
-function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
-	radiation_data, month, xls)
+% function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
+% 	radiation_data, month, xls)
 % % --- --- --- --- --- --- ---
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
