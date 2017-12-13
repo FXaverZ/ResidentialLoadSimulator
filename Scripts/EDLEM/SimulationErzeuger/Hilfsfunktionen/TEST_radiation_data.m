@@ -14,14 +14,18 @@ inclina_dev = 45;
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
 % daher wird diese nur vom ersten Element ausgelesen):
-time = squeeze(Radiation_fixed_Plane(season,month,1,1,1,:))';
+idx = strcmpi(Content.dat_typ,'Time');
+time = squeeze(Radiation_fixed_Plane(season,month,1,1,idx,:))';
 % Strahlungsdaten (für alle Orientierungen und Neigungen sowie nur jene Zeitpunkte,
 % die größer Null sind (= nicht vorhandene Elemente)):
-% temp = squeeze(Radiation_fixed_Plane(season,month,:,:,2,time>0));
-data_dir = squeeze(Radiation_fixed_Plane(season,month,:,:,3,time>0));
-data_dif = squeeze(Radiation_fixed_Plane(season,month,:,:,4,time>0));
+% idx = strcmpi(Content.dat_typ,'temperature');
+% temp = squeeze(Radiation_fixed_Plane(season,month,:,:,idx,time>0));
+idx = strcmpi(Content.dat_typ,'DirectClearSyk_Irradiance');
+data_dir = squeeze(Radiation_fixed_Plane(season,month,:,:,idx,time>0));
+idx = strcmpi(Content.dat_typ,'Diffuse_Irradiance');
+data_dif = squeeze(Radiation_fixed_Plane(season,month,:,:,idx,time>0));
 data_single = squeeze(data_dir(12,2,:));
-% figure;plot(data_single);
+figure;plot(data_single);
 % Vektoren, auf denen die Daten beruhen, erstellen:
 time = time(time > 0);
 orienta = Content.orienta;
@@ -32,9 +36,9 @@ inclina = Content.inclina;
 time_fine = time(1):1/86400:time(end);
 % Interpolieren der Zeitreihen:
 rad_dev_dir = squeeze(...
-	interp3(x,y,z,data_dir,inclina_dev,orienta_dev,time_fine,'spline'))';
+	interp3(x,y,z,data_dir,inclina_dev,orienta_dev,time_fine,'spline',0))';
 rad_dev_dif = squeeze(...
-	interp3(x,y,z,data_dif,inclina_dev,orienta_dev,time_fine,'spline'))';
+	interp3(x,y,z,data_dif,inclina_dev,orienta_dev,time_fine,'spline',0))';
 
 % Zeitpunkte vor Sonnenauf- und Untergang hinzufügen:
 time_add_fine = 0:1/86400:time(1);

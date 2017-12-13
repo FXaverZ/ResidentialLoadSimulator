@@ -35,24 +35,24 @@ save_path = [pwd,filesep,'Simulationsergebnisse'];
 Content.seasons = {'Summer'; 'Winter'; 'Transi'};
 Content.orienta = [-120, -105, -90, -75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75, 90, 105, 120];
 Content.inclina = [0, 15, 30, 45, 60, 75, 90];
-Content.dat_typ = {'time', 'temperature', 'direct', 'diffuse', 'global'};
+Content.dat_typ = {'Time', 'Temperature', 'DirectClearSyk_Irradiance', 'Diffuse_Irradiance', 'Global_Irradiance'};
 % Zuordnung der Monate zu den Jahreszeiten:
 Content.allo_mo.Summer = [ 5,  6,  7,  8];
 Content.allo_mo.Winter = [11, 12,  1,  2];
 Content.allo_mo.Transi = [ 3,  4,  9, 10];
 % es kommen in den Quellfiles maximal 63 Zeitpunkte vor:
 Content.max_num_Datapoints = 63;
-Content.num_columns_Datainputfiles = 10;
-Content.num_emptyrows_Datainputfiles = 2;
-Content.num_RowHeader_Datainputfiles = 8;
-Content.Header_Datainputfiles.Time = 'Time';
-Content.Header_Datainputfiles.Temperature = 'Td';
-Content.Header_Datainputfiles.Global_Irradiation = 'G';
-Content.Header_Datainputfiles.Diffuse_Irradiation = 'Gd';
-Content.Header_Datainputfiles.DirectClearSyk_Irradiation = 'Gc';
-Content.Header_Datainputfiles.Global_Irradiation_Tracker = 'A';
-Content.Header_Datainputfiles.Diffuse_Irradiation_Tracker = 'Ad';
-Content.Header_Datainputfiles.DirectClearSyk_Irradiation_Tracker = 'Ac';
+Content.Datainputfiles.num_columns = 10;
+Content.Datainputfiles.num_emptyrows = 2;
+Content.Datainputfiles.num_RowHeader = 8;
+Content.Datainputfiles.Header.Time = 'Time';
+Content.Datainputfiles.Header.Temperature = 'Td';
+Content.Datainputfiles.Header.Global_Irradiance = 'G';
+Content.Datainputfiles.Header.Diffuse_Irradiance = 'Gd';
+Content.Datainputfiles.Header.DirectClearSyk_Irradiance = 'Gc';
+Content.Datainputfiles.Header.Global_Irradiance_Tracker = 'A';
+Content.Datainputfiles.Header.Diffuse_Irradiance_Tracker = 'Ad';
+Content.Datainputfiles.Header.DirectClearSyk_Irradiance_Tracker = 'Ac';
 % leere Ergebnisarrays erzeugen:
 Radiation_fixed_Plane = zeros(...
 	numel(Content.seasons),...
@@ -71,7 +71,7 @@ Radiation_Tracker = zeros(...
 file_name_start = [];
 reading_format_string = [];
 % Create a Formatstring for reading Inputfiles:
-for i=1:Content.num_columns_Datainputfiles
+for i=1:Content.Datainputfiles.num_columns
 	reading_format_string = [reading_format_string, '%s ']; %#ok<AGROW>
 end
 reading_format_string = reading_format_string(1:end-1);
@@ -120,20 +120,20 @@ for i=1:numel(Content.seasons)
 				% laden des Files:
 				data = textscan(fileID,reading_format_string);
 				fclose(fileID);
-				raw_data = cell(numel(data{1,1}),Content.num_columns_Datainputfiles);
-				for m=1:Content.num_columns_Datainputfiles
+				raw_data = cell(numel(data{1,1}),Content.Datainputfiles.num_columns);
+				for m=1:Content.Datainputfiles.num_columns
 					raw_data(1:numel(data{1,m}),m) = deal(data{1,m});
 				end
 				clear data
-				header = raw_data(Content.num_RowHeader_Datainputfiles - ...
-					Content.num_emptyrows_Datainputfiles,:);
+				header = raw_data(Content.Datainputfiles.num_RowHeader - ...
+					Content.Datainputfiles.num_emptyrows,:);
 				
 				% Ermitteln des Bereichs, in dem die relevanten Daten zu
 				% finden sind, basierend auf den Zeitstempeln:
-				start_idx = Content.num_RowHeader_Datainputfiles - ...
-					Content.num_emptyrows_Datainputfiles + 1;
+				start_idx = Content.Datainputfiles.num_RowHeader - ...
+					Content.Datainputfiles.num_emptyrows + 1;
 				idx_Time = find(strcmp(header,...
-					Content.Header_Datainputfiles.Time));
+					Content.Datainputfiles.Header.Time));
 				% Zeitpunkte auslesen:
 				time = raw_data(:,idx_Time);
 				end_idx = [];
@@ -155,47 +155,57 @@ for i=1:numel(Content.seasons)
 				
 				% Einstrahlung auf geneigte Fläche (freier Himmel)(W/m²):
 				idx = strcmp(header, ...
-					Content.Header_Datainputfiles.DirectClearSyk_Irradiation);
-				rad_incl = str2double(raw_data(start_idx:end_idx,idx));
+					Content.Datainputfiles.Header.DirectClearSyk_Irradiance);
+				rad_incl_clearsky = str2double(raw_data(start_idx:end_idx,idx));
 				% Diffuse Einstrahlung auf geneigte Fläche(W/m²):
 				idx = strcmp(header, ...
-					Content.Header_Datainputfiles.Diffuse_Irradiation);
+					Content.Datainputfiles.Header.Diffuse_Irradiance);
 				rad_incl_diff = str2double(raw_data(start_idx:end_idx,idx));
 				% Globale Einstrahlung auf geneigte Fläche (W/m²):
 				idx = strcmp(header, ...
-					Content.Header_Datainputfiles.Global_Irradiation);
+					Content.Datainputfiles.Header.Global_Irradiance);
 				rad_incl_global = str2double(raw_data(start_idx:end_idx,idx));
 				% Tagestemperatur
 				idx = strcmp(header, ...
-					Content.Header_Datainputfiles.Temperature);
+					Content.Datainputfiles.Header.Temperature);
 				temp = str2double(raw_data(start_idx:end_idx,idx));
 				% Werte ins Ergebnis-Array schreiben:
 				num_el = numel(time); % Anzahl der Elemente
-				Radiation_fixed_Plane(i,j,k,l,1,1:num_el)=time;
-				Radiation_fixed_Plane(i,j,k,l,2,1:num_el)=temp;
-				Radiation_fixed_Plane(i,j,k,l,3,1:num_el)=rad_incl;
-				Radiation_fixed_Plane(i,j,k,l,4,1:num_el)=rad_incl_diff;
-				Radiation_fixed_Plane(i,j,k,l,5,1:num_el)=rad_incl_global;
+				idx = strcmpi(Content.dat_typ,'Time');
+				Radiation_fixed_Plane(i,j,k,l,idx,1:num_el)=time;
+				idx = strcmpi(Content.dat_typ,'Temperature');
+				Radiation_fixed_Plane(i,j,k,l,idx,1:num_el)=temp;
+				idx = strcmpi(Content.dat_typ,'DirectClearSyk_Irradiance');
+				Radiation_fixed_Plane(i,j,k,l,idx,1:num_el)=rad_incl_clearsky;
+				idx = strcmpi(Content.dat_typ,'Diffuse_Irradiance');
+				Radiation_fixed_Plane(i,j,k,l,idx,1:num_el)=rad_incl_diff;
+				idx = strcmpi(Content.dat_typ,'Global_Irradiance');
+				Radiation_fixed_Plane(i,j,k,l,idx,1:num_el)=rad_incl_global;
 				% Werte für nachgeführte Ebene müssen nur einmal ermittelt werden:
 				if  l==1 && k ==1
 					% Einstrahlung auf nachgeführte Fläche (freier Himmel):
 					idx = strcmp(header, ...
-						Content.Header_Datainputfiles.DirectClearSyk_Irradiation_Tracker);
-					rad_trac = str2double(raw_data(start_idx:end_idx,idx));
+						Content.Datainputfiles.Header.DirectClearSyk_Irradiance_Tracker);
+					rad_trac_clearsky = str2double(raw_data(start_idx:end_idx,idx));
 					% Diffuse Einstrahlung auf nachgeführte Fläche (W/m²):
 					idx = strcmp(header, ...
-						Content.Header_Datainputfiles.Diffuse_Irradiation_Tracker);
+						Content.Datainputfiles.Header.Diffuse_Irradiance_Tracker);
 					rad_trac_diff = str2double(raw_data(start_idx:end_idx,idx));
 					% Globale Einstrahlung auf nachgeführte Fläche (W/m²):
 					idx = strcmp(header, ...
-						Content.Header_Datainputfiles.Global_Irradiation_Tracker);
+						Content.Datainputfiles.Header.Global_Irradiance_Tracker);
 					rad_trac_global = str2double(raw_data(start_idx:end_idx,idx));
 					% Werte ins Ergebnis-Array schreiben:
-					Radiation_Tracker(i,j,1,1:num_el)=time;
-					Radiation_Tracker(i,j,2,1:num_el)=temp;
-					Radiation_Tracker(i,j,3,1:num_el)=rad_trac;
-					Radiation_Tracker(i,j,4,1:num_el)=rad_trac_diff;
-					Radiation_Tracker(i,j,5,1:num_el)=rad_trac_global;
+					idx = strcmpi(Content.dat_typ,'time');
+					Radiation_Tracker(i,j,idx,1:num_el)=time;
+					idx = strcmpi(Content.dat_typ,'temperature');
+					Radiation_Tracker(i,j,idx,1:num_el)=temp;
+					idx = strcmpi(Content.dat_typ,'DirectClearSyk_Irradiance');
+					Radiation_Tracker(i,j,idx,1:num_el)=rad_trac_clearsky;
+					idx = strcmpi(Content.dat_typ,'Diffuse_Irradiance');
+					Radiation_Tracker(i,j,idx,1:num_el)=rad_trac_diff;
+					idx = strcmpi(Content.dat_typ,'Global_Irradiance');
+					Radiation_Tracker(i,j,idx,1:num_el)=rad_trac_global;
 				end
 			end
 		end

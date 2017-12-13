@@ -20,11 +20,13 @@ files.source.path_sola = [files.source.path,filesep,'Wetterdaten PV'];
 files.source.path_wind = [files.source.path,filesep,'Wetterdaten Wind'];
 files.sep = ' - '; %Seperator im Dateinamen
 
-setti.name_database = 'EDLEM_Datenbank_2.0';
+setti.name_database = 'EDLEM_Datenbank_2';
 
 %------------------------------------------------------------------------------------
 % Pfad zu den Klassendefinitionsdateien hinzufügen:
-addpath(pwd,filesep,'Klassen');
+upupFolder = fileparts(fileparts(pwd));
+up3Folder = fileparts(upupFolder);
+addpath([up3Folder,filesep,'Klassen']);
 
 % Ordner, in dem die Datenbank gespeichert werden soll:
 files.target.path = [pwd,filesep,setti.name_database];
@@ -139,6 +141,13 @@ for i = 1:size(files.source.names_load,2)
 	files.typ_allocation_hh.(sim_time).(hh).(hh_name).(season).(weekday) = i;
 end
 
+%------------------------------------------------------------------------------------
+% Abarbeiten der Lastprofile (Haushalte)
+%------------------------------------------------------------------------------------
+fprintf('\n-----------');
+fprintf('\n Households: ');
+fprintf('\n-----------');
+try
 % Vollständigkeit der einzelnen Datensätze überprüfen:
 times = fields(files.typ_allocation_hh);
 for i = 1:numel(times)
@@ -293,7 +302,7 @@ for i = 1:numel(setti.households)
 					for n=1:nu_hh
 						allo_hh = squeeze(allo(:,n,:));
 						instances = cell(size(allo_hh,1),1);
-						for o=1:size(allo_hh,1);
+						for o=1:size(allo_hh,1)
 							dev_idx = allo_hh(o,:);
 							dev_idx(dev_idx == 0) = [];
 							dev = devs.(devs.Elements_Varna{o})(dev_idx);
@@ -415,12 +424,16 @@ for i = 1:numel(setti.households)
 			num2str(counter_datasets_total,'%5.0f'),' Datensätze']);
 	end
 end
-fprintf('\n-----------');
+catch ME
+	fprintf('\nNo Household Data found!');
+end
 
 %------------------------------------------------------------------------------------
 % Abarbeiten der Erzeugerprofile (Solar)
 %------------------------------------------------------------------------------------
-
+fprintf('\n-----------');
+fprintf('\n Solar Infeed: ');
+fprintf('\n-----------');
 % Abarbeiten der Einstrahlungsdaten:
 try
 	% Laden von 'Content', 'Radiation_Tracker' und 'Radiation_fixed_Plane'
@@ -438,7 +451,7 @@ try
 			name = ['Gene',files.sep,season,files.sep,'Solar',files.sep,...
 				'Radiation'];
 			save([files.target.path,filesep,season,filesep,'Genera',filesep,...
-				name,'.mat'],'radiation_data_fix','radiation_data_tra','Content');
+				name,'.mat'],'radiation_data_fix','radiation_data_tra');
 		end
 	end
 	% Datei in den "Erledigt"-Ordner verschieben:
@@ -614,7 +627,9 @@ fprintf('\n-----------');
 %------------------------------------------------------------------------------------
 % Abarbeiten der Erzeugerprofile (Wind)
 %------------------------------------------------------------------------------------
-
+fprintf('\n-----------');
+fprintf('\n Solar Infeed: ');
+fprintf('\n-----------');
 % Einlesen der Dateinamen im Quellordner (enthalten die
 % Wolkeneinflussdaten):
 files.source.names_wind = dir(files.source.path_wind);

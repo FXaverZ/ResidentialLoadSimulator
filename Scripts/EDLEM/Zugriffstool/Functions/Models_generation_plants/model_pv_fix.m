@@ -18,11 +18,14 @@ function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
 % daher wird diese nur vom ersten Element ausgelesen):
-time = squeeze(radiation_data(month,1,1,1,:))';
+idx = strcmpi(content.dat_typ,'Time');
+time = squeeze(radiation_data(month,1,1,idx,:))';
 % Strahlungsdaten (für alle Orientierungen und Neigungen sowie nur jene Zeitpunkte,
 % die größer Null sind (= nicht vorhandene Elemente)):
-data_dir = squeeze(radiation_data(month,:,:,3,time>0));
-data_dif = squeeze(radiation_data(month,:,:,4,time>0));
+idx = strcmpi(content.dat_typ,'DirectClearSyk_Irradiance');
+data_dir = squeeze(radiation_data(month,:,:,idx,time>0));
+idx = strcmpi(content.dat_typ,'Diffuse_Irradiance');
+data_dif = squeeze(radiation_data(month,:,:,idx,time>0));
 % Temperatur:
 % temp = squeeze(Radiation_fixed_Plane(month,:,:,2,time>0));
 % Vektoren, mit den Stützstellen der Daten für die Interpolation erstellen:

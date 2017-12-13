@@ -1,4 +1,4 @@
-% function data_phase = model_pv_tra(plant, data_cloud_factor, ...
+% function data_phase = model_pv_tra(plant, content, data_cloud_factor, ...
 % 	radiation_data, month)
 %MODEL_PV_TRA    Modell eines PV-Trackers 
 %    DATA_PHASE = MODEL_PV_TRA(PLANT, CONTENT, DATA_CLOUD_FACTOR, RADIATION_DATA,...
@@ -12,17 +12,20 @@
 % Franz Zeilinger - 28.06.2012
 
 % % ---  FOR DEBUG OUTPUTS  ---
-function data_phase = model_pv_tra(plant, data_cloud_factor, ...
+function data_phase = model_pv_tra(plant, content, data_cloud_factor, ...
 	radiation_data, month, xls)
 % % --- --- --- --- --- --- ---
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
 % daher wird diese nur vom ersten Element ausgelesen):
-time = squeeze(radiation_data(month,1,:))';
+idx = strcmpi(content.dat_typ,'Time');
+time = squeeze(radiation_data(month,idx,:))';
 % Strahlungsdaten (nur jene Zeitpunkte, die größer Null sind (= nicht vorhandene
 % Elemente)):
-data_dir = squeeze(radiation_data(month,3,time>0))';
-data_dif = squeeze(radiation_data(month,4,time>0))';
+idx = strcmpi(content.dat_typ,'DirectClearSyk_Irradiance');
+data_dir = squeeze(radiation_data(month,idx,time>0))';
+idx = strcmpi(content.dat_typ,'Diffuse_Irradiance');
+data_dif = squeeze(radiation_data(month,idx,time>0))';
 % Temperatur:
 % temp = squeeze(Radiation_fixed_Plane(month,2,time>0));
 % Vektoren, mit den Stützstellen der Daten für die Interpolation erstellen:

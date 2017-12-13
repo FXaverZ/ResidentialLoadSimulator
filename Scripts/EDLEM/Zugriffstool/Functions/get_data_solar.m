@@ -90,14 +90,15 @@ switch settin.Worstcase_Generation
 		idx = pool(fortu); % Dieser Index bezeichnet den ausgewählten Datensatz!
 % % ---  FOR DEBUG OUTPUTS  ---
 % % Use always the same cloud factor index (for debug):
-% 		idx = 74;
+		idx = 76;
 % % --- --- --- --- --- --- ---
 	case 2 % höchste Tagesenergieeinspeisung
 		% Monat auswählen mit den höchsten durchnschnittlichen Einstrahlungswerten
 		% bei der direkten Einstrahlung. Exemplarisch wird die geringste Neigung und
 		% Südausrichtung herangezogen:
-		idx_orient = Content.orienta == 0; % Index der Südausrichtung
-		idx_inclin = Content.inclina == min(Content.inclina); % Index der geringsten
+		idx_orient = db_fil.setti.content_sola_data.orienta == 0; % Index der Südausrichtung
+		idx_inclin = db_fil.setti.content_sola_data.inclina == ...
+			min(db_fil.setti.content_sola_data.inclina); % Index der geringsten
 		% Neigung
 		% Anzahl der Datenpunkte jedes Monats ermitteln (d.h. Zeitwert > 0)
 		num_datapoi = sum(squeeze(...
@@ -117,8 +118,9 @@ switch settin.Worstcase_Generation
 		% Monat auswählen mit den geringsten durchnschnittlichen Einstrahlungswerten
 		% bei der direkten Einstrahlung. Exemplarisch wird die geringste Neigung und
 		% Südausrichtung herangezogen:
-		idx_orient = Content.orienta == 0; % Index der Südausrichtung
-		idx_inclin = Content.inclina == min(Content.inclina); % Index der geringsten
+		idx_orient = db_fil.setti.content_sola_data.orienta == 0; % Index der Südausrichtung
+		idx_inclin = db_fil.setti.content_sola_data.inclina == ...
+			min(db_fil.setti.content_sola_data.inclina); % Index der geringsten
 		% Neigung
 		% Anzahl der Datenpunkte jedes Monats ermitteln (d.h. Zeitwert > 0)
 		num_datapoi = sum(squeeze(...
@@ -175,18 +177,18 @@ for i=1:numel(plants)
 	end
 	switch plant.Typ
 		case 2 % Fix installierte Anlage
-% 			data_phase = model_pv_fix(plant, Content, data_cloud_factor,...
-% 				radiation_data_fix, month_fix);
+% 			data_phase = model_pv_fix(plant, db_fil.setti.content_sola_data, ...
+% 				data_cloud_factor, radiation_data_fix, month_fix);
 % % ---  FOR DEBUG OUTPUTS  ---
-			data_phase = model_pv_fix(plant, Content, data_cloud_factor,...
-				radiation_data_fix, month_fix, xls);
+			data_phase = model_pv_fix(plant, db_fil.setti.content_sola_data, ...
+				data_cloud_factor, radiation_data_fix, month_fix, xls);
 % % --- --- --- --- --- --- ---
 		case 3 % Tracker
-% 			data_phase = model_pv_tra(plant, data_cloud_factor,...
-% 				radiation_data_tra, month_tra, xls);
+% 			data_phase = model_pv_tra(plant, db_fil.setti.content_sola_data, ...
+% 				data_cloud_factor radiation_data_tra, month_tra);
 % % ---  FOR DEBUG OUTPUTS  ---
-			data_phase = model_pv_tra(plant, data_cloud_factor,...
-				radiation_data_tra, month_tra, xls);
+			data_phase = model_pv_tra(plant, db_fil.setti.content_sola_data, ...
+				data_cloud_factor, radiation_data_tra, month_tra, xls);
 % % --- --- --- --- --- --- ---
 	end
 	% je nach Einstellungen, die relevanten Daten auslesen:
