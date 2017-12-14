@@ -157,6 +157,30 @@ for i=1:numel(Content.seasons)
 				idx = strcmp(header, ...
 					Content.Datainputfiles.Header.DirectClearSyk_Irradiance);
 				rad_incl_clearsky = str2double(raw_data(start_idx:end_idx,idx));
+				% Find inconstancy in curves and try to correct them
+				test = rad_incl_clearsky(1:end-1)-rad_incl_clearsky(2:end);
+				test = sign(test);
+% 				figure;plot(test);
+				test2 = test(1:end-1)-test(2:end);
+% 				figure;plot(test2);
+				test3 = test2 > 1;
+% 				figure;plot(test3);
+				test4 = test2 < -1;
+% 				figure;plot(test4);
+				test5 = ([0;test4(1:end-1)] & test3) | ([test4(2:end);0] & test3);
+% 				figure;plot(test5);
+				test6 = [0;test5;0];
+				x=1:1:numel(test6);
+				figure;plotyy(x, rad_incl_clearsky,x, test6,'plot','stem');
+				idx = find(test6==1);
+				if ~isempty(idx)
+					rad_incl_clearsky_cor = rad_incl_clearsky;
+					for m=1:numel(idx)
+						rad_incl_clearsky_cor(idx(m)) = (rad_incl_clearsky_cor(idx(m)-1)+rad_incl_clearsky_cor(idx(m)+1))/2;
+					end
+					figure;plot(rad_incl_clearsky,'LineWidth',2);hold;plot(rad_incl_clearsky_cor,'r');hold off;
+					rad_incl_clearsky = rad_incl_clearsky_cor;
+				end
 				% Diffuse Einstrahlung auf geneigte Fläche(W/m²):
 				idx = strcmp(header, ...
 					Content.Datainputfiles.Header.Diffuse_Irradiance);
