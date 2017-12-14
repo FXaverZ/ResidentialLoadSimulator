@@ -9,8 +9,8 @@ load([upupFolder,filesep,upFolderName,filesep,'Simulationsergebnisse',filesep,..
 season = 1;
 month = 3;
 % Anlagenparameter:
-orienta_dev = 15;
-inclina_dev = 45;
+orienta_dev = -90;
+inclina_dev = 30;
 
 % Daten auslesen, zuerst die Zeit (ist für alle Orientierungen und Neigungen gleich,
 % daher wird diese nur vom ersten Element ausgelesen):
@@ -24,7 +24,9 @@ idx = strcmpi(Content.dat_typ,'DirectClearSyk_Irradiance');
 data_dir = squeeze(Radiation_fixed_Plane(season,month,:,:,idx,time>0));
 idx = strcmpi(Content.dat_typ,'Diffuse_Irradiance');
 data_dif = squeeze(Radiation_fixed_Plane(season,month,:,:,idx,time>0));
-data_single = squeeze(data_dir(12,2,:));
+data_single = squeeze(data_dir(3,3,:));
+figure;plot(data_single);
+data_single = squeeze(data_dir(15,3,:));
 figure;plot(data_single);
 % Vektoren, auf denen die Daten beruhen, erstellen:
 time = time(time > 0);

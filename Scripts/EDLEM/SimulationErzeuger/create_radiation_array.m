@@ -68,6 +68,10 @@ Radiation_Tracker = zeros(...
 	numel(Content.dat_typ),...
 	Content.max_num_Datapoints);
 
+% Hilfsfunktionen in Matlab-Suchpfad aufnehmen:
+addpath([pwd,filesep,'Hilfsfunktionen']);
+diary([save_path,filesep,'Weatherdata_Sola_Radiation.log']);
+
 file_name_start = [];
 reading_format_string = [];
 % Create a Formatstring for reading Inputfiles:
@@ -75,6 +79,7 @@ for i=1:Content.Datainputfiles.num_columns
 	reading_format_string = [reading_format_string, '%s ']; %#ok<AGROW>
 end
 reading_format_string = reading_format_string(1:end-1);
+
 
 % Die Erbebnisarrays befüllen:
 for i=1:numel(Content.seasons)
@@ -103,6 +108,7 @@ for i=1:numel(Content.seasons)
 			orienta = Content.orienta(k);
 			for l=1:numel(Content.inclina)
 				inclina = Content.inclina(l);
+				corr_radiation_needed = 0;
 				% File-Name zusamensetzen:
 				name = [path,filesep,num2str(month,'%02.0f'),filesep,...
 					file_name_start,...
@@ -110,7 +116,7 @@ for i=1:numel(Content.seasons)
 					num2str(orienta),'deg.txt'];
 				fileID = fopen(name);
 				if fileID == -1
-					fprintf(['MISSING: No data for Inclination ',...
+					fprintf(['\t\tMISSING: No data for Inclination ',...
 						num2str(inclina),'° and Orientation ',...
 						num2str(orienta),'° within Month ',...
 						num2str(month,'%02.0f'),' found!\n']);
@@ -157,38 +163,34 @@ for i=1:numel(Content.seasons)
 				idx = strcmp(header, ...
 					Content.Datainputfiles.Header.DirectClearSyk_Irradiance);
 				rad_incl_clearsky = str2double(raw_data(start_idx:end_idx,idx));
-				% Find inconstancy in curves and try to correct them
-				test = rad_incl_clearsky(1:end-1)-rad_incl_clearsky(2:end);
-				test = sign(test);
-% 				figure;plot(test);
-				test2 = test(1:end-1)-test(2:end);
-% 				figure;plot(test2);
-				test3 = test2 > 1;
-% 				figure;plot(test3);
-				test4 = test2 < -1;
-% 				figure;plot(test4);
-				test5 = ([0;test4(1:end-1)] & test3) | ([test4(2:end);0] & test3);
-% 				figure;plot(test5);
-				test6 = [0;test5;0];
-				x=1:1:numel(test6);
-				figure;plotyy(x, rad_incl_clearsky,x, test6,'plot','stem');
-				idx = find(test6==1);
-				if ~isempty(idx)
-					rad_incl_clearsky_cor = rad_incl_clearsky;
-					for m=1:numel(idx)
-						rad_incl_clearsky_cor(idx(m)) = (rad_incl_clearsky_cor(idx(m)-1)+rad_incl_clearsky_cor(idx(m)+1))/2;
-					end
-					figure;plot(rad_incl_clearsky,'LineWidth',2);hold;plot(rad_incl_clearsky_cor,'r');hold off;
+				rad_incl_clearsky_cor = correct_radiation_data(rad_incl_clearsky);
+				if ~isempty(rad_incl_clearsky_cor)
+					% 					figure;plot(rad_incl_clearsky,'LineWidth',2);hold;plot(rad_incl_clearsky_cor,'r');hold off;
 					rad_incl_clearsky = rad_incl_clearsky_cor;
+					fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
+						num2str(inclina),'° and Orientation ',...
+						num2str(orienta),'° within Month ',...
+						num2str(month,'%02.0f'),' made!\n']);
 				end
+				
 				% Diffuse Einstrahlung auf geneigte Fläche(W/m²):
 				idx = strcmp(header, ...
 					Content.Datainputfiles.Header.Diffuse_Irradiance);
 				rad_incl_diff = str2double(raw_data(start_idx:end_idx,idx));
+				rad_incl_diff_cor = correct_radiation_data(rad_incl_diff);
+				if ~isempty(rad_incl_diff_cor)
+					rad_incl_diff = rad_incl_diff_cor;
+				end
+				
 				% Globale Einstrahlung auf geneigte Fläche (W/m²):
 				idx = strcmp(header, ...
 					Content.Datainputfiles.Header.Global_Irradiance);
 				rad_incl_global = str2double(raw_data(start_idx:end_idx,idx));
+				rad_incl_global_cor = correct_radiation_data(rad_incl_global);
+				if ~isempty(rad_incl_global_cor)
+					rad_incl_global = rad_incl_global_cor;
+				end
+				
 				% Tagestemperatur
 				idx = strcmp(header, ...
 					Content.Datainputfiles.Header.Temperature);
@@ -211,14 +213,29 @@ for i=1:numel(Content.seasons)
 					idx = strcmp(header, ...
 						Content.Datainputfiles.Header.DirectClearSyk_Irradiance_Tracker);
 					rad_trac_clearsky = str2double(raw_data(start_idx:end_idx,idx));
+					rad_trac_clearsky_cor = correct_radiation_data(rad_trac_clearsky);
+					if ~isempty(rad_trac_clearsky_cor)
+						rad_trac_clearsky = rad_trac_clearsky_cor;
+					end
+					
 					% Diffuse Einstrahlung auf nachgeführte Fläche (W/m²):
 					idx = strcmp(header, ...
 						Content.Datainputfiles.Header.Diffuse_Irradiance_Tracker);
 					rad_trac_diff = str2double(raw_data(start_idx:end_idx,idx));
+					rad_trac_diff_cor = correct_radiation_data(rad_trac_diff);
+					if ~isempty(rad_trac_diff_cor)
+						rad_trac_diff = rad_trac_diff_cor;
+					end
+					
 					% Globale Einstrahlung auf nachgeführte Fläche (W/m²):
 					idx = strcmp(header, ...
 						Content.Datainputfiles.Header.Global_Irradiance_Tracker);
 					rad_trac_global = str2double(raw_data(start_idx:end_idx,idx));
+					rad_trac_global_cor = correct_radiation_data(rad_trac_global);
+					if ~isempty(rad_trac_global_cor)
+						rad_trac_global = rad_trac_global_cor;
+					end
+					
 					% Werte ins Ergebnis-Array schreiben:
 					idx = strcmpi(Content.dat_typ,'time');
 					Radiation_Tracker(i,j,idx,1:num_el)=time;
@@ -246,3 +263,4 @@ end
 save([save_path,filesep,'Weatherdata_Sola_Radiation.mat'],'Radiation_Tracker',...
 	'Radiation_fixed_Plane', 'Content');
 fprintf('---\n');
+diary('off');
