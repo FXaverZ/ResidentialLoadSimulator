@@ -167,10 +167,14 @@ for i=1:numel(Content.seasons)
 				if ~isempty(rad_incl_clearsky_cor)
 					% 					figure;plot(rad_incl_clearsky,'LineWidth',2);hold;plot(rad_incl_clearsky_cor,'r');hold off;
 					rad_incl_clearsky = rad_incl_clearsky_cor;
+					if ~corr_radiation_needed
 					fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
 						num2str(inclina),'° and Orientation ',...
 						num2str(orienta),'° within Month ',...
-						num2str(month,'%02.0f'),' made!\n']);
+						num2str(month,'%02.0f'),' made for ']);
+					corr_radiation_needed = 1;
+					end
+					fprintf('direct');
 				end
 				
 				% Diffuse Einstrahlung auf geneigte Fläche(W/m²):
@@ -180,6 +184,17 @@ for i=1:numel(Content.seasons)
 				rad_incl_diff_cor = correct_radiation_data(rad_incl_diff);
 				if ~isempty(rad_incl_diff_cor)
 					rad_incl_diff = rad_incl_diff_cor;
+					if ~corr_radiation_needed
+						fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
+							num2str(inclina),'° and Orientation ',...
+							num2str(orienta),'° within Month ',...
+							num2str(month,'%02.0f'),' made for ']);
+						corr_radiation_needed = 1;
+						fprintf('indirect');
+					else
+						fprintf(', indirect');
+					end
+					
 				end
 				
 				% Globale Einstrahlung auf geneigte Fläche (W/m²):
@@ -189,6 +204,19 @@ for i=1:numel(Content.seasons)
 				rad_incl_global_cor = correct_radiation_data(rad_incl_global);
 				if ~isempty(rad_incl_global_cor)
 					rad_incl_global = rad_incl_global_cor;
+					if ~corr_radiation_needed
+						fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
+							num2str(inclina),'° and Orientation ',...
+							num2str(orienta),'° within Month ',...
+							num2str(month,'%02.0f'),' made for ']);
+						corr_radiation_needed = 1;
+						fprintf('global');
+					else
+						fprintf(', global');
+					end
+				end
+				if corr_radiation_needed
+					fprintf(' radiation.\n');
 				end
 				
 				% Tagestemperatur
@@ -209,6 +237,7 @@ for i=1:numel(Content.seasons)
 				Radiation_fixed_Plane(i,j,k,l,idx,1:num_el)=rad_incl_global;
 				% Werte für nachgeführte Ebene müssen nur einmal ermittelt werden:
 				if  l==1 && k ==1
+					corr_radiation_needed = 0;
 					% Einstrahlung auf nachgeführte Fläche (freier Himmel):
 					idx = strcmp(header, ...
 						Content.Datainputfiles.Header.DirectClearSyk_Irradiance_Tracker);
@@ -216,6 +245,12 @@ for i=1:numel(Content.seasons)
 					rad_trac_clearsky_cor = correct_radiation_data(rad_trac_clearsky);
 					if ~isempty(rad_trac_clearsky_cor)
 						rad_trac_clearsky = rad_trac_clearsky_cor;
+						if ~corr_radiation_needed
+							fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
+								'within Month ', num2str(month,'%02.0f'),' made for ']);
+							corr_radiation_needed = 1;
+							fprintf('direct tracker');
+						end
 					end
 					
 					% Diffuse Einstrahlung auf nachgeführte Fläche (W/m²):
@@ -225,6 +260,14 @@ for i=1:numel(Content.seasons)
 					rad_trac_diff_cor = correct_radiation_data(rad_trac_diff);
 					if ~isempty(rad_trac_diff_cor)
 						rad_trac_diff = rad_trac_diff_cor;
+						if ~corr_radiation_needed
+							fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
+								'within Month ', num2str(month,'%02.0f'),' made for ']);
+							corr_radiation_needed = 1;
+							fprintf('diffuse tracker');
+						else
+							fprintf(', diffuse tracker');
+						end
 					end
 					
 					% Globale Einstrahlung auf nachgeführte Fläche (W/m²):
@@ -234,6 +277,14 @@ for i=1:numel(Content.seasons)
 					rad_trac_global_cor = correct_radiation_data(rad_trac_global);
 					if ~isempty(rad_trac_global_cor)
 						rad_trac_global = rad_trac_global_cor;
+						if ~corr_radiation_needed
+							fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
+								'within Month ', num2str(month,'%02.0f'),' made for ']);
+							corr_radiation_needed = 1;
+							fprintf('global tracker');
+						else
+							fprintf(', global tracker');
+						end
 					end
 					
 					% Werte ins Ergebnis-Array schreiben:
@@ -247,6 +298,9 @@ for i=1:numel(Content.seasons)
 					Radiation_Tracker(i,j,idx,1:num_el)=rad_trac_diff;
 					idx = strcmpi(Content.dat_typ,'Global_Irradiance');
 					Radiation_Tracker(i,j,idx,1:num_el)=rad_trac_global;
+					if corr_radiation_needed
+						fprintf(' radiation.\n');
+					end
 				end
 			end
 		end

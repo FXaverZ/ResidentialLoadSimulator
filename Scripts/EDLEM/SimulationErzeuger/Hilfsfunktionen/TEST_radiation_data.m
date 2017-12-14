@@ -38,9 +38,9 @@ inclina = Content.inclina;
 time_fine = time(1):1/86400:time(end);
 % Interpolieren der Zeitreihen:
 rad_dev_dir = squeeze(...
-	interp3(x,y,z,data_dir,inclina_dev,orienta_dev,time_fine,'spline',0))';
+	interp3(x,y,z,data_dir,inclina_dev,orienta_dev,time_fine,'linear',0))';
 rad_dev_dif = squeeze(...
-	interp3(x,y,z,data_dif,inclina_dev,orienta_dev,time_fine,'spline',0))';
+	interp3(x,y,z,data_dif,inclina_dev,orienta_dev,time_fine,'linear',0))';
 
 % Zeitpunkte vor Sonnenauf- und Untergang hinzufügen:
 time_add_fine = 0:1/86400:time(1);
@@ -56,21 +56,6 @@ time_fine = [time_fine, time_add_fine];
 rad_dev_dir = [rad_dev_dir, rad_add_fine];
 rad_dev_dif = [rad_dev_dif, rad_add_fine];
 % figure;plot(rad_dev_dir);
-% figure;plot(rad_dev_dif);
-
-% Abschneiden des Schwingens, das durch die Interpolation erzeugt wurde:
-idx_sunrise = find(data_dir(1,1,:)>0,1);
-idx_zero_front = find(rad_dev_dir(time_fine<time(idx_sunrise+1))<0,1,'last');
-rad_dev_dir(1:idx_zero_front) = 0;
-idx_zero_back = find(rad_dev_dir<0,1);
-rad_dev_dir(idx_zero_back:end) = 0;
-figure;plot(rad_dev_dir);
-
-idx_sunrise = find(data_dif(1,1,:)>0,1);
-idx_zero_front = find(rad_dev_dif(time_fine<time(idx_sunrise+1))<0,1,'last');
-rad_dev_dif(1:idx_zero_front) = 0;
-idx_zero_back = find(rad_dev_dif<0,1);
-rad_dev_dif(idx_zero_back:end) = 0;
 % figure;plot(rad_dev_dif);
 
 % Darstellen einzelnen Daten:
