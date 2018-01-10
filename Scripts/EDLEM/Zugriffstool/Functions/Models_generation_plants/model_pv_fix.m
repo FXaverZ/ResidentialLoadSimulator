@@ -9,7 +9,8 @@ function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
 %    Die Anlagenparamerter, nach der diese Berechnung durchgeführt wird, sind in der
 %    Struktur PLANT enthalten.
 
-% Franz Zeilinger - 28.06.2012
+% Erstellt von:            Franz Zeilinger - 28.06.2012
+% Letzte Änderung durch:   Franz Zeilinger - 10.01.2018
 
 % % ---  FOR DEBUG OUTPUTS  ---
 % function data_phase = model_pv_fix(plant, content, data_cloud_factor, ...
@@ -74,25 +75,7 @@ rad_dif = [rad_dif, rad_add_fine];
 data_phase = zeros(size(rad_dir,2),6*plant.Number);
 for i=1:plant.Number
 	% Anschluss der Anlage an eine Phase ermitteln:
-	if strcmpi(plant.Phase_Allocation_Mode,'auto')
-		if plant.Power_Installed < plant.Max_Power_4_Single_Phase
-			% Einphasig:
-			phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
-			powr_factor = 1;
-		else
-			% Dreiphasig:
-			phase_idx = [1,2,3];
-			powr_factor = 3;
-		end
-	elseif strcmpi(plant.Phase_Allocation_Mode,'1pha')
-		% Einphasig:
-		phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
-		powr_factor = 1;
-	elseif strcmpi(plant.Phase_Allocation_Mode,'3pha')
-		% Dreiphasig:
-		phase_idx = [1,2,3];
-		powr_factor = 3;
-	end
+	[phase_idx, powr_factor] = plant_get_phase_allocation(plant);
 	% Die Wolkeneinflussdaten innerhalb einer gewissen Zeitspanne verschieben, weil
 	% nicht alle Anlagen am gleichen Ort installiert sind. Dadurch, dass in den
 	% Nachststunden keine Strahlung vorhanden ist, können die fehlenden Werte einfach
@@ -122,7 +105,7 @@ for i=1:plant.Number
 	% Leistungseinspeisung berechnen:
 	power_active(:,phase_idx) = repmat((rad_total*...
 		plant.Power_Installed*plant.Rel_Size_Collector*...
-		plant.Efficiency) / powr_factor, powr_factor,1)';
+		plant.Efficiency) / powr_factor, powr_factor, 1)';
 	% die Daten speichern, [P_L1, Q_L1, P_L2, ...]:
 	data_phase(:,(1:2:6)+6*(i-1)) = power_active;
 	data_phase(:,(2:2:6)+6*(i-1)) = power_reacti;

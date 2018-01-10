@@ -2,7 +2,7 @@ function handles = get_data_solar (handles)
 %GET_DATA_SOLAR    extrahiert und simuliert die Einspeise-Daten der Solaranlagen
 
 % Erstellt von:            Franz Zeilinger - 04.07.2012
-% Letzte Änderung durch:   Franz Zeilinger - 16.08.2012
+% Letzte Änderung durch:   Franz Zeilinger - 20.12.2017
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
