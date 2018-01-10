@@ -2,18 +2,18 @@ function handles = get_data_wind (handles)
 %GET_DATA_WIND    extrahiert und simuliert die Einspeise-Daten der Windkraftanlagen
 
 % Erstellt von:            Franz Zeilinger - 04.07.2012
-% Letzte Änderung durch:   Franz Zeilinger - 16.08.2012
+% Letzte Änderung durch:   Franz Zeilinger - 10.01.2018
 
 system = handles.System;   % Systemvariablen
 settin = handles.Current_Settings; % aktuelle Einstellungen
 db_fil = settin.Database;  % Datenbankstruktur
 max_num_data_set = db_fil.setti.max_num_data_set*6; % Anzahl an Datensätzen in einer
-                                                    % Teildatei --> da im Fall von
-                                                    % Wetterdaten nur eine Spalte pro
-                                                    % Zeitreihe (im Gegensatz zu
-                                                    % sechs bei den Haushalten)
-                                                    % benötigt wird, die Anzahl
-                                                    % entsprechend erhöhen...
+%                                                     Teildatei --> da im Fall von
+%                                                     Wetterdaten nur eine Spalte pro
+%                                                     Zeitreihe (im Gegensatz zu
+%                                                     sechs bei den Haushalten)
+%                                                     benötigt wird, die Anzahl
+%                                                     entsprechend erhöhen...
 sep = db_fil.files.sep;    % Trenner im Dateinamen (' - ')
 
 % die aktuellen Zeitdaten (Jahreszeit, Wochentag) auslesen:
@@ -31,6 +31,7 @@ plants = fieldnames(handles.Current_Settings.Wind);
 number_plants = 0;
 for i=1:numel(plants)
 	plant = handles.Current_Settings.Wind.(plants{i});
+	% Falls keine Anlage ausgewählt, diesen Eintrag überspringen:
 	if plant.Typ == 1
 		continue;
 	else
@@ -60,6 +61,10 @@ switch settin.Worstcase_Generation
 		% Zufällig einen Winddatensatz auswählen durch Erzeugen einer Zufallszahl im
 		% Bereich [1, Anz._verf._Datensätze]:
 		idx = round(rand()*(num_data_sets-1))+1;
+% % ---  FOR DEBUG OUTPUTS  ---
+% % Use always the same winddata index (for debug):
+% 		idx = 27;
+% % --- --- --- --- --- --- ---
 	case 2 % höchste Tagesenergieeinspeisung
 		% Datensatz mit der höchsten durchschnittlichen Windgeschwindigkeit
 		% ermitteln:
@@ -93,6 +98,12 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	% die relevanten Daten auslesen:
 	data_v_wind = data_v_wind(:,idx_part); 
 end
+% % ---  FOR DEBUG OUTPUTS  ---
+% 	figure; plot(data_v_wind)
+% 	xls = XLS_Writer();
+% 	xls.set_worksheet('Wind_Data');
+% 	xls.write_values(data_v_wind);
+% % --- --- --- --- --- --- ---
 
 % nun stehen die Windgeschwindigkeiten zur Verfügung. Mit diesen Daten sowie den
 % definierten Anlagenparametern werden nun die Anlagen simuliert:
@@ -144,6 +155,10 @@ for i=1:numel(plants)
 		clear data_mean
 	end
 end
+
+% % ---  FOR DEBUG OUTPUTS  ---
+% xls.write_output([num2str(idx),'-Wind-Input.xlsx']);
+% % --- --- --- --- --- --- ---
 
 % Ergebnis zurückschreiben:
 handles.Result.Wind = Wind;

@@ -5,7 +5,7 @@ function handles = get_default_values(handles)
 %    das Startverhalten des Zugriffstools festgelegt.
 
 % Erstellt von:            Franz Zeilinger - 26.06.2012
-% Letzte Änderung durch:   Franz Zeilinger - 14.08.2012
+% Letzte Änderung durch:   Franz Zeilinger - 10.01.2018
 
 % Standardbezeichnungen:
 handles.System.seasons =   {... % Typen der Jahreszeiten
@@ -129,7 +129,10 @@ Default_Plant.c_p =            [];      % Tabelle mit Leistungsbeiwerten bei
 %                                             bestimmten Windgeschwindigkeiten (kommt 
 %                                             aus Anlagenparameterdatei
 %                                             "get_wind_trubine_parameters").
-Default_Plant.Sigma_delay_time = 15;    % zeitl. Standardabweichung        [s] 
+Default_Plant.Sigma_delay_time = 15;    % zeitl. Standardabweichung        [s]
+Default_Plant.Phase_Allocation_Mode = 'auto';  % Modus zur Phasenzuordnung der Anlage [-]
+                                               % siehe handles.System.Phase_Modes_Generation
+Default_Plant.Max_Power_4_Single_Phase = 4601; % Max. Leistung für einphasigen Anschluss [kW]
 handles.System.Wind.Default_Plant = Default_Plant;
 handles.Current_Settings.Wind.Plant_1 = Default_Plant;
 handles.Current_Settings.Wind.Plant_2 = Default_Plant;

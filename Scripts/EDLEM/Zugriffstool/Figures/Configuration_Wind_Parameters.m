@@ -179,6 +179,7 @@ function edit_sigma_delay_time_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.plant.Sigma_delay_time = str2double(get(hObject,'String'));
+handles.new_data = true; % neue Daten sind vorhanden!
 % Anzeige aktualisieren:
 handles = refresh_display_wind_configuration (handles);
 % handles-Struktur aktualisieren:

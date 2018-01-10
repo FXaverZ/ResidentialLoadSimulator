@@ -23,7 +23,7 @@ efficency = plant_parameters.Efficiency; % Wirkungsgrad Umrichter [-]
 data_phase = zeros(size(v_wind,1),6*plant_parameters.Number);
 for i=1:plant_parameters.Number
 	% Anschluss der Anlage an eine Phase ermitteln:
-	phase_idx = vary_parameter([1;2;3], ones(3,1)*100/3, 'List');
+	[phase_idx, powr_factor] = plant_get_phase_allocation(plant_parameters);
 	% Die Windgeschwindigkeiten innerhalb einer gewissen Zeitspanne verschieben, weil 
 	% nicht alle Anlagen am gleichen Ort installiert sind. Die fehlenden Werte gemäß
 	% dem für die Windaten verwendeten Algorithmus ersetzen (siehe Funktion
@@ -85,15 +85,16 @@ for i=1:plant_parameters.Number
 	v_wind_act(v_wind_act<0)=0;
 	
 	% die Beiwerte nach Betz berechnen (Interpolieren aus bekannten c_p-Werten):
-	c_p_act = interp1(c_p(:,1),c_p(:,2),v_wind_act,'cubic');
+	c_p_act = interp1(c_p(:,1),c_p(:,2),v_wind_act,'Linear',0);
 	
 	% Leistungsarrays initialisieren:
 	power_active = zeros(size(v_wind_act,1),3);
 	power_reacti = power_active;
 	
 	% Leistung berechnen:
-	power_active(:,phase_idx) = rho/2*(d_rotor^2*pi/4)*(v_wind_act.^3.*c_p_act)*...
-		efficency;
+	power_active(:,phase_idx) = repmat((rho/2*(d_rotor^2*pi/4)*(v_wind_act.^3.*c_p_act)*...
+		efficency) / powr_factor, 1, powr_factor);
+	
 	% die Daten speichern, [P_L1, Q_L1, P_L2, ...]:
 	data_phase(:,(1:2:6)+6*(i-1)) = power_active;
 	data_phase(:,(2:2:6)+6*(i-1)) = power_reacti;
