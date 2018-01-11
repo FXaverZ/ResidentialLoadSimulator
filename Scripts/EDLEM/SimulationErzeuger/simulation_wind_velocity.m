@@ -1,5 +1,7 @@
 clear;
 
+addpath([pwd,filesep,
+
 % Maximale Anzahl an Datensätzen in einem Teilergebnisfile:
 max_profiles_per_file = 50;
 % Speicherort für die Simulationsergebnisse:
