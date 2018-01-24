@@ -70,7 +70,7 @@ for j=1:num_days
 	
 	% Einfluss der Bewölkung interpoplieren:
 	time_fine = 0:1/86400:1;
-	cloud_factor_fine = interp1((0:1/8:1)',cloud_factor,time_fine, 'cubic');
+	cloud_factor_fine = interp1((0:1/8:1)',cloud_factor,time_fine, 'PCHIP');
 	% Grenzen anpassen, falls durch Interpolation diese verlassen wurden:
 	cloud_factor_fine(cloud_factor_fine < 0) = 0;
 	cloud_factor_fine(cloud_factor_fine > 1) = 1;
