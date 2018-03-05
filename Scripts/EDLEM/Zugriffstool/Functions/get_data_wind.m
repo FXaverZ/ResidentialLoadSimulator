@@ -63,7 +63,7 @@ switch settin.Worstcase_Generation
 		idx = round(rand()*(num_data_sets-1))+1;
 % % ---  FOR DEBUG OUTPUTS  ---
 % % Use always the same winddata index (for debug):
-% 		idx = 131;
+% 		idx = 27;
 % % --- --- --- --- --- --- ---
 	case 2 % höchste Tagesenergieeinspeisung
 		% Datensatz mit der höchsten durchschnittlichen Windgeschwindigkeit

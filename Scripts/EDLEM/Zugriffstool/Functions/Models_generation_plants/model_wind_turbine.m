@@ -49,7 +49,7 @@ for i=1:plant_parameters.Number
 		% Das neue Geschwindigkeitsarray zusammensetzen:
 		v_wind_act = v_wind(abs(delay):end);
 		v_wind_act = [v_wind_act; v_wind_add(2:end)]; %#ok<AGROW>
-	elseif delay > 0
+	else
 		% Array mit zu generierenden Windgeschwindigkeiten initialisieren:
 		v_wind_add = zeros(delay+1,1);
 		% Endwert ist letzter Wert der bekannten Daten:
@@ -68,25 +68,21 @@ for i=1:plant_parameters.Number
 		% Das neue Geschwindigkeitsarray zusammensetzen:
 		v_wind_act = v_wind(1:end-delay);
 		v_wind_act = [v_wind_add(1:end-1);v_wind_act]; %#ok<AGROW>
-	else
-		v_wind_act = v_wind;
 	end
 	% Trägheit des Windrades simulieren (Tiefpassfilterung). Grenzfrequenz ist durch
 	% die Angabe der Trägheit in Sekunden gegeben (Reziprokwert), welche aber für die
 	% Matlab-Filterfunktion auf die Nyquistfrequenz (= 1/2*Abtastfrequenz; in diesem
 	% Fall 0,5 Hz, da mit 1 Hz abgetastet wird (Sekundenwerte!)) normiert werden
 	% muss:
-	if t_interia > 0
-		[b,a] = butter_low(3,(1/t_interia)/(0.5));
-		% Für Filter dummy-Werte einfügen (zum Einschwingen des Filters):
-		v_wind_act = [ones(200,1)*v_wind_act(1); v_wind_act]; %#ok<AGROW>
-		% Filtern:
-		v_wind_act = filter(b,a,v_wind_act);
-		% dummy-Daten wieder löschen:
-		v_wind_act = v_wind_act(201:end);
-		% ev. auftretende negative Geschwindigkeiten (durch Filterung) eleminieren:
-		v_wind_act(v_wind_act<0)=0;
-	end
+	[b,a] = butter_low(3,(1/t_interia)/(0.5));
+	% Für Filter dummy-Werte einfügen (zum Einschwingen des Filters):
+	v_wind_act = [ones(200,1)*v_wind_act(1); v_wind_act]; %#ok<AGROW>
+	% Filtern:
+	v_wind_act = filter(b,a,v_wind_act);
+	% dummy-Daten wieder löschen:
+	v_wind_act = v_wind_act(201:end);
+	% ev. auftretende negative Geschwindigkeiten (durch Filterung) eleminieren:
+	v_wind_act(v_wind_act<0)=0;
 	
 	% die Beiwerte nach Betz berechnen (Interpolieren aus bekannten c_p-Werten):
 	c_p_act = interp1(c_p(:,1),c_p(:,2),v_wind_act,'Linear',0);
