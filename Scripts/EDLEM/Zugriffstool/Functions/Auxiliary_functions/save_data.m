@@ -537,6 +537,8 @@ time = time - datenum('30-Dec-1899'); % Zeitformat in Excel-Format bringen
 
 % die zu schreibenden Daten zusammensetzen:
 data_phase = [time, data];
+formatstring = repmat('%.1f;',[1,size(data,2)]);
+formatstring = ['%.5f;',formatstring(1:end-1),'\n'];
 
 % Titelzeilen generieren:
 [titl_phase, titl_infos] = get_header_text(System, Current_Settings);
@@ -560,11 +562,9 @@ file_phase = fopen(csvn_phase,'w');
 fprintf(file_phase,[simdate_str_csv{:},'\n']);
 fprintf(file_phase,[titl_infos_csv{:},'\n']);
 fprintf(file_phase,[titl_phase_csv{:},'\n']);
-fclose(file_phase);
 % Daten schreiben:
-dlmwrite(csvn_phase,data_phase,'-append',...
-	'delimiter',';',...
-	'precision','%1.5f');
+fprintf(file_phase,formatstring,data_phase');
+fclose(file_phase);
 end
 
 function save_as_xls (data_sample, data_mean, data_min, data_max, ...
