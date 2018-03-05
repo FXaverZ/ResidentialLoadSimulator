@@ -5,6 +5,7 @@
 *.asv
 *.mat
 *.log
+*.csv
 Scripts/leafs/03_Zwischenergebnisse/*/*.fig
 Scripts/EDLEM/SimulationErzeuger/Wetterdaten/Einstrahlungsdaten/*/*.txt
 Scripts/EDLEM/SimulationErzeuger/Wetterdaten/Windgewschindigkeitsdaten/*.txt
