@@ -146,7 +146,10 @@ function check_extract_5_95_quantile_value_Callback(hObject, ~, handles) %#ok<DE
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Extract.get_Sample_Value        = false;
+handles.Current_Settings.Data_Extract.get_Mean_Value          = false;
+handles.Current_Settings.Data_Extract.get_Min_Max_Value       = false;
+handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value = true;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -159,7 +162,10 @@ function check_extract_mean_value_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Extract.get_Mean_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Extract.get_Sample_Value        = false;
+handles.Current_Settings.Data_Extract.get_Mean_Value          = true;
+handles.Current_Settings.Data_Extract.get_Min_Max_Value       = false;
+handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value = false;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -172,7 +178,10 @@ function check_extract_min_max_value_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Extract.get_Min_Max_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Extract.get_Sample_Value        = false;
+handles.Current_Settings.Data_Extract.get_Mean_Value          = false;
+handles.Current_Settings.Data_Extract.get_Min_Max_Value       = true;
+handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value = false;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -185,7 +194,10 @@ function check_extract_sample_value_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Extract.get_Sample_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Extract.get_Sample_Value        = true;
+handles.Current_Settings.Data_Extract.get_Mean_Value          = false;
+handles.Current_Settings.Data_Extract.get_Min_Max_Value       = false;
+handles.Current_Settings.Data_Extract.get_5_95_Quantile_Value = false;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -211,7 +223,10 @@ function check_output_5_95_quantile_value_Callback(hObject, ~, handles) %#ok<DEF
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Output.get_Sample_Value        = false;
+handles.Current_Settings.Data_Output.get_Mean_Value          = false;
+handles.Current_Settings.Data_Output.get_Min_Max_Value       = false;
+handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = true;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -224,7 +239,10 @@ function check_output_mean_value_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Output.get_Mean_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Output.get_Sample_Value        = false;
+handles.Current_Settings.Data_Output.get_Mean_Value          = true;
+handles.Current_Settings.Data_Output.get_Min_Max_Value       = false;
+handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = false;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -237,7 +255,10 @@ function check_output_min_max_value_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Output.get_Min_Max_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Output.get_Sample_Value        = false;
+handles.Current_Settings.Data_Output.get_Mean_Value          = false;
+handles.Current_Settings.Data_Output.get_Min_Max_Value       = true;
+handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = false;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -250,7 +271,10 @@ function check_output_sample_value_Callback(hObject, ~, handles) %#ok<DEFNU>
 % ~			 nicht benötigt (MATLAB spezifisch)
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
-handles.Current_Settings.Data_Output.get_Sample_Value = get(hObject, 'Value');
+handles.Current_Settings.Data_Output.get_Sample_Value        = true;
+handles.Current_Settings.Data_Output.get_Mean_Value          = false;
+handles.Current_Settings.Data_Output.get_Min_Max_Value       = false;
+handles.Current_Settings.Data_Output.get_5_95_Quantile_Value = false;
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -806,6 +830,9 @@ function popup_time_resolution_Callback(hObject, ~, handles) %#ok<DEFNU>
 % handles    Struktur mit Grafiklinks und User-Daten (siehe GUIDATA)
 
 handles.Current_Settings.Data_Extract.Time_Resolution = get(hObject,'Value');
+if handles.Current_Settings.Data_Output.Time_Resolution < handles.Current_Settings.Data_Extract.Time_Resolution
+	handles.Current_Settings.Data_Output.Time_Resolution = handles.Current_Settings.Data_Extract.Time_Resolution;
+end
 
 % Anzeige aktualisieren:
 handles = refresh_display(handles);
@@ -909,7 +936,7 @@ set(handles.push_set_path_database,'Enable','off');
 % set(handles.push_export_data,'Enable','off');
 drawnow;
 
-try
+% try
 	% eventuell vorhandene Daten restlos Löschen:
 	if isfield(handles, 'Result')
 		handles = rmfield(handles, 'Result');
@@ -954,21 +981,21 @@ try
 		handles = get_data_solar(handles);
 		handles = get_data_wind(handles);
 	end
-catch ME
-	error_titl = 'Fehler beim extrahieren der Daten...';
-	error_text={...
-		'Ein Fehler ist aufgetreten:';...
-		'';...
-		ME.message};
-	errordlg(error_text, error_titl);
-	set(handles.push_close,'Enable','on');
-	set(handles.push_set_path_database,'Enable','on');
-	set(handles.push_export_data,'Enable','on');
-	handles = refresh_display(handles);
-	% handles-Struktur aktualisieren:
-	guidata(hObject, handles);
-% 	rethrow(ME);
-end
+% catch ME
+% 	error_titl = 'Fehler beim extrahieren der Daten...';
+% 	error_text={...
+% 		'Ein Fehler ist aufgetreten:';...
+% 		'';...
+% 		ME.message};
+% 	errordlg(error_text, error_titl);
+% 	set(handles.push_close,'Enable','on');
+% 	set(handles.push_set_path_database,'Enable','on');
+% 	set(handles.push_export_data,'Enable','on');
+% 	handles = refresh_display(handles);
+% 	% handles-Struktur aktualisieren:
+% 	guidata(hObject, handles);
+% % 	rethrow(ME);
+% end
 
 % Daten nachbearbeiten:
 handles = add_settings(handles);
