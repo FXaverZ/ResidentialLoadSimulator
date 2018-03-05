@@ -112,7 +112,9 @@ switch settin.Worstcase_Generation
 		month_tra = find(e_avg_tra == max(e_avg_tra),1); % Monat für Tracker
 		
 		% Datensatz mit der geringsten durchschnittlichen Bewölkung finden:
-		[~, I] = sort(data_info);
+		[data_info_sort, I] = sort(data_info);
+		% deal with possible NANs in data:
+		I = I (~isnan(data_info_sort));
 		idx = I(1);
 	case 3 % niedrigste Tagesenergieeinspeisung
 		% Monat auswählen mit den geringsten durchnschnittlichen Einstrahlungswerten
@@ -134,7 +136,9 @@ switch settin.Worstcase_Generation
 		month_tra = find(e_avg_tra == min(e_avg_tra),1); % Monat für Tracker
 		
 		% Datensatz mit der höchsten durchschnittlichen Bewölkung finden:
-		[~, I] = sort(data_info,'descend');
+		[data_info_sort, I] = sort(data_info,'descend');
+		% deal with possible NANs in data:
+		I = I (~isnan(data_info_sort));
 		idx = I(1);
 		% 	case 4
 end

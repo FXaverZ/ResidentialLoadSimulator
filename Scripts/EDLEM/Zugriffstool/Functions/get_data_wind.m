@@ -61,19 +61,23 @@ switch settin.Worstcase_Generation
 		% Zufällig einen Winddatensatz auswählen durch Erzeugen einer Zufallszahl im
 		% Bereich [1, Anz._verf._Datensätze]:
 		idx = round(rand()*(num_data_sets-1))+1;
-% ---  FOR DEBUG OUTPUTS  ---
-% Use always the same winddata index (for debug):
-		idx = 27;
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% % Use always the same winddata index (for debug):
+% 		idx = 131;
+% % --- --- --- --- --- --- ---
 	case 2 % höchste Tagesenergieeinspeisung
 		% Datensatz mit der höchsten durchschnittlichen Windgeschwindigkeit
 		% ermitteln:
-		[~, I] = sort(data_info(1,:),'descend'); 
+		[data_info_sort, I] = sort(data_info(1,:),'descend'); 
+		% deal with possible NANs in data:
+		I = I (~isnan(data_info_sort));
 		idx = I(1);
 	case 3 % niedrigste Tagesenergieeinspeisung
 		% Datensatz mit der niedrigsten durchschnittlichen Windgeschwindigkeit
 		% ermitteln:
-		[~, I] = sort(data_info(1,:)); 
+		[data_info_sort, I] = sort(data_info(1,:)); 
+		% deal with possible NANs in data:
+		I = I (~isnan(data_info_sort));
 		idx = I(1);
 % 	case 4
 end
@@ -98,26 +102,27 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	% die relevanten Daten auslesen:
 	data_v_wind = data_v_wind(:,idx_part); 
 end
-% ---  FOR DEBUG OUTPUTS  ---
-    % Create dummy winddata
-	data_v_wind = 0:20/numel(data_v_wind):20-(20/numel(data_v_wind));
-	data_v_wind = data_v_wind';
-% ---  FOR DEBUG OUTPUTS  ---
-	figure; plot(data_v_wind)
-	xls = XLS_Writer();
-	xls.set_worksheet('Wind_Data');
-	xls.write_values(data_v_wind);
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+%     % Create dummy winddata
+% 	data_v_wind = 0:20/numel(data_v_wind):20-(20/numel(data_v_wind));
+% 	data_v_wind = data_v_wind';
+% % --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% 	figure; plot(data_v_wind)
+% 	xls = XLS_Writer();
+% 	xls.set_worksheet('Wind_Data');
+% 	xls.write_values(data_v_wind);
+% % --- --- --- --- --- --- ---
 
 % nun stehen die Windgeschwindigkeiten zur Verfügung. Mit diesen Daten sowie den
 % definierten Anlagenparametern werden nun die Anlagen simuliert:
 for i=1:numel(plants)
 	plant = handles.Current_Settings.Wind.(plants{i});
-% ---  FOR DEBUG OUTPUTS  ---
-    % Deactivate all individual delays and interia values
-	plant.Sigma_delay_time = 0;
-	plant.Inertia = 0;
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+%     % Deactivate all individual delays and interia values
+% 	plant.Sigma_delay_time = 0;
+% 	plant.Inertia = 0;
+% % --- --- --- --- --- --- ---
 	% Falls keine Anlage ausgewählt, diesen Eintrag überspringen:
 	if plant.Typ == 1
 		continue;
@@ -165,9 +170,9 @@ for i=1:numel(plants)
 	end
 end
 
-% ---  FOR DEBUG OUTPUTS  ---
-xls.write_output([num2str(idx),'-Wind-Input.xlsx']);
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% xls.write_output([num2str(idx),'-Wind-Input.xlsx']);
+% % --- --- --- --- --- --- ---
 
 % Ergebnis zurückschreiben:
 handles.Result.Wind = Wind;

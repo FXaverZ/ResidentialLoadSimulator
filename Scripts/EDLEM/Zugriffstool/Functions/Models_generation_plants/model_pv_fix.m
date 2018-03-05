@@ -53,10 +53,19 @@ rad_dir = [rad_add_fine, rad_dir];
 rad_dif = [rad_add_fine, rad_dif];
 
 time_add_fine = time(end):1/86400:(1+1/86400);
-time_add_fine = time_add_fine(2:end); % erster Zeitpunkt ist bereits vorhanden.
+% time_add_fine = time_add_fine(2:end); % erster Zeitpunkt ist bereits vorhanden.
 rad_add_fine = zeros(size(time_add_fine));
 rad_dir = [rad_dir, rad_add_fine];
 rad_dif = [rad_dif, rad_add_fine];
+
+% Arry check, just to get sure, the sizes are compatible
+if numel(rad_dir) > numel(data_cloud_factor)
+	rad_dir = rad_dir(1:numel(data_cloud_factor));
+	rad_dif = rad_dif(1:numel(data_cloud_factor));
+end
+if numel(data_cloud_factor) > numel(rad_dir)
+	data_cloud_factor = data_cloud_factor(1:numel(rad_dir));
+end
 
 % % ---  FOR DEBUG OUTPUTS  ---
 % rad_dir_d = rad_dir';
@@ -84,10 +93,11 @@ for i=1:plant.Number
 	delay = round((0.5-rand())*plant.Sigma_delay_time);
 	if delay < 0
 		data_cloud_factor_dev = data_cloud_factor(abs(delay):end);
-		data_cloud_factor_dev(end+1:86401) = 0;
+		data_cloud_factor_dev(end+1:numel(rad_dir)) = 0;
 	else
 		data_cloud_factor_dev = data_cloud_factor(1:end-delay);
 		data_cloud_factor_dev = [zeros(delay,1);data_cloud_factor_dev]; %#ok<AGROW>
+		data_cloud_factor_dev = data_cloud_factor_dev(end-numel(rad_dir)+1:end);
 	end
 	
 	% Gesamte Einstrahlung ermitteln (setzt sich aus globaler und giffuser Strahlung

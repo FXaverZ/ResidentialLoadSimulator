@@ -165,7 +165,7 @@ for i=1:numel(Content.seasons)
 				rad_incl_clearsky = str2double(raw_data(start_idx:end_idx,idx));
 				rad_incl_clearsky_cor = correct_radiation_data(rad_incl_clearsky);
 				if ~isempty(rad_incl_clearsky_cor)
-					% 					figure;plot(rad_incl_clearsky,'LineWidth',2);hold;plot(rad_incl_clearsky_cor,'r');hold off;
+% 					figure;plot(rad_incl_clearsky,'LineWidth',2);hold;plot(rad_incl_clearsky_cor,'r');hold off;
 					rad_incl_clearsky = rad_incl_clearsky_cor;
 					if ~corr_radiation_needed
 					fprintf(['\t\tCORRECTION: Radiation data correction for Inclination ',...
