@@ -88,10 +88,10 @@ switch settin.Worstcase_Generation
 		% Erzeugen einer Zufallszahl im Bereich [1, Anz._verf._Datensätze]
 		fortu = round(rand()*(numel(pool)-1))+1;
 		idx = pool(fortu); % Dieser Index bezeichnet den ausgewählten Datensatz!
-% ---  FOR DEBUG OUTPUTS  ---
-% Use always the same cloud factor index (for debug):
-		idx = 82;
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% % Use always the same cloud factor index (for debug):
+% 		idx = 82;
+% % --- --- --- --- --- --- ---
 	case 2 % höchste Tagesenergieeinspeisung
 		% Monat auswählen mit den höchsten durchnschnittlichen Einstrahlungswerten
 		% bei der direkten Einstrahlung. Exemplarisch wird die geringste Neigung und
@@ -143,11 +143,11 @@ switch settin.Worstcase_Generation
 		% 	case 4
 end
 
-% ---  FOR DEBUG OUTPUTS  ---
-% Use always the same month index (for debug):
-month_fix = 1;
-month_tra = month_fix;
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% % Use always the same month index (for debug):
+% month_fix = 1;
+% month_tra = month_fix;
+% % --- --- --- --- --- --- ---
 
 % nun den ausgewählten Datensatz aus der richtigen Teildatei laden:
 for j=1:ceil(num_data_sets/max_num_data_set)
@@ -168,12 +168,12 @@ for j=1:ceil(num_data_sets/max_num_data_set)
 	load([path,filesep,name,'.mat']);
 	% die relevanten Daten auslesen:
 	data_cloud_factor = data_cloud_factor(:,idx_part);
-% ---  FOR DEBUG OUTPUTS  ---
-	figure; plot(data_cloud_factor)
-	xls = XLS_Writer();
-	xls.set_worksheet('Cloud_Factor');
-	xls.write_values(data_cloud_factor);
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% 	figure; plot(data_cloud_factor)
+% 	xls = XLS_Writer();
+% 	xls.set_worksheet('Cloud_Factor');
+% 	xls.write_values(data_cloud_factor);
+% % --- --- --- --- --- --- ---
 end
 
 % nun stehen für die Anlagen jeweils Einstrahlungsdaten sowie Wolkeneinflussdate zur
@@ -242,9 +242,9 @@ for i=1:numel(plants)
 		clear data_mean
 	end
 end
-% ---  FOR DEBUG OUTPUTS  ---
-xls.write_output([num2str(idx),'-Input.xlsx']);
-% --- --- --- --- --- --- ---
+% % ---  FOR DEBUG OUTPUTS  ---
+% xls.write_output([num2str(idx),'-Input.xlsx']);
+% % --- --- --- --- --- --- ---
 
 % Ergebnis zurückschreiben:
 handles.Result.Solar = Solar;
