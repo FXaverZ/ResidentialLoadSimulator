@@ -93,8 +93,12 @@ end
 
 % Jeweilige Varriierung durchführen:
 if nargin == 2
-	out = normrnd(mean, abs(mean.*sig/100));
+	out = nrmrnd(mean, abs(mean.*sig/100));
 elseif nargin == 3 && strcmpi(varargin{1},'time')
-	out = mean + normrnd(0,sig);
+	out = mean + nrmrnd(0,sig);
 end
+end
+
+function nrmmatrix = nrmrnd(mu, sigma)
+nrmmatrix = mu+sigma*randn;
 end
