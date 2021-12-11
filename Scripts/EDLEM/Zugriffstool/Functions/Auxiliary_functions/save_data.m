@@ -73,7 +73,7 @@ if output.get_Min_Max_Value && output.get_Min_Max_Value ~= extract.get_Min_Max_V
 		'den vorhandenen Daten keine berechnet werden! Bitte Einstellungen überprüfen!']);
 	throw(exception);
 end
-if ~output.get_Min_Max_Value && ~output.get_Mean_Value && ~output.get_Sample_Value
+if ~output.get_Min_Max_Value && ~output.get_Mean_Value && ~output.get_5_95_Quantile_Value && ~output.get_Sample_Value
 	% es sind keine Daten zur Speicherung ausgewählt!
 	exception = MException('VerifyOutput:NoDataSelected', ...
 		['Es sind keine Daten zur Speicherung ausgewählt! ',...
@@ -334,11 +334,11 @@ switch handles.Current_Settings.Data_Output.Datatyp
 			% die zu schreibenden Daten zusammensetzen:
 			data_phase = [data_hh_05q, data_pv_05q, data_wi_05q];
 			save_as_csvs(time_mean, data_phase, ...
-				'Minimalwerte', '_Min', ...
+				'5-Prozent-Quantile Werte', '_05q', ...
 				System, Current_Settings);
 			data_phase = [data_hh_95q, data_pv_95q, data_wi_95q];
 			save_as_csvs(time_mean, data_phase, ...
-				'Maximalwerte', '_Max', ...
+				'95-Prozent-Quantile Werte', '_95q', ...
 				System, Current_Settings);
 		end
 		
@@ -349,13 +349,15 @@ switch handles.Current_Settings.Data_Output.Datatyp
 		data_mean = [time_mean, data_hh_mean, data_pv_mean, data_wi_mean];
 		data_min = [time_mean, data_hh_min, data_pv_min, data_wi_min];
 		data_max = [time_mean, data_hh_max, data_pv_max, data_wi_max];
+        data_05q = [time_mean, data_hh_05q, data_pv_05q, data_wi_05q];
+        data_95q = [time_mean, data_hh_95q, data_pv_95q, data_wi_95q];
 		
 		% Titelzeilten generieren:
 		[titl_phase, titl_infos] = get_header_text(System, Current_Settings);
 		
 		% Excel-File schreiben:
 		save_as_xls (data_sample, data_mean, data_min, data_max, ...
-			titl_phase, titl_infos, System, Current_Settings);
+			data_05q, data_95q, titl_phase, titl_infos, System, Current_Settings);
 		
 	case 4 %.xls - EXCEL 97-2003 Spreadsheet
 		% die zu schreibenden Daten zusammensetzen:
@@ -363,6 +365,8 @@ switch handles.Current_Settings.Data_Output.Datatyp
 		data_mean = [time_mean, data_hh_mean, data_pv_mean, data_wi_mean];
 		data_min = [time_mean, data_hh_min, data_pv_min, data_wi_min];
 		data_max = [time_mean, data_hh_max, data_pv_max, data_wi_max];
+        data_05q = [time_mean, data_hh_05q, data_pv_05q, data_wi_05q];
+        data_95q = [time_mean, data_hh_95q, data_pv_95q, data_wi_95q];
 		
 		% Überprüfen, ob überhaupt in diesem Format gespeichert werden kann
 		% (Zeilenbeschränkung in MS EXCEL 2003):
@@ -370,7 +374,9 @@ switch handles.Current_Settings.Data_Output.Datatyp
 				size(data_sample,1) > 65500 || ...
 				size(data_mean,1)   > 65500 || ...
 				size(data_min,1)    > 65500 || ...
-				size(data_max,1)    > 65500
+				size(data_max,1)    > 65500 || ...
+				size(data_05q,1)    > 65500 || ...
+				size(data_95q,1)    > 65500
 			exception = MException('VerifyOutput:OutOfBounds', ...
 				['Zeilenzahl der Daten übersteigt max. Anzahl an verarbeitbaren ',...
 				'Zeilen in MS EXCEL! Auflösung reduzieren!']);
@@ -386,7 +392,9 @@ switch handles.Current_Settings.Data_Output.Datatyp
 			size(data_sample,2),...
 			size(data_mean,2),...
 			size(data_min,2),...
-			size(data_max,2)]);
+			size(data_max,2),...
+			size(data_05q,2),...
+			size(data_95q,2)]);
 		if max_col > 256
 			% Falls zuviele Spalten benötigt werden, diese in extra Files
 			% schreiben:
@@ -407,6 +415,8 @@ switch handles.Current_Settings.Data_Output.Datatyp
 				data_part_mean = [data_mean(:,1),data_mean(:,idx_col)];
 				data_part_min = [data_min(:,1),data_min(:,idx_col)];
 				data_part_max = [data_max(:,1),data_max(:,idx_col)];
+                data_part_05q = [data_05q(:,1),data_05q(:,idx_col)];
+				data_part_95q = [data_95q(:,1),data_95q(:,idx_col)];
 				titl_phase_part = [{'Zeit'},titl_phase(idx_col)];
 				titl_infos_part = [{''},titl_infos(idx_col)];
 				% Namen der Teildateien anpassen:
@@ -414,15 +424,15 @@ switch handles.Current_Settings.Data_Output.Datatyp
 					[handles.Current_Settings.Target.Name,'_',num2str(i,'%02.0f')];
 				% Die Daten in ein .xls schreiben:
 				save_as_xls (data_part_sample, data_part_mean, data_part_min, ...
-					data_part_max, titl_phase_part, titl_infos_part, ...
-					System, Current_Settings);
+					data_part_max, data_part_05q, data_part_95q, titl_phase_part,...
+                    titl_infos_part, System, Current_Settings);
 			end
 			% Ursprünglich eingestellten Dateinamen wieder zurückschreiben...
 			Current_Settings.Target.Name = handles.Current_Settings.Target.Name;
 		else
 			% Daten in ein .xls schreiben:
 			save_as_xls (data_sample, data_mean, data_min, data_max, ...
-				titl_phase, titl_infos, System, Current_Settings);
+                data_05q, data_95q, titl_phase, titl_infos, System, Current_Settings);
 		end
 end
 
@@ -568,7 +578,7 @@ fclose(file_phase);
 end
 
 function save_as_xls (data_sample, data_mean, data_min, data_max, ...
-	titl_phase, titl_infos, System, Current_Settings)
+	data_05q, data_95q, titl_phase, titl_infos, System, Current_Settings)
 
 % XLS_Writer initialisieren, schreiben in Tabellenblatt "Phasenleistung":
 xls = XLS_Writer();
@@ -617,6 +627,28 @@ if size(data_min,2)>1 && size(data_max,2)>1
 	xls.write_lines(titl_infos); % Infozeile
 	xls.write_lines(titl_phase); % Spaltenüberschriften
 	xls.write_lines(data_max); % Daten
+end
+if size(data_05q,2)>1 && size(data_95q,2)>1
+	% Tabellenblatt erstellen:
+	xls.set_worksheet('5-Prozent-Quantille');
+	% Zustzliche Infos sowie Inhalt schreiben:
+	xls.write_lines({...
+		'Jahreszeit:',System.seasons{Current_Settings.Season,2},'',...
+		'Wochentag:',System.weekdays{Current_Settings.Weekday,2},'',...
+		'Datentyp:','5-Prozent-Quantille'});
+	xls.write_lines(titl_infos); % Infozeile
+	xls.write_lines(titl_phase); % Spaltenüberschriften
+	xls.write_lines(data_05q); % Daten
+	% Tabellenblatt erstellen:
+	xls.set_worksheet('95-Prozent-Quantille');
+	% Zustzliche Infos sowie Inhalt schreiben:
+	xls.write_lines({...
+		'Jahreszeit:',System.seasons{Current_Settings.Season,2},'',...
+		'Wochentag:',System.weekdays{Current_Settings.Weekday,2},'',...
+		'Datentyp:','95-Prozent-Quantille'});
+	xls.write_lines(titl_infos); % Infozeile
+	xls.write_lines(titl_phase); % Spaltenüberschriften
+	xls.write_lines(data_95q); % Daten
 end
 
 % Dateiname .xls-File:
