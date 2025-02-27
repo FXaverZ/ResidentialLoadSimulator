@@ -1,5 +1,6 @@
 # ResidentialLoadSimulator
 Programm zur Simulation von Haushaltslasten in MATLAB.
+For more information see my [Phd Thesis](https://www.researchgate.net/publication/364322051_Methodik_zur_Bewertung_und_zum_Vergleich_von_Verteilnetz-Management-Konzepten#fullTextFileContent)
 ## Program Structure
 More Information can be found in the [Wiki](https://github.com/FXaverZ/ResidentialLoadSimulator/wiki)
 ## Versions
